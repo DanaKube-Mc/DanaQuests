@@ -18,6 +18,11 @@ public class QuestUser extends AbstractUser {
     private final Map<UUID, QuestData>       questData;
     private final Map<String, MilestoneData> milestoneData;
 
+    private final Set<String>          completedLoreQuests;
+    private final Map<String, Double>  rpgCategoryXP;
+    private final Map<String, Integer> rpgCategoryLevels;
+    private boolean                    trackerDisabled;
+
     private long newQuestsDate;
 
     public QuestUser(@NotNull UUID uuid,
@@ -27,12 +32,20 @@ public class QuestUser extends AbstractUser {
                      long newQuestsDate,
                      @NotNull Map<UUID, BattlePassData> battlePassData,
                      @NotNull Map<UUID, QuestData> questData,
-                     @NotNull Map<String, MilestoneData> milestoneData) {
+                     @NotNull Map<String, MilestoneData> milestoneData,
+                     @NotNull Set<String> completedLoreQuests,
+                     @NotNull Map<String, Double> rpgCategoryXP,
+                     @NotNull Map<String, Integer> rpgCategoryLevels,
+                     boolean trackerDisabled) {
         super(uuid, name, dateCreated, lastOnline);
         this.setNewQuestsDate(newQuestsDate);
         this.battlePassData = battlePassData;
         this.questData = questData;
         this.milestoneData = milestoneData;
+        this.completedLoreQuests = completedLoreQuests;
+        this.rpgCategoryXP = rpgCategoryXP;
+        this.rpgCategoryLevels = rpgCategoryLevels;
+        this.trackerDisabled = trackerDisabled;
     }
 
     public int countQuestsAmount() {
@@ -133,5 +146,63 @@ public class QuestUser extends AbstractUser {
     @Nullable
     public MilestoneData getMilestoneData(@NotNull String id) {
         return this.milestoneData.get(id);
+    }
+
+    @NotNull
+    public Set<String> getCompletedLoreQuests() {
+        return this.completedLoreQuests;
+    }
+
+    @NotNull
+    public Map<String, Double> getRpgCategoryXP() {
+        return this.rpgCategoryXP;
+    }
+
+    @NotNull
+    public Map<String, Integer> getRpgCategoryLevels() {
+        return this.rpgCategoryLevels;
+    }
+
+    public boolean hasCompletedLore(@NotNull String questId) {
+        return this.completedLoreQuests.contains(questId);
+    }
+
+    public void completeLoreQuest(@NotNull String questId) {
+        this.completedLoreQuests.add(questId);
+    }
+
+    public int getRPGLevel(@NotNull String category) {
+        return this.rpgCategoryLevels.getOrDefault(category, 1);
+    }
+
+    public double getRPGXP(@NotNull String category) {
+        return this.rpgCategoryXP.getOrDefault(category, 0.0);
+    }
+
+    public void addRPGXP(@NotNull String category, double amount) {
+        double currentXp = this.getRPGXP(category);
+        int currentLevel = this.getRPGLevel(category);
+        double newXp = currentXp + amount;
+        
+        while (true) {
+            double xpThreshold = 100.0 * currentLevel;
+            if (newXp >= xpThreshold) {
+                newXp -= xpThreshold;
+                currentLevel++;
+            } else {
+                break;
+            }
+        }
+        
+        this.rpgCategoryXP.put(category, newXp);
+        this.rpgCategoryLevels.put(category, currentLevel);
+    }
+
+    public boolean isTrackerDisabled() {
+        return this.trackerDisabled;
+    }
+
+    public void setTrackerDisabled(boolean flag) {
+        this.trackerDisabled = flag;
     }
 }

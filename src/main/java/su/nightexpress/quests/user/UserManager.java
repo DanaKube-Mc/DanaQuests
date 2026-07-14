@@ -9,6 +9,7 @@ import su.nightexpress.quests.milestone.data.MilestoneData;
 import su.nightexpress.quests.quest.data.QuestData;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.UUID;
 
@@ -27,6 +28,19 @@ public class UserManager extends AbstractUserManager<QuestsPlugin, QuestUser> {
         Map<UUID, QuestData> questData = new HashMap<>();
         Map<String, MilestoneData> milestoneData = new HashMap<>();
 
-        return new QuestUser(uuid, name, dateCreated, dateCreated, newQuestsDate, battlePassData, questData, milestoneData);
+        return new QuestUser(
+                uuid, 
+                name, 
+                dateCreated, 
+                dateCreated, 
+                newQuestsDate, 
+                battlePassData, 
+                questData, 
+                milestoneData,
+                new HashSet<>(),
+                new HashMap<>(),
+                new HashMap<>(),
+                false
+        );
     }
 }

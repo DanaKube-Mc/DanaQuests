@@ -38,6 +38,12 @@ public class QuestsCommands {
                 .withArguments(Arguments.playerName(ARG_PLAYER))
                 .executes(QuestsCommands::refreshQuests)
             )
+            .branch(Commands.hub("track", trackBuilder -> trackBuilder
+                .branch(Commands.literal("toggle")
+                    .permission(Perms.COMMAND_TRACK_TOGGLE)
+                    .executes(QuestsCommands::toggleTrack)
+                )
+            ))
             .executes(QuestsCommands::openQuests)
         );
         command.register();
@@ -78,6 +84,32 @@ public class QuestsCommands {
                 plugin.getUserManager().save(user);
             }
             context.send(Lang.QUESTS_REFRESHED_FOR, replacer -> replacer.replace(QuestsPlaceholders.PLAYER_NAME, user.getName()));
+        });
+        return true;
+    }
+
+    private static boolean toggleTrack(@NotNull CommandContext context, @NotNull ParsedArguments arguments) {
+        if (!context.isPlayer()) {
+            context.errorPlayerOnly();
+            return false;
+        }
+
+        Player player = context.getPlayerOrThrow();
+        plugin.getUserManager().manageUser(player.getUniqueId(), user -> {
+            if (user == null) {
+                context.errorBadPlayer();
+                return;
+            }
+
+            boolean newState = !user.isTrackerDisabled();
+            user.setTrackerDisabled(newState);
+            plugin.getUserManager().save(user);
+
+            if (newState) {
+                Lang.COMMAND_TRACK_DISABLED.message().send(player);
+            } else {
+                Lang.COMMAND_TRACK_ENABLED.message().send(player);
+            }
         });
         return true;
     }

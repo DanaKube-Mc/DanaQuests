@@ -17,6 +17,7 @@ import su.nightexpress.quests.task.TaskManager;
 import su.nightexpress.quests.quest.QuestManager;
 import su.nightexpress.quests.registry.Registries;
 import su.nightexpress.quests.task.TaskTypeRegistry;
+import su.nightexpress.quests.tracker.QuestTrackerManager;
 import su.nightexpress.quests.user.UserManager;
 
 import java.util.Optional;
@@ -89,11 +90,15 @@ public class QuestsPlugin extends NightPlugin {
             this.questManager.setup();
         }
 
+        QuestTrackerManager.setup(this);
+
         this.loadCommands();
     }
 
     @Override
     public void disable() {
+        QuestTrackerManager.shutdown();
+
         if (this.taskManager != null) this.taskManager.shutdown();
         if (this.milestoneManager != null) this.milestoneManager.shutdown();
         if (this.questManager != null) this.questManager.shutdown();

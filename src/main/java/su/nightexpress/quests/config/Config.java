@@ -152,4 +152,41 @@ public class Config {
     public static boolean isQuestsForBattlePass() {
         return QUESTS_BATTLE_PASS_MODE.get();
     }
+
+    public static final ConfigValue<Boolean> TRACKER_ENABLED = ConfigValue.create("tracker.enabled",
+        true,
+        "Enables the BossBar quest tracking."
+    );
+
+    public static final ConfigValue<String> TRACKER_BOSSBAR_COLOR = ConfigValue.create("tracker.bossbar.color",
+        "GREEN",
+        "Sets BossBar color. Options: BLUE, GREEN, PINK, PURPLE, RED, WHITE, YELLOW"
+    );
+
+    public static final ConfigValue<String> TRACKER_BOSSBAR_STYLE = ConfigValue.create("tracker.bossbar.style",
+        "PROGRESS",
+        "Sets BossBar style. Options: PROGRESS, NOTCHED_6, NOTCHED_10, NOTCHED_12, NOTCHED_20"
+    );
+
+    public static final ConfigValue<Integer> TRACKER_BOSSBAR_DISPLAY_DURATION = ConfigValue.create("tracker.bossbar.display-duration-seconds",
+        5,
+        "Time in seconds the BossBar is displayed."
+    );
+
+    public static final ConfigValue<Integer> TRACKER_BOSSBAR_SWITCHING_INTERVAL = ConfigValue.create("tracker.bossbar.switching-interval-seconds",
+        3,
+        "Interval in seconds to switch between active quest progress bars."
+    );
+
+    public static final ConfigValue<String> TRACKER_FORMATS_LORE = ConfigValue.create("tracker.bossbar.formats.lore",
+        "<blue>[Histoire] <yellow>%quest% <gray>- <white>%progress%/%required%"
+    );
+
+    public static final ConfigValue<String> TRACKER_FORMATS_ISLAND = ConfigValue.create("tracker.bossbar.formats.island",
+        "<purple>[Île] <yellow>%quest% <gray>- <white>%progress%/%required%"
+    );
+
+    public static final ConfigValue<String> TRACKER_FORMATS_PERSONAL = ConfigValue.create("tracker.bossbar.formats.personal",
+        "<green>[Quête] <yellow>%quest% <gray>- <white>%progress%/%required%"
+    );
 }

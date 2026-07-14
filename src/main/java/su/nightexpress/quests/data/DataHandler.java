@@ -12,6 +12,21 @@ import su.nightexpress.nightcore.db.sql.query.type.ValuedQuery;
 import su.nightexpress.nightcore.db.sql.util.WhereOperator;
 import su.nightexpress.nightcore.util.Lists;
 import su.nightexpress.quests.QuestsPlugin;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.Function;
+
+import com.google.common.reflect.TypeToken;
+
 import su.nightexpress.quests.battlepass.definition.BattlePassSeason;
 import su.nightexpress.quests.data.serialize.MilestoneDataSerializer;
 import su.nightexpress.quests.data.serialize.QuestCounterSerializer;
@@ -22,10 +37,6 @@ import su.nightexpress.quests.milestone.data.MilestoneData;
 import su.nightexpress.quests.quest.data.QuestData;
 import su.nightexpress.quests.battlepass.data.BattlePassData;
 import su.nightexpress.quests.user.QuestUser;
-
-import java.sql.ResultSet;
-import java.util.List;
-import java.util.function.Function;
 
 public class DataHandler extends AbstractUserDataManager<QuestsPlugin, QuestUser> {
 
@@ -50,6 +61,19 @@ public class DataHandler extends AbstractUserDataManager<QuestsPlugin, QuestUser
 
     static final String BP_TABLE = "bp_season";
 
+    public static final String ADDON_TABLE = "excellentquests_users_addon";
+    public static final String ISLANDS_TABLE = "excellentquests_islands";
+
+    static final Column COLUMN_ADDON_UUID = Column.of("uuid", ColumnType.STRING);
+    static final Column COLUMN_ADDON_LORE_COMPLETED = Column.of("lore_completed", ColumnType.STRING);
+    static final Column COLUMN_ADDON_RPG_XP = Column.of("rpg_xp", ColumnType.STRING);
+    static final Column COLUMN_ADDON_RPG_LEVELS = Column.of("rpg_levels", ColumnType.STRING);
+    static final Column COLUMN_ADDON_TRACKER_DISABLED = Column.of("tracker_disabled", ColumnType.BOOLEAN);
+
+    static final Column COLUMN_ISLANDS_KEY = Column.of("island_uuid_quest_id", ColumnType.STRING);
+    static final Column COLUMN_ISLANDS_OBJECTIVES = Column.of("objectives", ColumnType.STRING);
+    static final Column COLUMN_ISLANDS_COMPLETED = Column.of("completed", ColumnType.BOOLEAN);
+
     public DataHandler(@NotNull QuestsPlugin plugin) {
         super(plugin);
     }
@@ -66,6 +90,102 @@ public class DataHandler extends AbstractUserDataManager<QuestsPlugin, QuestUser
             COLUMN_BP_EXPIRE_DATE,
             COLUMN_BP_ACTIVE
         ));
+
+        this.createTable(ADDON_TABLE, Lists.newList(
+            COLUMN_ADDON_UUID,
+            COLUMN_ADDON_LORE_COMPLETED,
+            COLUMN_ADDON_RPG_XP,
+            COLUMN_ADDON_RPG_LEVELS,
+            COLUMN_ADDON_TRACKER_DISABLED
+        ));
+
+        this.createTable(ISLANDS_TABLE, Lists.newList(
+            COLUMN_ISLANDS_KEY,
+            COLUMN_ISLANDS_OBJECTIVES,
+            COLUMN_ISLANDS_COMPLETED
+        ));
+    }
+
+    @NotNull
+    public QuestUserAddon loadQuestUserAddon(@NotNull UUID uuid) {
+        String sql = "SELECT * FROM " + getTablePrefix() + ADDON_TABLE + " WHERE uuid = ?";
+        try (Connection connection = this.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, uuid.toString());
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    String loreCompletedStr = rs.getString("lore_completed");
+                    String rpgXpStr = rs.getString("rpg_xp");
+                    String rpgLevelsStr = rs.getString("rpg_levels");
+                    boolean trackerDisabled = rs.getBoolean("tracker_disabled");
+
+                    Set<String> loreCompleted = GSON.fromJson(loreCompletedStr, new TypeToken<Set<String>>(){}.getType());
+                    Map<String, Double> rpgXp = GSON.fromJson(rpgXpStr, new TypeToken<Map<String, Double>>(){}.getType());
+                    Map<String, Integer> rpgLevels = GSON.fromJson(rpgLevelsStr, new TypeToken<Map<String, Integer>>(){}.getType());
+
+                    if (loreCompleted == null) loreCompleted = new HashSet<>();
+                    if (rpgXp == null) rpgXp = new HashMap<>();
+                    if (rpgLevels == null) rpgLevels = new HashMap<>();
+
+                    return new QuestUserAddon(loreCompleted, rpgXp, rpgLevels, trackerDisabled);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return new QuestUserAddon(new HashSet<>(), new HashMap<>(), new HashMap<>(), false);
+    }
+
+    public void saveQuestUserAddon(@NotNull QuestUser user) {
+        String uuidStr = user.getId().toString();
+        String loreCompleted = GSON.toJson(user.getCompletedLoreQuests());
+        String rpgXp = GSON.toJson(user.getRpgCategoryXP());
+        String rpgLevels = GSON.toJson(user.getRpgCategoryLevels());
+        int trackerDisabled = user.isTrackerDisabled() ? 1 : 0;
+
+        String selectSql = "SELECT 1 FROM " + getTablePrefix() + ADDON_TABLE + " WHERE uuid = ?";
+        String insertSql = "INSERT INTO " + getTablePrefix() + ADDON_TABLE + " (uuid, lore_completed, rpg_xp, rpg_levels, tracker_disabled) VALUES (?, ?, ?, ?, ?)";
+        String updateSql = "UPDATE " + getTablePrefix() + ADDON_TABLE + " SET lore_completed = ?, rpg_xp = ?, rpg_levels = ?, tracker_disabled = ? WHERE uuid = ?";
+
+        try (Connection connection = this.getConnection()) {
+            boolean exists = false;
+            try (PreparedStatement selectStmt = connection.prepareStatement(selectSql)) {
+                selectStmt.setString(1, uuidStr);
+                try (ResultSet rs = selectStmt.executeQuery()) {
+                    if (rs.next()) {
+                        exists = true;
+                    }
+                }
+            }
+
+            if (exists) {
+                try (PreparedStatement updateStmt = connection.prepareStatement(updateSql)) {
+                    updateStmt.setString(1, loreCompleted);
+                    updateStmt.setString(2, rpgXp);
+                    updateStmt.setString(3, rpgLevels);
+                    updateStmt.setInt(4, trackerDisabled);
+                    updateStmt.setString(5, uuidStr);
+                    updateStmt.executeUpdate();
+                }
+            } else {
+                try (PreparedStatement insertStmt = connection.prepareStatement(insertSql)) {
+                    insertStmt.setString(1, uuidStr);
+                    insertStmt.setString(2, loreCompleted);
+                    insertStmt.setString(3, rpgXp);
+                    insertStmt.setString(4, rpgLevels);
+                    insertStmt.setInt(5, trackerDisabled);
+                    insertStmt.executeUpdate();
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void saveUser(@NotNull QuestUser user) {
+        super.saveUser(user);
+        this.saveQuestUserAddon(user);
     }
 
     @Override

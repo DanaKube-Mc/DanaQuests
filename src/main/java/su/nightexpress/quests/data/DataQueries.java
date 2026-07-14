@@ -3,6 +3,7 @@ package su.nightexpress.quests.data;
 import com.google.common.reflect.TypeToken;
 import su.nightexpress.nightcore.db.sql.query.impl.InsertQuery;
 import su.nightexpress.nightcore.db.sql.query.impl.UpdateQuery;
+import su.nightexpress.quests.QuestsAPI;
 import su.nightexpress.quests.battlepass.definition.BattlePassSeason;
 import su.nightexpress.quests.milestone.data.MilestoneData;
 import su.nightexpress.quests.quest.data.QuestData;
@@ -32,7 +33,22 @@ public class DataQueries {
             // Remove battle pass datas for expired battle pass seasons.
             battlePassData.values().removeIf(BattlePassData::isExpired);
 
-            return new QuestUser(uuid, name, dateCreated, lastOnline, newQuestsDate, battlePassData, questData, milestoneData);
+            QuestUserAddon addon = QuestsAPI.plugin().getDataHandler().loadQuestUserAddon(uuid);
+
+            return new QuestUser(
+                uuid, 
+                name, 
+                dateCreated, 
+                lastOnline, 
+                newQuestsDate, 
+                battlePassData, 
+                questData, 
+                milestoneData,
+                addon.getCompletedLoreQuests(),
+                addon.getRpgCategoryXP(),
+                addon.getRpgCategoryLevels(),
+                addon.isTrackerDisabled()
+            );
         }
         catch (SQLException exception) {
             exception.printStackTrace();

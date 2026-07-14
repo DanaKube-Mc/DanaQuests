@@ -321,4 +321,11 @@ public class Lang implements LangContainer {
     public static final TextLocale UI_ENTRY_REWARD_BATTLE_PASS_XP = LangEntry.builder("UI.Entry.Reward.BattlePass.XP")
         .text(DARK_GRAY.wrap("┃ " + WHITE.wrap("Battle Pass XP: ") + YELLOW.wrap(GENERIC_XP)));
 
+    public static final MessageLocale COMMAND_TRACK_ENABLED = LangEntry.builder("Command.Track.Enabled").chatMessage(
+        GREEN.wrap("Le suivi des quêtes par BossBar a été activé.")
+    );
+
+    public static final MessageLocale COMMAND_TRACK_DISABLED = LangEntry.builder("Command.Track.Disabled").chatMessage(
+        RED.wrap("Le suivi des quêtes par BossBar a été désactivé.")
+    );
 }
