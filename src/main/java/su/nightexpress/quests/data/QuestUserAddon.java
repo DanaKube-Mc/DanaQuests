@@ -8,16 +8,16 @@ public class QuestUserAddon {
     private final Set<String> completedLoreQuests;
     private final Map<String, Double> rpgCategoryXP;
     private final Map<String, Integer> rpgCategoryLevels;
-    private final boolean trackerDisabled;
+    private final String trackerMode;
 
     public QuestUserAddon(@NotNull Set<String> completedLoreQuests,
                           @NotNull Map<String, Double> rpgCategoryXP,
                           @NotNull Map<String, Integer> rpgCategoryLevels,
-                          boolean trackerDisabled) {
+                          @NotNull String trackerMode) {
         this.completedLoreQuests = completedLoreQuests;
         this.rpgCategoryXP = rpgCategoryXP;
         this.rpgCategoryLevels = rpgCategoryLevels;
-        this.trackerDisabled = trackerDisabled;
+        this.trackerMode = trackerMode;
     }
 
     @NotNull
@@ -35,7 +35,8 @@ public class QuestUserAddon {
         return rpgCategoryLevels;
     }
 
-    public boolean isTrackerDisabled() {
-        return trackerDisabled;
+    @NotNull
+    public String getTrackerMode() {
+        return trackerMode;
     }
 }

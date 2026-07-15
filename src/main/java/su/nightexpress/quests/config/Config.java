@@ -155,7 +155,12 @@ public class Config {
 
     public static final ConfigValue<Boolean> TRACKER_ENABLED = ConfigValue.create("tracker.enabled",
         true,
-        "Enables the BossBar quest tracking."
+        "Enables the quest tracking system."
+    );
+
+    public static final ConfigValue<String> TRACKER_DEFAULT_MODE = ConfigValue.create("tracker.default-mode",
+        "BOSS_BAR",
+        "Sets the default tracker mode for new players. Options: BOSS_BAR, ACTION_BAR, CHAT, NONE"
     );
 
     public static final ConfigValue<String> TRACKER_BOSSBAR_COLOR = ConfigValue.create("tracker.bossbar.color",
@@ -178,15 +183,47 @@ public class Config {
         "Interval in seconds to switch between active quest progress bars."
     );
 
-    public static final ConfigValue<String> TRACKER_FORMATS_LORE = ConfigValue.create("tracker.bossbar.formats.lore",
+    public static final ConfigValue<Integer> TRACKER_ACTIONBAR_DISPLAY_DURATION = ConfigValue.create("tracker.actionbar.display-duration-seconds",
+        5,
+        "Time in seconds the ActionBar is displayed."
+    );
+
+    // formats bossbar
+    public static final ConfigValue<String> TRACKER_FORMATS_BOSSBAR_LORE = ConfigValue.create("tracker.formats.bossbar.lore",
         "<blue>[Histoire] <yellow>%quest% <gray>- <white>%progress%/%required%"
     );
 
-    public static final ConfigValue<String> TRACKER_FORMATS_ISLAND = ConfigValue.create("tracker.bossbar.formats.island",
+    public static final ConfigValue<String> TRACKER_FORMATS_BOSSBAR_ISLAND = ConfigValue.create("tracker.formats.bossbar.island",
         "<purple>[Île] <yellow>%quest% <gray>- <white>%progress%/%required%"
     );
 
-    public static final ConfigValue<String> TRACKER_FORMATS_PERSONAL = ConfigValue.create("tracker.bossbar.formats.personal",
+    public static final ConfigValue<String> TRACKER_FORMATS_BOSSBAR_PERSONAL = ConfigValue.create("tracker.formats.bossbar.personal",
+        "<green>[Quête] <yellow>%quest% <gray>- <white>%progress%/%required%"
+    );
+
+    // formats actionbar
+    public static final ConfigValue<String> TRACKER_FORMATS_ACTIONBAR_LORE = ConfigValue.create("tracker.formats.actionbar.lore",
+        "<blue>[Histoire] <yellow>%quest% <gray>- <white>%progress%/%required%"
+    );
+
+    public static final ConfigValue<String> TRACKER_FORMATS_ACTIONBAR_ISLAND = ConfigValue.create("tracker.formats.actionbar.island",
+        "<purple>[Île] <yellow>%quest% <gray>- <white>%progress%/%required%"
+    );
+
+    public static final ConfigValue<String> TRACKER_FORMATS_ACTIONBAR_PERSONAL = ConfigValue.create("tracker.formats.actionbar.personal",
+        "<green>[Quête] <yellow>%quest% <gray>- <white>%progress%/%required%"
+    );
+
+    // formats chat
+    public static final ConfigValue<String> TRACKER_FORMATS_CHAT_LORE = ConfigValue.create("tracker.formats.chat.lore",
+        "<blue>[Histoire] <yellow>%quest% <gray>- <white>%progress%/%required%"
+    );
+
+    public static final ConfigValue<String> TRACKER_FORMATS_CHAT_ISLAND = ConfigValue.create("tracker.formats.chat.island",
+        "<purple>[Île] <yellow>%quest% <gray>- <white>%progress%/%required%"
+    );
+
+    public static final ConfigValue<String> TRACKER_FORMATS_CHAT_PERSONAL = ConfigValue.create("tracker.formats.chat.personal",
         "<green>[Quête] <yellow>%quest% <gray>- <white>%progress%/%required%"
     );
 }

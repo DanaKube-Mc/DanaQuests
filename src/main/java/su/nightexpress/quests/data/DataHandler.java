@@ -66,7 +66,7 @@ public class DataHandler extends AbstractUserDataManager<QuestsPlugin, QuestUser
     public static final Column COLUMN_LORE_COMPLETED = Column.of("lore_completed", ColumnType.STRING);
     public static final Column COLUMN_RPG_XP = Column.of("rpg_xp", ColumnType.STRING);
     public static final Column COLUMN_RPG_LEVELS = Column.of("rpg_levels", ColumnType.STRING);
-    public static final Column COLUMN_TRACKER_DISABLED = Column.of("tracker_disabled", ColumnType.BOOLEAN);
+    public static final Column COLUMN_TRACKER_MODE = Column.of("tracker_mode", ColumnType.STRING);
 
     static final Column COLUMN_ISLANDS_KEY = Column.of("island_uuid_quest_id", ColumnType.STRING);
     static final Column COLUMN_ISLANDS_OBJECTIVES = Column.of("objectives", ColumnType.STRING);
@@ -117,7 +117,7 @@ public class DataHandler extends AbstractUserDataManager<QuestsPlugin, QuestUser
         query.setValue(COLUMN_LORE_COMPLETED, user -> GSON.toJson(user.getCompletedLoreQuests()));
         query.setValue(COLUMN_RPG_XP, user -> GSON.toJson(user.getRpgCategoryXP()));
         query.setValue(COLUMN_RPG_LEVELS, user -> GSON.toJson(user.getRpgCategoryLevels()));
-        query.setValue(COLUMN_TRACKER_DISABLED, user -> String.valueOf(user.isTrackerDisabled() ? 1 : 0));
+        query.setValue(COLUMN_TRACKER_MODE, user -> user.getTrackerMode());
     }
 
     @Override
@@ -129,7 +129,7 @@ public class DataHandler extends AbstractUserDataManager<QuestsPlugin, QuestUser
         query.column(COLUMN_LORE_COMPLETED);
         query.column(COLUMN_RPG_XP);
         query.column(COLUMN_RPG_LEVELS);
-        query.column(COLUMN_TRACKER_DISABLED);
+        query.column(COLUMN_TRACKER_MODE);
     }
 
     @Override
@@ -141,7 +141,7 @@ public class DataHandler extends AbstractUserDataManager<QuestsPlugin, QuestUser
         columns.add(COLUMN_LORE_COMPLETED);
         columns.add(COLUMN_RPG_XP);
         columns.add(COLUMN_RPG_LEVELS);
-        columns.add(COLUMN_TRACKER_DISABLED);
+        columns.add(COLUMN_TRACKER_MODE);
     }
 
     @NotNull

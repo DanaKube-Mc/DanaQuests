@@ -21,7 +21,7 @@ public class QuestUserTest {
             new HashSet<>(),
             new HashMap<>(),
             new HashMap<>(),
-            false
+            "BOSS_BAR"
         );
 
         assertFalse(user.hasCompletedLore("lore_quest_1"));
@@ -44,7 +44,7 @@ public class QuestUserTest {
             new HashSet<>(),
             new HashMap<>(),
             new HashMap<>(),
-            false
+            "BOSS_BAR"
         );
 
         // Default level and XP
@@ -82,11 +82,11 @@ public class QuestUserTest {
             new HashSet<>(),
             new HashMap<>(),
             new HashMap<>(),
-            false
+            "BOSS_BAR"
         );
 
-        assertFalse(user.isTrackerDisabled());
-        user.setTrackerDisabled(true);
-        assertTrue(user.isTrackerDisabled());
+        assertEquals("BOSS_BAR", user.getTrackerMode());
+        user.setTrackerMode("ACTION_BAR");
+        assertEquals("ACTION_BAR", user.getTrackerMode());
     }
 }

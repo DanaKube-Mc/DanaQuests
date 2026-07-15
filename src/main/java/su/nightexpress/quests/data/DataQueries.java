@@ -38,7 +38,10 @@ public class DataQueries {
             String loreCompletedStr = resultSet.getString(DataHandler.COLUMN_LORE_COMPLETED.getName());
             String rpgXpStr = resultSet.getString(DataHandler.COLUMN_RPG_XP.getName());
             String rpgLevelsStr = resultSet.getString(DataHandler.COLUMN_RPG_LEVELS.getName());
-            boolean trackerDisabled = resultSet.getBoolean(DataHandler.COLUMN_TRACKER_DISABLED.getName());
+            String trackerMode = resultSet.getString(DataHandler.COLUMN_TRACKER_MODE.getName());
+            if (trackerMode == null) {
+                trackerMode = "BOSS_BAR";
+            }
 
             Set<String> loreCompleted = DataHandler.GSON.fromJson(loreCompletedStr, new TypeToken<Set<String>>(){}.getType());
             Map<String, Double> rpgXp = DataHandler.GSON.fromJson(rpgXpStr, new TypeToken<Map<String, Double>>(){}.getType());
@@ -60,7 +63,7 @@ public class DataQueries {
                 loreCompleted,
                 rpgXp,
                 rpgLevels,
-                trackerDisabled
+                trackerMode
             );
         }
         catch (SQLException exception) {

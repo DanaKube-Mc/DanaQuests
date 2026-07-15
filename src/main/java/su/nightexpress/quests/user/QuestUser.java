@@ -21,7 +21,7 @@ public class QuestUser extends AbstractUser {
     private final Set<String>          completedLoreQuests;
     private final Map<String, Double>  rpgCategoryXP;
     private final Map<String, Integer> rpgCategoryLevels;
-    private boolean                    trackerDisabled;
+    private String                     trackerMode;
 
     private long newQuestsDate;
 
@@ -36,7 +36,7 @@ public class QuestUser extends AbstractUser {
                      @NotNull Set<String> completedLoreQuests,
                      @NotNull Map<String, Double> rpgCategoryXP,
                      @NotNull Map<String, Integer> rpgCategoryLevels,
-                     boolean trackerDisabled) {
+                     @NotNull String trackerMode) {
         super(uuid, name, dateCreated, lastOnline);
         this.setNewQuestsDate(newQuestsDate);
         this.battlePassData = battlePassData;
@@ -45,7 +45,7 @@ public class QuestUser extends AbstractUser {
         this.completedLoreQuests = completedLoreQuests;
         this.rpgCategoryXP = rpgCategoryXP;
         this.rpgCategoryLevels = rpgCategoryLevels;
-        this.trackerDisabled = trackerDisabled;
+        this.trackerMode = trackerMode;
     }
 
     public int countQuestsAmount() {
@@ -198,11 +198,12 @@ public class QuestUser extends AbstractUser {
         this.rpgCategoryLevels.put(category, currentLevel);
     }
 
-    public boolean isTrackerDisabled() {
-        return this.trackerDisabled;
+    @NotNull
+    public String getTrackerMode() {
+        return this.trackerMode;
     }
 
-    public void setTrackerDisabled(boolean flag) {
-        this.trackerDisabled = flag;
+    public void setTrackerMode(@NotNull String trackerMode) {
+        this.trackerMode = trackerMode;
     }
 }

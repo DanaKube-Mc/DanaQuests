@@ -13,6 +13,7 @@ import su.nightexpress.quests.config.Config;
 import su.nightexpress.quests.config.Lang;
 import su.nightexpress.quests.config.Perms;
 import su.nightexpress.quests.quest.QuestManager;
+import su.nightexpress.quests.tracker.QuestTrackerManager;
 
 public class QuestsCommands {
 
@@ -38,12 +39,11 @@ public class QuestsCommands {
                 .withArguments(Arguments.playerName(ARG_PLAYER))
                 .executes(QuestsCommands::refreshQuests)
             )
-            .branch(Commands.hub("track", trackBuilder -> trackBuilder
-                .branch(Commands.literal("toggle")
-                    .permission(Perms.COMMAND_TRACK_TOGGLE)
-                    .executes(QuestsCommands::toggleTrack)
-                )
-            ))
+            .branch(Commands.literal("track")
+                .permission(Perms.COMMAND_TRACK_TOGGLE)
+                .withArguments(Arguments.string("mode").optional().suggestions((reader, context) -> su.nightexpress.nightcore.util.Lists.newList("BOSS_BAR", "ACTION_BAR", "CHAT", "NONE")))
+                .executes(QuestsCommands::trackMode)
+            )
             .executes(QuestsCommands::openQuests)
         );
         command.register();
@@ -88,27 +88,54 @@ public class QuestsCommands {
         return true;
     }
 
-    private static boolean toggleTrack(@NotNull CommandContext context, @NotNull ParsedArguments arguments) {
+    private static boolean trackMode(@NotNull CommandContext context, @NotNull ParsedArguments arguments) {
         if (!context.isPlayer()) {
             context.errorPlayerOnly();
             return false;
         }
 
         Player player = context.getPlayerOrThrow();
+
+        if (!arguments.contains("mode")) {
+            plugin.getUserManager().manageUser(player.getUniqueId(), user -> {
+                if (user == null) {
+                    context.errorBadPlayer();
+                    return;
+                }
+                String currentMode = user.getTrackerMode();
+                Lang.COMMAND_TRACK_STATUS.message().send(player, replacer -> replacer.replace(QuestsPlaceholders.GENERIC_INPUT, currentMode));
+            });
+            return true;
+        }
+
+        String modeInput = arguments.getString("mode");
+        String matchedMode = null;
+        for (String m : new String[]{"BOSS_BAR", "ACTION_BAR", "CHAT", "NONE"}) {
+            if (m.equalsIgnoreCase(modeInput)) {
+                matchedMode = m;
+                break;
+            }
+        }
+
+        if (matchedMode == null) {
+            Lang.COMMAND_TRACK_INVALID_MODE.message().send(player);
+            return false;
+        }
+
+        final String finalMode = matchedMode;
         plugin.getUserManager().manageUser(player.getUniqueId(), user -> {
             if (user == null) {
                 context.errorBadPlayer();
                 return;
             }
 
-            boolean newState = !user.isTrackerDisabled();
-            user.setTrackerDisabled(newState);
+            user.setTrackerMode(finalMode);
             plugin.getUserManager().save(user);
 
-            if (newState) {
-                Lang.COMMAND_TRACK_DISABLED.message().send(player);
-            } else {
-                Lang.COMMAND_TRACK_ENABLED.message().send(player);
+            Lang.COMMAND_TRACK_MODE_CHANGED.message().send(player, replacer -> replacer.replace(QuestsPlaceholders.GENERIC_INPUT, finalMode));
+
+            if (QuestTrackerManager.getInstance() != null) {
+                QuestTrackerManager.getInstance().cleanup(player);
             }
         });
         return true;
