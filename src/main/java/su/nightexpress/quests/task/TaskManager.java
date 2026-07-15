@@ -92,6 +92,13 @@ public class TaskManager extends AbstractManager<QuestsPlugin> {
         this.taskTypeRegistry.registerType(TaskTypeId.MILK_MOB, AdapterFamily.ENTITY, type -> this.addListener(new MilkingTaskListener(this.plugin, this, type)));
         this.taskTypeRegistry.registerType(TaskTypeId.SHEAR_MOB, AdapterFamily.ENTITY, type -> this.addListener(new ShearingTaskListener(this.plugin, this, type)));
         this.taskTypeRegistry.registerType(TaskTypeId.TAME_MOB, AdapterFamily.ENTITY, type -> this.addListener(new TamingTaskListener(this.plugin, this, type)));
+        this.taskTypeRegistry.registerType(TaskTypeId.TALK_TO_NPC, AdapterFamily.CUSTOM, type -> this.addListener(new TalkToNpcTaskListener(this.plugin, this, type)));
+        this.taskTypeRegistry.registerType(TaskTypeId.VISIT_LOCATION, AdapterFamily.CUSTOM, type -> this.addListener(new LocationListener(this.plugin, this, type)));
+        this.taskTypeRegistry.registerType(TaskTypeId.STRIP_LOG, AdapterFamily.CUSTOM, type -> this.addListener(new StripLogTaskListener(this.plugin, this, type)));
+        this.taskTypeRegistry.registerType(TaskTypeId.DEOXIDIZE_COPPER, AdapterFamily.CUSTOM, type -> this.addListener(new DeoxidizeCopperTaskListener(this.plugin, this, type)));
+        this.taskTypeRegistry.registerType(TaskTypeId.CONSUME_ITEM, AdapterFamily.CUSTOM, type -> this.addListener(new ConsumeItemTaskListener(this.plugin, this, type)));
+        this.taskTypeRegistry.registerType(TaskTypeId.TRADE_WITH_VILLAGER, AdapterFamily.CUSTOM, type -> this.addListener(new TradeWithVillagerTaskListener(this.plugin, this, type)));
+        this.taskTypeRegistry.registerType(TaskTypeId.HARVEST_ITEM, AdapterFamily.CUSTOM, type -> this.addListener(new HarvestItemTaskListener(this.plugin, this, type)));
     }
 
     public boolean canDoTasks(@NotNull Player player) {
@@ -114,6 +121,9 @@ public class TaskManager extends AbstractManager<QuestsPlugin> {
 
         this.plugin.milestoneManager().ifPresent(milestoneManager -> milestoneManager.progressMilestones(player, taskType, fullName, amount));
         this.plugin.questManager().ifPresent(questManager -> questManager.progressQuests(player, taskType, fullName, amount));
+        if (this.plugin.getLoreManager() != null) {
+            this.plugin.getLoreManager().progressLoreQuests(player, taskType.getId(), fullName, amount);
+        }
     }
 
     public boolean isArtificalSpawn(@NotNull SpawnReason reason) {

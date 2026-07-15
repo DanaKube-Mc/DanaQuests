@@ -19,6 +19,7 @@ public class AdapterFamily<O> {
     public static final AdapterFamily<BlockState>  BLOCK_STATE = new AdapterFamily<>();
     public static final AdapterFamily<ItemStack>   ITEM        = new AdapterFamily<>();
     public static final AdapterFamily<Enchantment> ENCHANTMENT = new AdapterFamily<>();
+    public static final AdapterFamily<String>      CUSTOM      = new AdapterFamily<>();
 
     private final Set<Adapter<?, O>> adapterByKey;
 

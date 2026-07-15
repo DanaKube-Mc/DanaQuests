@@ -7,6 +7,7 @@ import su.nightexpress.quests.battlepass.definition.BattlePassSeason;
 import su.nightexpress.quests.milestone.data.MilestoneData;
 import su.nightexpress.quests.quest.data.QuestData;
 import su.nightexpress.quests.battlepass.data.BattlePassData;
+import su.nightexpress.quests.lore.data.LoreQuestData;
 import su.nightexpress.quests.user.QuestUser;
 
 import java.sql.ResultSet;
@@ -42,14 +43,20 @@ public class DataQueries {
             if (trackerMode == null) {
                 trackerMode = "BOSS_BAR";
             }
+            String disabledTrackerCategoriesStr = resultSet.getString(DataHandler.COLUMN_DISABLED_TRACKER_CATEGORIES.getName());
+            String loreQuestsProgressStr = resultSet.getString(DataHandler.COLUMN_LORE_QUESTS_PROGRESS.getName());
 
             Set<String> loreCompleted = DataHandler.GSON.fromJson(loreCompletedStr, new TypeToken<Set<String>>(){}.getType());
             Map<String, Double> rpgXp = DataHandler.GSON.fromJson(rpgXpStr, new TypeToken<Map<String, Double>>(){}.getType());
             Map<String, Integer> rpgLevels = DataHandler.GSON.fromJson(rpgLevelsStr, new TypeToken<Map<String, Integer>>(){}.getType());
+            Set<String> disabledTrackerCategories = DataHandler.GSON.fromJson(disabledTrackerCategoriesStr, new TypeToken<Set<String>>(){}.getType());
+            Map<String, LoreQuestData> loreQuestsProgress = DataHandler.GSON.fromJson(loreQuestsProgressStr, new TypeToken<Map<String, LoreQuestData>>(){}.getType());
 
             if (loreCompleted == null) loreCompleted = new HashSet<>();
             if (rpgXp == null) rpgXp = new HashMap<>();
             if (rpgLevels == null) rpgLevels = new HashMap<>();
+            if (disabledTrackerCategories == null) disabledTrackerCategories = new HashSet<>();
+            if (loreQuestsProgress == null) loreQuestsProgress = new HashMap<>();
 
             return new QuestUser(
                 uuid, 
@@ -63,6 +70,8 @@ public class DataQueries {
                 loreCompleted,
                 rpgXp,
                 rpgLevels,
+                disabledTrackerCategories,
+                loreQuestsProgress,
                 trackerMode
             );
         }

@@ -17,6 +17,7 @@ import su.nightexpress.quests.task.TaskManager;
 import su.nightexpress.quests.quest.QuestManager;
 import su.nightexpress.quests.registry.Registries;
 import su.nightexpress.quests.task.TaskTypeRegistry;
+import su.nightexpress.quests.lore.LoreManager;
 import su.nightexpress.quests.tracker.QuestTrackerManager;
 import su.nightexpress.quests.user.UserManager;
 
@@ -32,6 +33,7 @@ public class QuestsPlugin extends NightPlugin {
     private BattlePassManager battlePassManager;
     private MilestoneManager  milestoneManager;
     private QuestManager      questManager;
+    private LoreManager       loreManager;
 
     @Override
     @NotNull
@@ -90,6 +92,9 @@ public class QuestsPlugin extends NightPlugin {
             this.questManager.setup();
         }
 
+        this.loreManager = new LoreManager(this);
+        this.loreManager.setup();
+
         QuestTrackerManager.setup(this);
 
         this.loadCommands();
@@ -102,6 +107,7 @@ public class QuestsPlugin extends NightPlugin {
         if (this.taskManager != null) this.taskManager.shutdown();
         if (this.milestoneManager != null) this.milestoneManager.shutdown();
         if (this.questManager != null) this.questManager.shutdown();
+        if (this.loreManager != null) this.loreManager.shutdown();
         if (this.battlePassManager != null) this.battlePassManager.shutdown();
         if (this.rewardManager != null) this.rewardManager.shutdown();
         if (this.userManager != null) this.userManager.shutdown();
@@ -175,5 +181,15 @@ public class QuestsPlugin extends NightPlugin {
     @NotNull
     public Optional<QuestManager> questManager() {
         return Optional.ofNullable(this.questManager);
+    }
+
+    @Nullable
+    public LoreManager getLoreManager() {
+        return this.loreManager;
+    }
+
+    @NotNull
+    public Optional<LoreManager> loreManager() {
+        return Optional.ofNullable(this.loreManager);
     }
 }

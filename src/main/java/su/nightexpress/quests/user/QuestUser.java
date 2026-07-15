@@ -9,6 +9,7 @@ import su.nightexpress.quests.milestone.data.MilestoneData;
 import su.nightexpress.quests.quest.data.QuestData;
 import su.nightexpress.quests.milestone.definition.Milestone;
 import su.nightexpress.quests.battlepass.data.BattlePassData;
+import su.nightexpress.quests.lore.data.LoreQuestData;
 
 import java.util.*;
 
@@ -21,6 +22,8 @@ public class QuestUser extends AbstractUser {
     private final Set<String>          completedLoreQuests;
     private final Map<String, Double>  rpgCategoryXP;
     private final Map<String, Integer> rpgCategoryLevels;
+    private final Set<String>          disabledTrackerCategories;
+    private final Map<String, LoreQuestData> loreQuestsProgress;
     private String                     trackerMode;
 
     private long newQuestsDate;
@@ -36,6 +39,8 @@ public class QuestUser extends AbstractUser {
                      @NotNull Set<String> completedLoreQuests,
                      @NotNull Map<String, Double> rpgCategoryXP,
                      @NotNull Map<String, Integer> rpgCategoryLevels,
+                     @NotNull Set<String>          disabledTrackerCategories,
+                     @NotNull Map<String, LoreQuestData> loreQuestsProgress,
                      @NotNull String trackerMode) {
         super(uuid, name, dateCreated, lastOnline);
         this.setNewQuestsDate(newQuestsDate);
@@ -45,7 +50,24 @@ public class QuestUser extends AbstractUser {
         this.completedLoreQuests = completedLoreQuests;
         this.rpgCategoryXP = rpgCategoryXP;
         this.rpgCategoryLevels = rpgCategoryLevels;
+        this.disabledTrackerCategories = disabledTrackerCategories;
+        this.loreQuestsProgress = loreQuestsProgress;
         this.trackerMode = trackerMode;
+    }
+
+    public QuestUser(@NotNull UUID uuid,
+                     @NotNull String name,
+                     long dateCreated,
+                     long lastOnline,
+                     long newQuestsDate,
+                     @NotNull Map<UUID, BattlePassData> battlePassData,
+                     @NotNull Map<UUID, QuestData> questData,
+                     @NotNull Map<String, MilestoneData> milestoneData,
+                     @NotNull Set<String> completedLoreQuests,
+                     @NotNull Map<String, Double> rpgCategoryXP,
+                     @NotNull Map<String, Integer> rpgCategoryLevels,
+                     @NotNull String trackerMode) {
+        this(uuid, name, dateCreated, lastOnline, newQuestsDate, battlePassData, questData, milestoneData, completedLoreQuests, rpgCategoryXP, rpgCategoryLevels, new HashSet<>(), new HashMap<>(), trackerMode);
     }
 
     public int countQuestsAmount() {
@@ -205,5 +227,27 @@ public class QuestUser extends AbstractUser {
 
     public void setTrackerMode(@NotNull String trackerMode) {
         this.trackerMode = trackerMode;
+    }
+
+    @NotNull
+    public Set<String> getDisabledTrackerCategories() {
+        return this.disabledTrackerCategories;
+    }
+
+    @NotNull
+    public Map<String, LoreQuestData> getLoreQuestsProgress() {
+        return this.loreQuestsProgress;
+    }
+
+    public boolean isCategoryTrackerDisabled(@NotNull String categoryId) {
+        return this.disabledTrackerCategories.contains(categoryId.toLowerCase());
+    }
+
+    public void toggleCategoryTracker(@NotNull String categoryId, boolean disabled) {
+        if (disabled) {
+            this.disabledTrackerCategories.add(categoryId.toLowerCase());
+        } else {
+            this.disabledTrackerCategories.remove(categoryId.toLowerCase());
+        }
     }
 }

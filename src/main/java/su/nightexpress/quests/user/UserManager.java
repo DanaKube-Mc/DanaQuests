@@ -40,6 +40,8 @@ public class UserManager extends AbstractUserManager<QuestsPlugin, QuestUser> {
                 new HashSet<>(),
                 new HashMap<>(),
                 new HashMap<>(),
+                new HashSet<>(),
+                new HashMap<>(),
                 "BOSS_BAR"
         );
     }

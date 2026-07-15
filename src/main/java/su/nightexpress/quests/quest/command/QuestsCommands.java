@@ -14,6 +14,7 @@ import su.nightexpress.quests.config.Lang;
 import su.nightexpress.quests.config.Perms;
 import su.nightexpress.quests.quest.QuestManager;
 import su.nightexpress.quests.tracker.QuestTrackerManager;
+import su.nightexpress.quests.lore.command.LoreCommands;
 
 public class QuestsCommands {
 
@@ -28,6 +29,7 @@ public class QuestsCommands {
     public static void load(@NotNull QuestsPlugin questsPlugin, @NotNull QuestManager questManager) {
         plugin = questsPlugin;
         manager = questManager;
+        LoreCommands.load(questsPlugin);
 
         command = NightCommand.hub(plugin, Config.FEATURES_QUESTS_ALIASES.get(), builder -> builder
             .localized(Lang.COMMAND_QUESTS_NAME)
@@ -44,12 +46,18 @@ public class QuestsCommands {
                 .withArguments(Arguments.string("mode").optional().suggestions((reader, context) -> su.nightexpress.nightcore.util.Lists.newList("BOSS_BAR", "ACTION_BAR", "CHAT", "NONE")))
                 .executes(QuestsCommands::trackMode)
             )
+            .branch(Commands.literal("lore")
+                .permission(Perms.COMMAND_QUESTS_LORE)
+                .description(Lang.COMMAND_QUESTS_LORE_DESC)
+                .executes(LoreCommands::openLoreMenu)
+            )
             .executes(QuestsCommands::openQuests)
         );
         command.register();
     }
 
     public static void shutdown() {
+        LoreCommands.shutdown();
         command.unregister();
         command = null;
         manager = null;
