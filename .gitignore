@@ -1,5 +1,6 @@
 target/
 /.idea/
+
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
@@ -25,6 +26,6 @@ build/
 
 ### VS Code ###
 .vscode/
-
+.agents/
 ### Mac OS ###
 .DS_Store

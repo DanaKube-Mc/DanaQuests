@@ -21,6 +21,7 @@ import su.nightexpress.quests.quest.menu.QuestsMenu;
 import su.nightexpress.quests.reward.Reward;
 import su.nightexpress.quests.task.TaskType;
 import su.nightexpress.quests.task.adapter.AdapterFamily;
+import su.nightexpress.quests.tracker.QuestTrackerManager;
 import su.nightexpress.quests.user.QuestUser;
 import su.nightexpress.quests.util.QuestUtils;
 
@@ -216,6 +217,8 @@ public class QuestManager extends AbstractManager<QuestsPlugin> {
 
             questData.addCompleted(fullName, count);
             progressed.set(true);
+
+            QuestTrackerManager.showProgress(player, quest, questData);
 
             if (questData.isCompleted()) {
                 List<Reward> rewards = this.plugin.getRewardManager().getQuestRewards(quest);

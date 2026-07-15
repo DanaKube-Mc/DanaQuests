@@ -321,4 +321,15 @@ public class Lang implements LangContainer {
     public static final TextLocale UI_ENTRY_REWARD_BATTLE_PASS_XP = LangEntry.builder("UI.Entry.Reward.BattlePass.XP")
         .text(DARK_GRAY.wrap("┃ " + WHITE.wrap("Battle Pass XP: ") + YELLOW.wrap(GENERIC_XP)));
 
+    public static final MessageLocale COMMAND_TRACK_MODE_CHANGED = LangEntry.builder("Command.Track.ModeChanged").chatMessage(
+        GREEN.wrap("Votre mode de suivi des quêtes a été mis à jour sur : " + YELLOW.wrap(GENERIC_INPUT) + ".")
+    );
+
+    public static final MessageLocale COMMAND_TRACK_INVALID_MODE = LangEntry.builder("Command.Track.InvalidMode").chatMessage(
+        RED.wrap("Mode de suivi invalide ! Choix possibles : BOSS_BAR, ACTION_BAR, CHAT, NONE.")
+    );
+
+    public static final MessageLocale COMMAND_TRACK_STATUS = LangEntry.builder("Command.Track.Status").chatMessage(
+        GRAY.wrap("Votre mode de suivi actuel : " + YELLOW.wrap(GENERIC_INPUT) + ". Choix possibles : " + GREEN.wrap("BOSS_BAR, ACTION_BAR, CHAT, NONE") + ".")
+    );
 }

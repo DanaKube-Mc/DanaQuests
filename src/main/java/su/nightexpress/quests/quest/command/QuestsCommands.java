@@ -13,6 +13,7 @@ import su.nightexpress.quests.config.Config;
 import su.nightexpress.quests.config.Lang;
 import su.nightexpress.quests.config.Perms;
 import su.nightexpress.quests.quest.QuestManager;
+import su.nightexpress.quests.tracker.QuestTrackerManager;
 
 public class QuestsCommands {
 
@@ -37,6 +38,11 @@ public class QuestsCommands {
                 .description(Lang.COMMAND_QUESTS_REFRESH_DESC)
                 .withArguments(Arguments.playerName(ARG_PLAYER))
                 .executes(QuestsCommands::refreshQuests)
+            )
+            .branch(Commands.literal("track")
+                .permission(Perms.COMMAND_TRACK_TOGGLE)
+                .withArguments(Arguments.string("mode").optional().suggestions((reader, context) -> su.nightexpress.nightcore.util.Lists.newList("BOSS_BAR", "ACTION_BAR", "CHAT", "NONE")))
+                .executes(QuestsCommands::trackMode)
             )
             .executes(QuestsCommands::openQuests)
         );
@@ -78,6 +84,59 @@ public class QuestsCommands {
                 plugin.getUserManager().save(user);
             }
             context.send(Lang.QUESTS_REFRESHED_FOR, replacer -> replacer.replace(QuestsPlaceholders.PLAYER_NAME, user.getName()));
+        });
+        return true;
+    }
+
+    private static boolean trackMode(@NotNull CommandContext context, @NotNull ParsedArguments arguments) {
+        if (!context.isPlayer()) {
+            context.errorPlayerOnly();
+            return false;
+        }
+
+        Player player = context.getPlayerOrThrow();
+
+        if (!arguments.contains("mode")) {
+            plugin.getUserManager().manageUser(player.getUniqueId(), user -> {
+                if (user == null) {
+                    context.errorBadPlayer();
+                    return;
+                }
+                String currentMode = user.getTrackerMode();
+                Lang.COMMAND_TRACK_STATUS.message().send(player, replacer -> replacer.replace(QuestsPlaceholders.GENERIC_INPUT, currentMode));
+            });
+            return true;
+        }
+
+        String modeInput = arguments.getString("mode");
+        String matchedMode = null;
+        for (String m : new String[]{"BOSS_BAR", "ACTION_BAR", "CHAT", "NONE"}) {
+            if (m.equalsIgnoreCase(modeInput)) {
+                matchedMode = m;
+                break;
+            }
+        }
+
+        if (matchedMode == null) {
+            Lang.COMMAND_TRACK_INVALID_MODE.message().send(player);
+            return false;
+        }
+
+        final String finalMode = matchedMode;
+        plugin.getUserManager().manageUser(player.getUniqueId(), user -> {
+            if (user == null) {
+                context.errorBadPlayer();
+                return;
+            }
+
+            user.setTrackerMode(finalMode);
+            plugin.getUserManager().save(user);
+
+            Lang.COMMAND_TRACK_MODE_CHANGED.message().send(player, replacer -> replacer.replace(QuestsPlaceholders.GENERIC_INPUT, finalMode));
+
+            if (QuestTrackerManager.getInstance() != null) {
+                QuestTrackerManager.getInstance().cleanup(player);
+            }
         });
         return true;
     }

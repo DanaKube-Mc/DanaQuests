@@ -12,6 +12,21 @@ import su.nightexpress.nightcore.db.sql.query.type.ValuedQuery;
 import su.nightexpress.nightcore.db.sql.util.WhereOperator;
 import su.nightexpress.nightcore.util.Lists;
 import su.nightexpress.quests.QuestsPlugin;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.Function;
+
+import com.google.common.reflect.TypeToken;
+
 import su.nightexpress.quests.battlepass.definition.BattlePassSeason;
 import su.nightexpress.quests.data.serialize.MilestoneDataSerializer;
 import su.nightexpress.quests.data.serialize.QuestCounterSerializer;
@@ -22,10 +37,6 @@ import su.nightexpress.quests.milestone.data.MilestoneData;
 import su.nightexpress.quests.quest.data.QuestData;
 import su.nightexpress.quests.battlepass.data.BattlePassData;
 import su.nightexpress.quests.user.QuestUser;
-
-import java.sql.ResultSet;
-import java.util.List;
-import java.util.function.Function;
 
 public class DataHandler extends AbstractUserDataManager<QuestsPlugin, QuestUser> {
 
@@ -50,6 +61,17 @@ public class DataHandler extends AbstractUserDataManager<QuestsPlugin, QuestUser
 
     static final String BP_TABLE = "bp_season";
 
+    public static final String ISLANDS_TABLE = "excellentquests_islands";
+
+    public static final Column COLUMN_LORE_COMPLETED = Column.of("lore_completed", ColumnType.STRING);
+    public static final Column COLUMN_RPG_XP = Column.of("rpg_xp", ColumnType.STRING);
+    public static final Column COLUMN_RPG_LEVELS = Column.of("rpg_levels", ColumnType.STRING);
+    public static final Column COLUMN_TRACKER_MODE = Column.of("tracker_mode", ColumnType.STRING);
+
+    static final Column COLUMN_ISLANDS_KEY = Column.of("island_uuid_quest_id", ColumnType.STRING);
+    static final Column COLUMN_ISLANDS_OBJECTIVES = Column.of("objectives", ColumnType.STRING);
+    static final Column COLUMN_ISLANDS_COMPLETED = Column.of("completed", ColumnType.BOOLEAN);
+
     public DataHandler(@NotNull QuestsPlugin plugin) {
         super(plugin);
     }
@@ -66,6 +88,18 @@ public class DataHandler extends AbstractUserDataManager<QuestsPlugin, QuestUser
             COLUMN_BP_EXPIRE_DATE,
             COLUMN_BP_ACTIVE
         ));
+
+
+        this.createTable(ISLANDS_TABLE, Lists.newList(
+            COLUMN_ISLANDS_KEY,
+            COLUMN_ISLANDS_OBJECTIVES,
+            COLUMN_ISLANDS_COMPLETED
+        ));
+    }
+
+    @Override
+    public void saveUser(@NotNull QuestUser user) {
+        super.saveUser(user);
     }
 
     @Override
@@ -80,6 +114,10 @@ public class DataHandler extends AbstractUserDataManager<QuestsPlugin, QuestUser
         query.setValue(COLUMN_BATTLE_PASS_DATA, user -> GSON.toJson(user.getBattlePassData()));
         query.setValue(COLUMN_QUEST_DATA, user -> GSON.toJson(user.getQuestData()));
         query.setValue(COLUMN_MILESTONE_DATA, user -> GSON.toJson(user.getMilestoneDataMap()));
+        query.setValue(COLUMN_LORE_COMPLETED, user -> GSON.toJson(user.getCompletedLoreQuests()));
+        query.setValue(COLUMN_RPG_XP, user -> GSON.toJson(user.getRpgCategoryXP()));
+        query.setValue(COLUMN_RPG_LEVELS, user -> GSON.toJson(user.getRpgCategoryLevels()));
+        query.setValue(COLUMN_TRACKER_MODE, user -> user.getTrackerMode());
     }
 
     @Override
@@ -88,6 +126,10 @@ public class DataHandler extends AbstractUserDataManager<QuestsPlugin, QuestUser
         query.column(COLUMN_BATTLE_PASS_DATA);
         query.column(COLUMN_QUEST_DATA);
         query.column(COLUMN_MILESTONE_DATA);
+        query.column(COLUMN_LORE_COMPLETED);
+        query.column(COLUMN_RPG_XP);
+        query.column(COLUMN_RPG_LEVELS);
+        query.column(COLUMN_TRACKER_MODE);
     }
 
     @Override
@@ -96,6 +138,10 @@ public class DataHandler extends AbstractUserDataManager<QuestsPlugin, QuestUser
         columns.add(COLUMN_BATTLE_PASS_DATA);
         columns.add(COLUMN_QUEST_DATA);
         columns.add(COLUMN_MILESTONE_DATA);
+        columns.add(COLUMN_LORE_COMPLETED);
+        columns.add(COLUMN_RPG_XP);
+        columns.add(COLUMN_RPG_LEVELS);
+        columns.add(COLUMN_TRACKER_MODE);
     }
 
     @NotNull

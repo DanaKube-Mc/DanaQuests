@@ -11,7 +11,10 @@ import su.nightexpress.quests.user.QuestUser;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -32,7 +35,36 @@ public class DataQueries {
             // Remove battle pass datas for expired battle pass seasons.
             battlePassData.values().removeIf(BattlePassData::isExpired);
 
-            return new QuestUser(uuid, name, dateCreated, lastOnline, newQuestsDate, battlePassData, questData, milestoneData);
+            String loreCompletedStr = resultSet.getString(DataHandler.COLUMN_LORE_COMPLETED.getName());
+            String rpgXpStr = resultSet.getString(DataHandler.COLUMN_RPG_XP.getName());
+            String rpgLevelsStr = resultSet.getString(DataHandler.COLUMN_RPG_LEVELS.getName());
+            String trackerMode = resultSet.getString(DataHandler.COLUMN_TRACKER_MODE.getName());
+            if (trackerMode == null) {
+                trackerMode = "BOSS_BAR";
+            }
+
+            Set<String> loreCompleted = DataHandler.GSON.fromJson(loreCompletedStr, new TypeToken<Set<String>>(){}.getType());
+            Map<String, Double> rpgXp = DataHandler.GSON.fromJson(rpgXpStr, new TypeToken<Map<String, Double>>(){}.getType());
+            Map<String, Integer> rpgLevels = DataHandler.GSON.fromJson(rpgLevelsStr, new TypeToken<Map<String, Integer>>(){}.getType());
+
+            if (loreCompleted == null) loreCompleted = new HashSet<>();
+            if (rpgXp == null) rpgXp = new HashMap<>();
+            if (rpgLevels == null) rpgLevels = new HashMap<>();
+
+            return new QuestUser(
+                uuid, 
+                name, 
+                dateCreated, 
+                lastOnline, 
+                newQuestsDate, 
+                battlePassData, 
+                questData, 
+                milestoneData,
+                loreCompleted,
+                rpgXp,
+                rpgLevels,
+                trackerMode
+            );
         }
         catch (SQLException exception) {
             exception.printStackTrace();
