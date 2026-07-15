@@ -3,7 +3,6 @@ package su.nightexpress.quests.data;
 import com.google.common.reflect.TypeToken;
 import su.nightexpress.nightcore.db.sql.query.impl.InsertQuery;
 import su.nightexpress.nightcore.db.sql.query.impl.UpdateQuery;
-import su.nightexpress.quests.QuestsAPI;
 import su.nightexpress.quests.battlepass.definition.BattlePassSeason;
 import su.nightexpress.quests.milestone.data.MilestoneData;
 import su.nightexpress.quests.quest.data.QuestData;
@@ -12,7 +11,10 @@ import su.nightexpress.quests.user.QuestUser;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -33,7 +35,18 @@ public class DataQueries {
             // Remove battle pass datas for expired battle pass seasons.
             battlePassData.values().removeIf(BattlePassData::isExpired);
 
-            QuestUserAddon addon = QuestsAPI.plugin().getDataHandler().loadQuestUserAddon(uuid);
+            String loreCompletedStr = resultSet.getString(DataHandler.COLUMN_LORE_COMPLETED.getName());
+            String rpgXpStr = resultSet.getString(DataHandler.COLUMN_RPG_XP.getName());
+            String rpgLevelsStr = resultSet.getString(DataHandler.COLUMN_RPG_LEVELS.getName());
+            boolean trackerDisabled = resultSet.getBoolean(DataHandler.COLUMN_TRACKER_DISABLED.getName());
+
+            Set<String> loreCompleted = DataHandler.GSON.fromJson(loreCompletedStr, new TypeToken<Set<String>>(){}.getType());
+            Map<String, Double> rpgXp = DataHandler.GSON.fromJson(rpgXpStr, new TypeToken<Map<String, Double>>(){}.getType());
+            Map<String, Integer> rpgLevels = DataHandler.GSON.fromJson(rpgLevelsStr, new TypeToken<Map<String, Integer>>(){}.getType());
+
+            if (loreCompleted == null) loreCompleted = new HashSet<>();
+            if (rpgXp == null) rpgXp = new HashMap<>();
+            if (rpgLevels == null) rpgLevels = new HashMap<>();
 
             return new QuestUser(
                 uuid, 
@@ -44,10 +57,10 @@ public class DataQueries {
                 battlePassData, 
                 questData, 
                 milestoneData,
-                addon.getCompletedLoreQuests(),
-                addon.getRpgCategoryXP(),
-                addon.getRpgCategoryLevels(),
-                addon.isTrackerDisabled()
+                loreCompleted,
+                rpgXp,
+                rpgLevels,
+                trackerDisabled
             );
         }
         catch (SQLException exception) {
