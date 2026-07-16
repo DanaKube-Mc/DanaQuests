@@ -92,8 +92,10 @@ public class QuestsPlugin extends NightPlugin {
             this.questManager.setup();
         }
 
-        this.loreManager = new LoreManager(this);
-        this.loreManager.setup();
+        if (Config.FEATURES_LORE_ENABLED.get()) {
+            this.loreManager = new LoreManager(this);
+            this.loreManager.setup();
+        }
 
         QuestTrackerManager.setup(this);
 

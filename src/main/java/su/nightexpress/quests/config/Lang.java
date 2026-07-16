@@ -38,6 +38,7 @@ public class Lang implements LangContainer {
     public static final TextLocale COMMAND_QUESTS_DESC         = LangEntry.builder("Command.Quests.Desc").text("View daily quests.");
     public static final TextLocale COMMAND_QUESTS_REFRESH_DESC = LangEntry.builder("Command.Quests.Refresh.Desc").text("Refresh player's quests.");
     public static final TextLocale COMMAND_QUESTS_LORE_DESC    = LangEntry.builder("Command.Quests.Lore.Desc").text("Ouvre le menu de Lore.");
+    public static final TextLocale COMMAND_QUESTS_LORE_NAME    = LangEntry.builder("Command.Quests.Lore.Name").text("Lore");
 
     public static final TextLocale COMMAND_MILESTONES_NAME       = LangEntry.builder("Command.Milestones.Name").text("Milestones");
     public static final TextLocale COMMAND_MILESTONES_DESC       = LangEntry.builder("Command.Milestones.Desc").text("View milestones.");

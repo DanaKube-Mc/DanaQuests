@@ -29,3 +29,6 @@ build/
 .agents/
 ### Mac OS ###
 .DS_Store
+
+/src/main/resources/*
+!/src/main/resources/plugin.yml

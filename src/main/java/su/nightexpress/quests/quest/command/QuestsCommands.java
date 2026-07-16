@@ -29,30 +29,35 @@ public class QuestsCommands {
     public static void load(@NotNull QuestsPlugin questsPlugin, @NotNull QuestManager questManager) {
         plugin = questsPlugin;
         manager = questManager;
-        LoreCommands.load(questsPlugin);
 
-        command = NightCommand.hub(plugin, Config.FEATURES_QUESTS_ALIASES.get(), builder -> builder
-            .localized(Lang.COMMAND_QUESTS_NAME)
-            .permission(Perms.COMMAND_QUESTS)
-            .description(Lang.COMMAND_QUESTS_DESC)
-            .branch(Commands.literal("refresh")
-                .permission(Perms.COMMAND_QUESTS_REFRESH)
-                .description(Lang.COMMAND_QUESTS_REFRESH_DESC)
-                .withArguments(Arguments.playerName(ARG_PLAYER))
-                .executes(QuestsCommands::refreshQuests)
-            )
-            .branch(Commands.literal("track")
-                .permission(Perms.COMMAND_TRACK_TOGGLE)
-                .withArguments(Arguments.string("mode").optional().suggestions((reader, context) -> su.nightexpress.nightcore.util.Lists.newList("BOSS_BAR", "ACTION_BAR", "CHAT", "NONE")))
-                .executes(QuestsCommands::trackMode)
-            )
-            .branch(Commands.literal("lore")
-                .permission(Perms.COMMAND_QUESTS_LORE)
-                .description(Lang.COMMAND_QUESTS_LORE_DESC)
-                .executes(LoreCommands::openLoreMenu)
-            )
-            .executes(QuestsCommands::openQuests)
-        );
+        command = NightCommand.hub(plugin, Config.FEATURES_QUESTS_ALIASES.get(), builder -> {
+            builder
+                .localized(Lang.COMMAND_QUESTS_NAME)
+                .permission(Perms.COMMAND_QUESTS)
+                .description(Lang.COMMAND_QUESTS_DESC)
+                .branch(Commands.literal("refresh")
+                    .permission(Perms.COMMAND_QUESTS_REFRESH)
+                    .description(Lang.COMMAND_QUESTS_REFRESH_DESC)
+                    .withArguments(Arguments.playerName(ARG_PLAYER))
+                    .executes(QuestsCommands::refreshQuests)
+                )
+                .branch(Commands.literal("track")
+                    .permission(Perms.COMMAND_TRACK_TOGGLE)
+                    .withArguments(Arguments.string("mode").optional().suggestions((reader, context) -> su.nightexpress.nightcore.util.Lists.newList("BOSS_BAR", "ACTION_BAR", "CHAT", "NONE")))
+                    .executes(QuestsCommands::trackMode)
+                );
+
+            if (Config.FEATURES_LORE_ENABLED.get()) {
+                LoreCommands.load(questsPlugin);
+                builder.branch(Commands.literal("lore")
+                    .permission(Perms.COMMAND_QUESTS_LORE)
+                    .description(Lang.COMMAND_QUESTS_LORE_DESC)
+                    .executes(LoreCommands::openLoreMenu)
+                );
+            }
+
+            builder.executes(QuestsCommands::openQuests);
+        });
         command.register();
     }
 

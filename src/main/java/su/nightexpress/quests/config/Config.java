@@ -4,6 +4,7 @@ import su.nightexpress.nightcore.config.ConfigValue;
 import su.nightexpress.nightcore.util.Lists;
 import su.nightexpress.nightcore.util.RankTable;
 import su.nightexpress.quests.battlepass.command.BattlePassCommands;
+import su.nightexpress.quests.lore.command.LoreCommands;
 import su.nightexpress.quests.milestone.command.MilestoneCommands;
 import su.nightexpress.quests.quest.command.QuestsCommands;
 import su.nightexpress.quests.util.QuestUtils;
@@ -53,6 +54,17 @@ public class Config {
     public static final ConfigValue<String[]> FEATURES_MILESTONES_ALIASES = ConfigValue.create("Features.Milestones.Aliases",
         new String[]{MilestoneCommands.DEFAULT_ALIAS},
         "Command aliases for the Milestones feature.",
+        "[*] Server reboot is highly recommended when changed."
+    );
+
+    public static final ConfigValue<Boolean> FEATURES_LORE_ENABLED = ConfigValue.create("Features.Lore.Enabled",
+        true,
+        "Enables the Lore Quests feature."
+    );
+
+    public static final ConfigValue<String[]> FEATURES_LORE_ALIASES = ConfigValue.create("Features.Lore.Aliases",
+        new String[]{LoreCommands.DEFAULT_ALIAS, "lq"},
+        "Command aliases for the Lore Quests feature.",
         "[*] Server reboot is highly recommended when changed."
     );
 
