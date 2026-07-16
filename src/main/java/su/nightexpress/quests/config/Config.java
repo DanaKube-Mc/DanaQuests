@@ -24,6 +24,11 @@ public class Config {
         "Sets date time format."
     ).whenRead(QuestUtils::setDateTimeFormatter);
 
+    public static final ConfigValue<String> GENERAL_COMMAND_ALIASES = ConfigValue.create("General.Command_Aliases",
+        "quests,quete,q",
+        "Main command aliases"
+    );
+
     public static final ConfigValue<Boolean> FEATURES_BATTLE_PASS_ENABLED = ConfigValue.create("Features.BattlePass.Enabled",
         true,
         "Enables the Battle Pass feature."
@@ -35,12 +40,12 @@ public class Config {
         "[*] Server reboot is highly recommended when changed."
     );
 
-    public static final ConfigValue<Boolean> FEATURES_QUESTS_ENABLED = ConfigValue.create("Features.Quests.Enabled",
+    public static final ConfigValue<Boolean> FEATURES_QUESTS_ENABLED = ConfigValue.create("Features.DailyQuests.Enabled",
         true,
         "Enables the Daily Quests feature."
     );
 
-    public static final ConfigValue<String[]> FEATURES_QUESTS_ALIASES = ConfigValue.create("Features.Quests.Aliases",
+    public static final ConfigValue<String[]> FEATURES_QUESTS_ALIASES = ConfigValue.create("Features.DailyQuests.Aliases",
         new String[]{QuestsCommands.DEFAULT_ALIAS},
         "Command aliases for the Daily Quests feature.",
         "[*] Server reboot is highly recommended when changed."
@@ -57,12 +62,12 @@ public class Config {
         "[*] Server reboot is highly recommended when changed."
     );
 
-    public static final ConfigValue<Boolean> FEATURES_LORE_ENABLED = ConfigValue.create("Features.Lore.Enabled",
+    public static final ConfigValue<Boolean> FEATURES_LORE_ENABLED = ConfigValue.create("Features.LoreQuests.Enabled",
         true,
         "Enables the Lore Quests feature."
     );
 
-    public static final ConfigValue<String[]> FEATURES_LORE_ALIASES = ConfigValue.create("Features.Lore.Aliases",
+    public static final ConfigValue<String[]> FEATURES_LORE_ALIASES = ConfigValue.create("Features.LoreQuests.Aliases",
         new String[]{LoreCommands.DEFAULT_ALIAS, "lq"},
         "Command aliases for the Lore Quests feature.",
         "[*] Server reboot is highly recommended when changed."

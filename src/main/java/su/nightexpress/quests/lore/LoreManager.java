@@ -14,6 +14,8 @@ import su.nightexpress.quests.lore.definition.LoreObjective;
 import su.nightexpress.quests.lore.definition.LoreQuest;
 import su.nightexpress.quests.lore.definition.LoreQuestCategory;
 import su.nightexpress.quests.lore.menu.LoreMenu;
+import su.nightexpress.quests.lore.menu.LoreCategoriesMenu;
+import su.nightexpress.quests.lore.menu.LoreProgressionMenu;
 import su.nightexpress.quests.lore.listener.LoreGenericListener;
 import su.nightexpress.quests.tracker.QuestTrackerManager;
 import su.nightexpress.quests.user.QuestUser;
@@ -28,7 +30,9 @@ public class LoreManager extends AbstractManager<QuestsPlugin> {
     private final Map<String, LoreQuestCategory> categories;
     private final Map<String, LoreQuest> quests;
     private final String dirPath;
+    private LoreCategoriesMenu categoriesMenu;
     private LoreMenu loreMenu;
+    private LoreProgressionMenu progressionMenu;
 
     public LoreManager(@NotNull QuestsPlugin plugin) {
         super(plugin);
@@ -40,7 +44,9 @@ public class LoreManager extends AbstractManager<QuestsPlugin> {
     @Override
     protected void onLoad() {
         this.loadLoreQuests();
+        this.categoriesMenu = this.addMenu(new LoreCategoriesMenu(this.plugin, this), DIR_MENU, "lore_categories.yml");
         this.loreMenu = this.addMenu(new LoreMenu(this.plugin, this), DIR_MENU, "lore.yml");
+        this.progressionMenu = this.addMenu(new LoreProgressionMenu(this.plugin, this), DIR_MENU, "lore_progression.yml");
         
         // Register events
         Bukkit.getPluginManager().registerEvents(new LoreGenericListener(this.plugin, this), this.plugin);
@@ -50,7 +56,9 @@ public class LoreManager extends AbstractManager<QuestsPlugin> {
     protected void onShutdown() {
         this.categories.clear();
         this.quests.clear();
+        this.categoriesMenu = null;
         this.loreMenu = null;
+        this.progressionMenu = null;
     }
 
     public void loadLoreQuests() {
@@ -74,11 +82,39 @@ public class LoreManager extends AbstractManager<QuestsPlugin> {
                 config.load();
 
                 String catId = config.getString("id", file.getName().replace(".yml", ""));
-                String catName = config.getString("name", catId);
+                String catName = config.getString("category-name", config.getString("name", catId));
                 List<String> catDesc = config.getStringList("description");
                 String iconMat = config.getString("icon.material", "BOOK");
                 int iconCustomModelData = config.getInt("icon.custom_model_data", 0);
-                List<String> neededCats = config.getStringList("needed_completed_categories");
+                
+                List<String> neededCats = new ArrayList<>();
+                if (config.contains("prerequisite")) {
+                    if (config.isList("prerequisite")) {
+                        neededCats.addAll(config.getStringList("prerequisite"));
+                    } else {
+                        String prereq = config.getString("prerequisite", "");
+                        if (!prereq.trim().isEmpty()) {
+                            neededCats.add(prereq.trim());
+                        }
+                    }
+                } else {
+                    neededCats.addAll(config.getStringList("needed_completed_categories"));
+                }
+
+                String activeMat = config.getString("icon.active.material", iconMat);
+                String activeName = config.getString("icon.active.name", null);
+                List<String> activeLore = config.contains("icon.active.lore") ? config.getStringList("icon.active.lore") : null;
+                int activeCmd = config.getInt("icon.active.custom_model_data", iconCustomModelData);
+
+                String inactiveMat = config.getString("icon.inactive.material", iconMat);
+                String inactiveName = config.getString("icon.inactive.name", null);
+                List<String> inactiveLore = config.contains("icon.inactive.lore") ? config.getStringList("icon.inactive.lore") : null;
+                int inactiveCmd = config.getInt("icon.inactive.custom_model_data", iconCustomModelData);
+
+                String finishedMat = config.getString("icon.finished.material", iconMat);
+                String finishedName = config.getString("icon.finished.name", null);
+                List<String> finishedLore = config.contains("icon.finished.lore") ? config.getStringList("icon.finished.lore") : null;
+                int finishedCmd = config.getInt("icon.finished.custom_model_data", iconCustomModelData);
 
                 List<LoreQuest> catQuests = new ArrayList<>();
 
@@ -106,13 +142,22 @@ public class LoreManager extends AbstractManager<QuestsPlugin> {
                         String qTitle = config.getString(qPath + ".completion.title");
                         String qSubtitle = config.getString(qPath + ".completion.subtitle");
 
-                        LoreQuest quest = new LoreQuest(qId, qName, qDesc, qObjs, qRewards, qSound, qTitle, qSubtitle, catId);
+                        String qIconMat = config.getString(qPath + ".icon.material", "CHEST");
+                        List<String> qIconLore = config.getStringList(qPath + ".icon.lore");
+                        int qIconCmd = config.getInt(qPath + ".icon.custom_model_data", 0);
+
+                        LoreQuest quest = new LoreQuest(qId, qName, qDesc, qObjs, qRewards, qSound, qTitle, qSubtitle, catId, qIconMat, qIconLore, qIconCmd);
                         catQuests.add(quest);
                         this.quests.put(qId, quest);
                     }
                 }
 
-                LoreQuestCategory category = new LoreQuestCategory(catId, catName, catDesc, iconMat, iconCustomModelData, neededCats, catQuests);
+                LoreQuestCategory category = new LoreQuestCategory(
+                    catId, catName, catDesc, iconMat, iconCustomModelData, neededCats, catQuests,
+                    activeMat, activeName, activeLore, activeCmd,
+                    inactiveMat, inactiveName, inactiveLore, inactiveCmd,
+                    finishedMat, finishedName, finishedLore, finishedCmd
+                );
                 this.categories.put(catId, category);
             } catch (Exception e) {
                 this.plugin.error("Failed to load lore category from " + file.getName() + ": " + e.getMessage());
@@ -277,6 +322,18 @@ public class LoreManager extends AbstractManager<QuestsPlugin> {
     public void openLoreMenu(@NotNull Player player) {
         if (this.loreMenu != null) {
             this.loreMenu.open(player);
+        }
+    }
+
+    public void openCategories(@NotNull Player player) {
+        if (this.categoriesMenu != null) {
+            this.categoriesMenu.open(player);
+        }
+    }
+
+    public void openProgression(@NotNull Player player, @NotNull LoreQuestCategory category) {
+        if (this.progressionMenu != null) {
+            this.progressionMenu.open(player, category);
         }
     }
 }

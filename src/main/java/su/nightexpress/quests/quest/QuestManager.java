@@ -13,6 +13,7 @@ import su.nightexpress.quests.api.exception.QuestLoadException;
 import su.nightexpress.quests.battlepass.BattlePassManager;
 import su.nightexpress.quests.config.Config;
 import su.nightexpress.quests.config.Lang;
+import su.nightexpress.quests.menu.MainMenu;
 import su.nightexpress.quests.quest.command.QuestsCommands;
 import su.nightexpress.quests.quest.data.QuestData;
 import su.nightexpress.quests.quest.definition.Quest;
@@ -40,6 +41,7 @@ public class QuestManager extends AbstractManager<QuestsPlugin> {
     private final String dirPath;
 
     private QuestsMenu questsMenu;
+    private MainMenu mainMenu;
 
     public QuestManager(@NotNull QuestsPlugin plugin) {
         super(plugin);
@@ -94,7 +96,13 @@ public class QuestManager extends AbstractManager<QuestsPlugin> {
     }
 
     private void loadUI() {
-        this.questsMenu = this.addMenu(new QuestsMenu(this.plugin, this), Config.DIR_MENU, "quests.yml");
+        this.questsMenu = this.addMenu(new QuestsMenu(this.plugin, this), Config.DIR_MENU, "daily.yml");
+        this.mainMenu = this.addMenu(new MainMenu(this.plugin), Config.DIR_MENU, "quete.yml");
+    }
+
+    @Nullable
+    public MainMenu getMainMenu() {
+        return this.mainMenu;
     }
 
     public boolean isQuestsAvailable() {

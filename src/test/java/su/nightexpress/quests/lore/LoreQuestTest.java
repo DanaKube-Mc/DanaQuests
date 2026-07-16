@@ -23,7 +23,12 @@ public class LoreQuestTest {
         LoreQuest quest2 = new LoreQuest("lore_2", "Visite", Collections.emptyList(), Collections.singletonList(obj2), Collections.emptyList(), null, null, null, "chapitre1");
 
         List<LoreQuest> quests = Arrays.asList(quest1, quest2);
-        LoreQuestCategory category = new LoreQuestCategory("chapitre1", "Chapitre 1", Collections.emptyList(), "BOOK", 0, Collections.emptyList(), quests);
+        LoreQuestCategory category = new LoreQuestCategory(
+                "chapitre1", "Chapitre 1", Collections.emptyList(), "BOOK", 0, Collections.emptyList(), quests,
+                null, null, null, 0,
+                null, null, null, 0,
+                null, null, null, 0
+        );
 
         // Mock QuestUser
         QuestUser user = new QuestUser(

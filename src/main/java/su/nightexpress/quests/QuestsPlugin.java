@@ -1,9 +1,11 @@
 package su.nightexpress.quests;
 
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nightexpress.nightcore.NightPlugin;
 import su.nightexpress.nightcore.commands.command.NightCommand;
+import su.nightexpress.nightcore.config.FileConfig;
 import su.nightexpress.nightcore.config.PluginDetails;
 import su.nightexpress.quests.battlepass.BattlePassManager;
 import su.nightexpress.quests.command.BaseCommands;
@@ -11,6 +13,7 @@ import su.nightexpress.quests.config.Config;
 import su.nightexpress.quests.config.Lang;
 import su.nightexpress.quests.config.Perms;
 import su.nightexpress.quests.data.DataHandler;
+import su.nightexpress.quests.menu.MainMenu;
 import su.nightexpress.quests.milestone.MilestoneManager;
 import su.nightexpress.quests.reward.RewardManager;
 import su.nightexpress.quests.task.TaskManager;
@@ -38,7 +41,25 @@ public class QuestsPlugin extends NightPlugin {
     @Override
     @NotNull
     protected PluginDetails getDefaultDetails() {
-        return PluginDetails.create("Quests", new String[]{"equests", "excellentquests"})
+        String[] aliases = new String[]{"quests", "quete", "q"};
+        try {
+            java.io.File file = new java.io.File(this.getDataFolder(), "config.yml");
+            if (file.exists()) {
+                FileConfig tempConfig = new FileConfig(file);
+                tempConfig.load();
+                if (tempConfig.contains("General.Command_Aliases")) {
+                    String raw = tempConfig.getString("General.Command_Aliases", "");
+                    if (!raw.trim().isEmpty()) {
+                        aliases = raw.split(",");
+                        for (int i = 0; i < aliases.length; i++) {
+                            aliases[i] = aliases[i].trim();
+                        }
+                    }
+                }
+            }
+        } catch (Exception ignored) {}
+
+        return PluginDetails.create("Quests", aliases)
             .setConfigClass(Config.class)
             .setPermissionsClass(Perms.class);
     }
@@ -127,7 +148,22 @@ public class QuestsPlugin extends NightPlugin {
     }
 
     private void loadCommands() {
-        this.rootCommand = NightCommand.forPlugin(this, builder -> BaseCommands.load(this, builder));
+        this.rootCommand = NightCommand.forPlugin(this, builder -> {
+            BaseCommands.load(this, builder);
+            builder.executes((context, arguments) -> {
+                if (!context.isPlayer()) {
+                    context.errorPlayerOnly();
+                    return false;
+                }
+                Player player = context.getPlayerOrThrow();
+                this.questManager().ifPresent(qm -> {
+                    if (qm.getMainMenu() != null) {
+                        qm.getMainMenu().open(player);
+                    }
+                });
+                return true;
+            });
+        });
     }
 
     @NotNull
@@ -193,5 +229,10 @@ public class QuestsPlugin extends NightPlugin {
     @NotNull
     public Optional<LoreManager> loreManager() {
         return Optional.ofNullable(this.loreManager);
+    }
+
+    @NotNull
+    public Optional<MainMenu> mainMenu() {
+        return this.questManager().map(QuestManager::getMainMenu);
     }
 }

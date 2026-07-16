@@ -3,10 +3,12 @@ package su.nightexpress.quests.lore.menu;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.MenuType;
 import org.jetbrains.annotations.NotNull;
+import su.nightexpress.nightcore.config.ConfigValue;
 import su.nightexpress.nightcore.config.FileConfig;
 import su.nightexpress.nightcore.ui.menu.MenuViewer;
 import su.nightexpress.nightcore.ui.menu.data.ConfigBased;
@@ -23,16 +25,14 @@ import su.nightexpress.quests.lore.definition.LoreQuestCategory;
 import su.nightexpress.quests.tracker.QuestTrackerManager;
 import su.nightexpress.quests.user.QuestUser;
 
-import org.bukkit.event.inventory.InventoryClickEvent;
-import su.nightexpress.nightcore.config.ConfigValue;
 import java.util.*;
 
-public class LoreMenu extends NormalMenu<QuestsPlugin> implements ConfigBased {
+public class LoreCategoriesMenu extends NormalMenu<QuestsPlugin> implements ConfigBased {
 
     private final LoreManager manager;
     private final TreeMap<Integer, int[]> slotsByCategoryCount = new TreeMap<>();
 
-    private String menuTitle = "&8Quêtes de Lore";
+    private String menuTitle = "Chapitres";
     private String lockedName = "&c[Verrouillé] &7%category_name%";
     private List<String> lockedLore = Collections.singletonList("&7Complétez les chapitres précédents.");
     private String completedName = "&a[Complété] &f%category_name%";
@@ -47,7 +47,7 @@ public class LoreMenu extends NormalMenu<QuestsPlugin> implements ConfigBased {
             "&6Objectifs:",
             "%quest_objectives%",
             "",
-            "&7Clic Gauche pour plus d'infos.",
+            "&7Clic Gauche pour voir la progression.",
             "&7Clic Droit pour &e%tracker_action% &7le tracker.",
             "&7Statut du tracker: %tracker_status%"
     );
@@ -61,8 +61,8 @@ public class LoreMenu extends NormalMenu<QuestsPlugin> implements ConfigBased {
     private String activeMaterialStr = "";
     private int activeCustomModelData = -1;
 
-    public LoreMenu(@NotNull QuestsPlugin plugin, @NotNull LoreManager manager) {
-        super(plugin, MenuType.GENERIC_9X5, "Quêtes Narratives");
+    public LoreCategoriesMenu(@NotNull QuestsPlugin plugin, @NotNull LoreManager manager) {
+        super(plugin, MenuType.GENERIC_9X5, "Chapitres");
         this.manager = manager;
         this.setAutoRefreshInterval(1);
     }
@@ -72,45 +72,86 @@ public class LoreMenu extends NormalMenu<QuestsPlugin> implements ConfigBased {
         Player player = viewer.getPlayer();
         QuestUser user = this.plugin.getUserManager().getOrFetch(player);
 
-        List<LoreQuestCategory> activeCategories = new ArrayList<>();
-        for (LoreQuestCategory category : this.manager.getCategories().values()) {
-            if (this.manager.isCategoryUnlocked(user, category) && !this.manager.isCategoryCompleted(user, category)) {
-                activeCategories.add(category);
-            }
-        }
-
-        int count = activeCategories.size();
+        List<LoreQuestCategory> categories = new ArrayList<>(this.manager.getCategories().values());
+        int count = categories.size();
         int[] slots = Optional.ofNullable(this.slotsByCategoryCount.ceilingEntry(count)).map(Map.Entry::getValue).orElse(new int[0]);
 
-        for (int i = 0; i < slots.length && i < activeCategories.size(); i++) {
+        for (int i = 0; i < slots.length && i < categories.size(); i++) {
             int slot = slots[i];
-            LoreQuestCategory category = activeCategories.get(i);
+            LoreQuestCategory category = categories.get(i);
 
             MenuItem.Builder menuItem;
-            Material mat = null;
-            if (category.getActiveIconMaterial() != null && !category.getActiveIconMaterial().isEmpty()) {
-                try {
-                    mat = Material.valueOf(category.getActiveIconMaterial().toUpperCase());
-                } catch (Exception ignored) {}
-            }
-            if (mat == null && activeMaterialStr != null && !activeMaterialStr.isEmpty()) {
-                try {
-                    mat = Material.valueOf(activeMaterialStr.toUpperCase());
-                } catch (Exception ignored) {}
-            }
-            if (mat == null) {
-                try {
-                    mat = Material.valueOf(category.getIconMaterial().toUpperCase());
-                } catch (Exception ignored) {
-                    mat = Material.WRITABLE_BOOK;
+            if (!this.manager.isCategoryUnlocked(user, category)) {
+                Material mat = null;
+                if (category.getInactiveIconMaterial() != null && !category.getInactiveIconMaterial().isEmpty()) {
+                    try {
+                        mat = Material.valueOf(category.getInactiveIconMaterial().toUpperCase());
+                    } catch (Exception ignored) {}
                 }
-            }
-            int cmd = (category.getActiveIconCustomModelData() > 0) ? category.getActiveIconCustomModelData() : 
-                      ((activeCustomModelData != -1) ? activeCustomModelData : category.getIconCustomModelData());
-            String namePat = (category.getActiveIconName() != null) ? category.getActiveIconName() : activeName;
-            List<String> lorePat = (category.getActiveIconLore() != null) ? category.getActiveIconLore() : activeLore;
+                if (mat == null) {
+                    try {
+                        mat = Material.valueOf(lockedMaterialStr.toUpperCase());
+                    } catch (Exception ignored) {
+                        mat = Material.BARRIER;
+                    }
+                }
+                int cmd = (category.getInactiveIconCustomModelData() > 0) ? category.getInactiveIconCustomModelData() : lockedCustomModelData;
+                String namePat = (category.getInactiveIconName() != null) ? category.getInactiveIconName() : lockedName;
+                List<String> lorePat = (category.getInactiveIconLore() != null) ? category.getInactiveIconLore() : lockedLore;
 
-            menuItem = buildItem(category, mat, cmd, namePat, lorePat, user, player);
+                menuItem = buildItem(category, mat, cmd, namePat, lorePat, user, player);
+            } else if (this.manager.isCategoryCompleted(user, category)) {
+                Material mat = null;
+                if (category.getFinishedIconMaterial() != null && !category.getFinishedIconMaterial().isEmpty()) {
+                    try {
+                        mat = Material.valueOf(category.getFinishedIconMaterial().toUpperCase());
+                    } catch (Exception ignored) {}
+                }
+                if (mat == null && completedMaterialStr != null && !completedMaterialStr.isEmpty()) {
+                    try {
+                        mat = Material.valueOf(completedMaterialStr.toUpperCase());
+                    } catch (Exception ignored) {}
+                }
+                if (mat == null) {
+                    try {
+                        mat = Material.valueOf(category.getIconMaterial().toUpperCase());
+                    } catch (Exception ignored) {
+                        mat = Material.BOOK;
+                    }
+                }
+                int cmd = (category.getFinishedIconCustomModelData() > 0) ? category.getFinishedIconCustomModelData() : 
+                          ((completedCustomModelData != -1) ? completedCustomModelData : category.getIconCustomModelData());
+                String namePat = (category.getFinishedIconName() != null) ? category.getFinishedIconName() : completedName;
+                List<String> lorePat = (category.getFinishedIconLore() != null) ? category.getFinishedIconLore() : completedLore;
+
+                menuItem = buildItem(category, mat, cmd, namePat, lorePat, user, player);
+            } else {
+                Material mat = null;
+                if (category.getActiveIconMaterial() != null && !category.getActiveIconMaterial().isEmpty()) {
+                    try {
+                        mat = Material.valueOf(category.getActiveIconMaterial().toUpperCase());
+                    } catch (Exception ignored) {}
+                }
+                if (mat == null && activeMaterialStr != null && !activeMaterialStr.isEmpty()) {
+                    try {
+                        mat = Material.valueOf(activeMaterialStr.toUpperCase());
+                    } catch (Exception ignored) {}
+                }
+                if (mat == null) {
+                    try {
+                        mat = Material.valueOf(category.getIconMaterial().toUpperCase());
+                    } catch (Exception ignored) {
+                        mat = Material.WRITABLE_BOOK;
+                    }
+                }
+                int cmd = (category.getActiveIconCustomModelData() > 0) ? category.getActiveIconCustomModelData() : 
+                          ((activeCustomModelData != -1) ? activeCustomModelData : category.getIconCustomModelData());
+                String namePat = (category.getActiveIconName() != null) ? category.getActiveIconName() : activeName;
+                List<String> lorePat = (category.getActiveIconLore() != null) ? category.getActiveIconLore() : activeLore;
+
+                menuItem = buildItem(category, mat, cmd, namePat, lorePat, user, player);
+            }
+
             viewer.addItem(menuItem.setSlots(slot).build());
         }
     }
@@ -174,7 +215,9 @@ public class LoreMenu extends NormalMenu<QuestsPlugin> implements ConfigBased {
                 .setHandler((viewer1, event) -> {
                     if (event.isLeftClick()) {
                         player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1.0f);
-                        this.runNextTick(() -> this.manager.openProgression(player, category));
+                        if (this.manager.isCategoryUnlocked(user, category)) {
+                            this.runNextTick(() -> this.manager.openProgression(player, category));
+                        }
                     } else if (event.isRightClick()) {
                         boolean newDisabled = !user.isCategoryTrackerDisabled(category.getId());
                         user.toggleCategoryTracker(category.getId(), newDisabled);
@@ -208,7 +251,6 @@ public class LoreMenu extends NormalMenu<QuestsPlugin> implements ConfigBased {
 
     @Override
     protected void onReady(@NotNull MenuViewer viewer, @NotNull Inventory inventory) {
-
     }
 
     private void handleReturn(@NotNull MenuViewer viewer, @NotNull InventoryClickEvent event) {
@@ -217,7 +259,7 @@ public class LoreMenu extends NormalMenu<QuestsPlugin> implements ConfigBased {
 
     @Override
     public void loadConfiguration(@NotNull FileConfig config, @NotNull MenuLoader loader) {
-        this.menuTitle = ConfigValue.create("Settings.Title", "&8Quêtes Narratives").read(config);
+        this.menuTitle = ConfigValue.create("Settings.Title", "Chapitres").read(config);
         this.setTitle(menuTitle);
 
         lockedName = ConfigValue.create("status.locked.name", "&c[Verrouillé] &7%category_name%").read(config);
@@ -236,7 +278,7 @@ public class LoreMenu extends NormalMenu<QuestsPlugin> implements ConfigBased {
                 "&6Objectifs:",
                 "%quest_objectives%",
                 "",
-                "&7Clic Gauche pour plus d'infos.",
+                "&7Clic Gauche pour voir la progression.",
                 "&7Clic Droit pour &e%tracker_action% &7le tracker.",
                 "&7Statut du tracker: %tracker_status%"
         )).read(config);
