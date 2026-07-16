@@ -13,6 +13,7 @@ import su.nightexpress.nightcore.db.sql.util.WhereOperator;
 import su.nightexpress.nightcore.util.Lists;
 import su.nightexpress.quests.QuestsPlugin;
 
+import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -31,6 +32,7 @@ import su.nightexpress.quests.battlepass.definition.BattlePassSeason;
 import su.nightexpress.quests.data.serialize.MilestoneDataSerializer;
 import su.nightexpress.quests.data.serialize.QuestCounterSerializer;
 import su.nightexpress.quests.data.serialize.QuestDataSerializer;
+import su.nightexpress.quests.island.data.IslandQuestProgress;
 import su.nightexpress.quests.data.serialize.BattlePassDataSerializer;
 import su.nightexpress.quests.quest.data.QuestCounter;
 import su.nightexpress.quests.milestone.data.MilestoneData;
@@ -167,6 +169,52 @@ public class DataHandler extends AbstractUserDataManager<QuestsPlugin, QuestUser
 
     public void removeBattlePassSeason(@NotNull BattlePassSeason season) {
         this.delete(BP_TABLE, new DeleteQuery<BattlePassSeason>().where(COLUMN_BP_ID, WhereOperator.EQUAL, passSeason -> passSeason.getId().toString()), season);
+    }
+
+    @NotNull
+    public IslandQuestProgress loadIslandProgress(@NotNull UUID islandUuid, @NotNull String questId) {
+        String key = islandUuid.toString() + ":" + questId;
+        String sql = "SELECT * FROM " + ISLANDS_TABLE + " WHERE " + COLUMN_ISLANDS_KEY.getName() + " = ?";
+        try (Connection conn = this.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, key);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String objectivesJson = rs.getString(COLUMN_ISLANDS_OBJECTIVES.getName());
+                    boolean completed = rs.getBoolean(COLUMN_ISLANDS_COMPLETED.getName());
+                    Map<String, Integer> progressMap = null;
+                    if (objectivesJson != null && !objectivesJson.isEmpty()) {
+                        Type type = new TypeToken<Map<String, Integer>>(){}.getType();
+                        progressMap = GSON.fromJson(objectivesJson, type);
+                    }
+                    if (progressMap == null) {
+                        progressMap = new HashMap<>();
+                    }
+                    return new IslandQuestProgress(islandUuid, questId, progressMap, completed);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return new IslandQuestProgress(islandUuid, questId);
+    }
+
+    public void saveIslandProgress(@NotNull UUID islandUuid, @NotNull String questId, @NotNull Map<String, Integer> progress, boolean completed) {
+        String key = islandUuid.toString() + ":" + questId;
+        String objectivesJson = GSON.toJson(progress);
+        String sql = "REPLACE INTO " + ISLANDS_TABLE + " (" + 
+                COLUMN_ISLANDS_KEY.getName() + ", " + 
+                COLUMN_ISLANDS_OBJECTIVES.getName() + ", " + 
+                COLUMN_ISLANDS_COMPLETED.getName() + ") VALUES (?, ?, ?)";
+        try (Connection conn = this.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, key);
+            stmt.setString(2, objectivesJson);
+            stmt.setBoolean(3, completed);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

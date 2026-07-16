@@ -40,6 +40,21 @@ public class Lang implements LangContainer {
     public static final TextLocale COMMAND_QUESTS_LORE_DESC    = LangEntry.builder("Command.Quests.Lore.Desc").text("Ouvre le menu de Lore.");
     public static final TextLocale COMMAND_QUESTS_LORE_NAME    = LangEntry.builder("Command.Quests.Lore.Name").text("Lore");
 
+    public static final TextLocale COMMAND_ISLAND_NAME = LangEntry.builder("Command.Island.Name").text("island");
+    public static final TextLocale COMMAND_ISLAND_DESC = LangEntry.builder("Command.Island.Desc").text("Ouvre l'interface de dépôt pour les quêtes coopératives d'île.");
+
+    public static final MessageLocale ISLAND_QUESTS_NO_ISLAND = LangEntry.builder("island_quests_no_island").chatMessage(
+        RED.wrap("Vous n'avez pas d'île !")
+    );
+
+    public static final MessageLocale ISLAND_QUEST_MENU_LOCKED = LangEntry.builder("island_quest_menu_locked").chatMessage(
+        RED.wrap("L'interface de quête d'île est actuellement verrouillée par un autre joueur.")
+    );
+
+    public static final MessageLocale ISLAND_QUEST_COMPLETED = LangEntry.builder("island_quest_completed").chatMessage(
+        GREEN.wrap("Félicitations ! Vous avez terminé la quête d'île.")
+    );
+
     public static final TextLocale COMMAND_MILESTONES_NAME       = LangEntry.builder("Command.Milestones.Name").text("Milestones");
     public static final TextLocale COMMAND_MILESTONES_DESC       = LangEntry.builder("Command.Milestones.Desc").text("View milestones.");
     public static final TextLocale COMMAND_MILESTONES_RESET_DESC = LangEntry.builder("Command.Milestones.Reset.Desc").text("Reset a player's milestone.");

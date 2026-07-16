@@ -20,6 +20,7 @@ public class Perms {
     public static final UniPermission COMMAND_QUESTS         = new UniPermission(PREFIX_COMMAND + "quests");
     public static final UniPermission COMMAND_QUESTS_REFRESH = new UniPermission(PREFIX_COMMAND + "quests.refresh");
     public static final UniPermission COMMAND_QUESTS_LORE    = new UniPermission(PREFIX_COMMAND + "quests.lore");
+    public static final UniPermission COMMAND_ISLAND         = new UniPermission(PREFIX_COMMAND + "island");
 
     public static final UniPermission COMMAND_MILESTONES       = new UniPermission(PREFIX_COMMAND + "milestones");
     public static final UniPermission COMMAND_MILESTONES_RESET = new UniPermission(PREFIX_COMMAND + "milestones.reset");
@@ -51,6 +52,7 @@ public class Perms {
             COMMAND_QUESTS,
             COMMAND_QUESTS_REFRESH,
             COMMAND_QUESTS_LORE,
+            COMMAND_ISLAND,
 
             COMMAND_MILESTONES,
             COMMAND_MILESTONES_RESET,

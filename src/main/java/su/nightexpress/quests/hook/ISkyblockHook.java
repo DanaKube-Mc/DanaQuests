@@ -13,4 +13,7 @@ public interface ISkyblockHook {
 
     @NotNull
     List<Player> getOnlineMembers(@NotNull UUID islandUuid);
+
+    @Nullable
+    String getIslandLeaderName(@NotNull UUID islandUuid);
 }

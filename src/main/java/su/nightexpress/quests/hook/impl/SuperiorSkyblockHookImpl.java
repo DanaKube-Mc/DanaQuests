@@ -1,6 +1,7 @@
 package su.nightexpress.quests.hook.impl;
 
 import org.bukkit.entity.Player;
+import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,5 +39,20 @@ public class SuperiorSkyblockHookImpl implements ISkyblockHook {
             }
         }
         return players;
+    }
+
+    @Override
+    @Nullable
+    public String getIslandLeaderName(@NotNull UUID islandUuid) {
+        var island = SuperiorSkyblockAPI.getGrid().getIslandByUUID(islandUuid);
+        if (island == null) return null;
+        var owner = island.getOwner();
+        if (owner == null) return null;
+        var name = owner.getName();
+        if (name == null || name.isEmpty()) {
+            var offlinePlayer = Bukkit.getOfflinePlayer(owner.getUniqueId());
+            return offlinePlayer.getName();
+        }
+        return name;
     }
 }

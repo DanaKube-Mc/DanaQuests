@@ -13,6 +13,7 @@ import su.nightexpress.quests.config.Config;
 import su.nightexpress.quests.config.Lang;
 import su.nightexpress.quests.config.Perms;
 import su.nightexpress.quests.data.DataHandler;
+import su.nightexpress.quests.island.IslandManager;
 import su.nightexpress.quests.menu.MainMenu;
 import su.nightexpress.quests.milestone.MilestoneManager;
 import su.nightexpress.quests.reward.RewardManager;
@@ -37,6 +38,7 @@ public class QuestsPlugin extends NightPlugin {
     private MilestoneManager  milestoneManager;
     private QuestManager      questManager;
     private LoreManager       loreManager;
+    private su.nightexpress.quests.island.IslandManager islandManager;
 
     @Override
     @NotNull
@@ -118,6 +120,11 @@ public class QuestsPlugin extends NightPlugin {
             this.loreManager.setup();
         }
 
+        if (Config.FEATURES_ISLAND_QUESTS_ENABLED.get()) {
+            this.islandManager = new IslandManager(this);
+            this.islandManager.setup();
+        }
+
         QuestTrackerManager.setup(this);
 
         this.loadCommands();
@@ -131,6 +138,7 @@ public class QuestsPlugin extends NightPlugin {
         if (this.milestoneManager != null) this.milestoneManager.shutdown();
         if (this.questManager != null) this.questManager.shutdown();
         if (this.loreManager != null) this.loreManager.shutdown();
+        if (this.islandManager != null) this.islandManager.shutdown();
         if (this.battlePassManager != null) this.battlePassManager.shutdown();
         if (this.rewardManager != null) this.rewardManager.shutdown();
         if (this.userManager != null) this.userManager.shutdown();
@@ -234,5 +242,16 @@ public class QuestsPlugin extends NightPlugin {
     @NotNull
     public Optional<MainMenu> mainMenu() {
         return this.questManager().map(QuestManager::getMainMenu);
+    }
+
+    @Nullable
+    public IslandManager getIslandManager() {
+        // Trigger compile
+        return this.islandManager;
+    }
+
+    @NotNull
+    public Optional<IslandManager> islandManager() {
+        return Optional.ofNullable(this.islandManager);
     }
 }

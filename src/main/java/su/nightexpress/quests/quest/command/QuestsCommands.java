@@ -15,6 +15,7 @@ import su.nightexpress.quests.config.Perms;
 import su.nightexpress.quests.quest.QuestManager;
 import su.nightexpress.quests.tracker.QuestTrackerManager;
 import su.nightexpress.quests.lore.command.LoreCommands;
+import su.nightexpress.quests.island.command.IslandCommands;
 
 public class QuestsCommands {
 
@@ -56,6 +57,20 @@ public class QuestsCommands {
                 );
             }
 
+            if (Config.FEATURES_ISLAND_QUESTS_ENABLED.get()) {
+                IslandCommands.load(questsPlugin);
+                builder.branch(Commands.literal("island")
+                    .permission(Perms.COMMAND_ISLAND)
+                    .description(Lang.COMMAND_ISLAND_DESC)
+                    .executes(IslandCommands::openIslandMenu)
+                );
+                builder.branch(Commands.literal("is")
+                    .permission(Perms.COMMAND_ISLAND)
+                    .description(Lang.COMMAND_ISLAND_DESC)
+                    .executes(IslandCommands::openIslandMenu)
+                );
+            }
+
             builder.executes(QuestsCommands::openQuests);
         });
         command.register();
@@ -63,6 +78,7 @@ public class QuestsCommands {
 
     public static void shutdown() {
         LoreCommands.shutdown();
+        IslandCommands.shutdown();
         command.unregister();
         command = null;
         manager = null;

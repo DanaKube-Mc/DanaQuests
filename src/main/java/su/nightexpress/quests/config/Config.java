@@ -73,6 +73,26 @@ public class Config {
         "[*] Server reboot is highly recommended when changed."
     );
 
+    public static final ConfigValue<Boolean> FEATURES_ISLAND_QUESTS_ENABLED = ConfigValue.create("Features.IslandQuests.Enabled",
+        true,
+        "Enables the Island Quests feature."
+    );
+
+    public static final ConfigValue<String[]> FEATURES_ISLAND_QUESTS_ALIASES = ConfigValue.create("Features.IslandQuests.Aliases",
+        new String[]{"island", "is"},
+        "Command aliases for the Island Quests feature."
+    );
+
+    public static final ConfigValue<String> SOUNDS_DEPOSIT = ConfigValue.create("sounds.deposit",
+        "ENTITY_EXPERIENCE_ORB_PICKUP",
+        "Sound played when resource is deposited."
+    );
+
+    public static final ConfigValue<String> SOUNDS_ISLAND_QUEST_COMPLETED = ConfigValue.create("sounds.island_quest_completed",
+        "UI_TOAST_CHALLENGE_COMPLETE",
+        "Sound played when island quest level is completed."
+    );
+
     public static final ConfigValue<Set<String>> INTERGRATIONS_DISABLED = ConfigValue.create("Integrations.Disabled",
         Lists.newSet("PluginName", "AnotherPlugin"),
         "List here plugin names that that you want to disable integrations for."
