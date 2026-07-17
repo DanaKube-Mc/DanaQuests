@@ -21,6 +21,11 @@ public class Perms {
     public static final UniPermission COMMAND_QUESTS_REFRESH = new UniPermission(PREFIX_COMMAND + "quests.refresh");
     public static final UniPermission COMMAND_QUESTS_LORE    = new UniPermission(PREFIX_COMMAND + "quests.lore");
     public static final UniPermission COMMAND_ISLAND         = new UniPermission(PREFIX_COMMAND + "island");
+    public static final UniPermission COMMAND_PERSONAL       = new UniPermission(PREFIX_COMMAND + "personal");
+
+    public static final UniPermission PERSONAL_LIMIT_DEFAULT = new UniPermission(PREFIX + "personal.default");
+    public static final UniPermission PERSONAL_LIMIT_VIP     = new UniPermission(PREFIX + "personal.vip");
+    public static final UniPermission PERSONAL_LIMIT_ADMIN   = new UniPermission(PREFIX + "personal.admin");
 
     public static final UniPermission COMMAND_MILESTONES       = new UniPermission(PREFIX_COMMAND + "milestones");
     public static final UniPermission COMMAND_MILESTONES_RESET = new UniPermission(PREFIX_COMMAND + "milestones.reset");
@@ -44,7 +49,10 @@ public class Perms {
         PLUGIN.addChildren(
             BATTLE_PASS_PREMIUM,
             COMMAND,
-            BYPASS
+            BYPASS,
+            PERSONAL_LIMIT_DEFAULT,
+            PERSONAL_LIMIT_VIP,
+            PERSONAL_LIMIT_ADMIN
         );
 
         COMMAND.addChildren(
@@ -53,7 +61,7 @@ public class Perms {
             COMMAND_QUESTS_REFRESH,
             COMMAND_QUESTS_LORE,
             COMMAND_ISLAND,
-
+            COMMAND_PERSONAL,
             COMMAND_MILESTONES,
             COMMAND_MILESTONES_RESET,
 

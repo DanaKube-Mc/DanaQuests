@@ -71,6 +71,7 @@ public class DataHandler extends AbstractUserDataManager<QuestsPlugin, QuestUser
     public static final Column COLUMN_TRACKER_MODE = Column.of("tracker_mode", ColumnType.STRING);
     public static final Column COLUMN_DISABLED_TRACKER_CATEGORIES = Column.of("disabled_tracker_categories", ColumnType.STRING);
     public static final Column COLUMN_LORE_QUESTS_PROGRESS = Column.of("lore_quests_progress", ColumnType.STRING);
+    public static final Column COLUMN_PERSONAL_QUEST_DATA = Column.of("personal_quest_data", ColumnType.STRING);
 
     static final Column COLUMN_ISLANDS_KEY = Column.of("island_uuid_quest_id", ColumnType.STRING);
     static final Column COLUMN_ISLANDS_OBJECTIVES = Column.of("objectives", ColumnType.STRING);
@@ -124,6 +125,7 @@ public class DataHandler extends AbstractUserDataManager<QuestsPlugin, QuestUser
         query.setValue(COLUMN_TRACKER_MODE, user -> user.getTrackerMode());
         query.setValue(COLUMN_DISABLED_TRACKER_CATEGORIES, user -> GSON.toJson(user.getDisabledTrackerCategories()));
         query.setValue(COLUMN_LORE_QUESTS_PROGRESS, user -> GSON.toJson(user.getLoreQuestsProgress()));
+        query.setValue(COLUMN_PERSONAL_QUEST_DATA, user -> GSON.toJson(user.getPersonalQuestData()));
     }
 
     @Override
@@ -138,6 +140,7 @@ public class DataHandler extends AbstractUserDataManager<QuestsPlugin, QuestUser
         query.column(COLUMN_TRACKER_MODE);
         query.column(COLUMN_DISABLED_TRACKER_CATEGORIES);
         query.column(COLUMN_LORE_QUESTS_PROGRESS);
+        query.column(COLUMN_PERSONAL_QUEST_DATA);
     }
 
     @Override
@@ -152,6 +155,7 @@ public class DataHandler extends AbstractUserDataManager<QuestsPlugin, QuestUser
         columns.add(COLUMN_TRACKER_MODE);
         columns.add(COLUMN_DISABLED_TRACKER_CATEGORIES);
         columns.add(COLUMN_LORE_QUESTS_PROGRESS);
+        columns.add(COLUMN_PERSONAL_QUEST_DATA);
     }
 
     @NotNull

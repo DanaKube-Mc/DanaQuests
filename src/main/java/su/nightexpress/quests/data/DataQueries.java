@@ -8,6 +8,7 @@ import su.nightexpress.quests.milestone.data.MilestoneData;
 import su.nightexpress.quests.quest.data.QuestData;
 import su.nightexpress.quests.battlepass.data.BattlePassData;
 import su.nightexpress.quests.lore.data.LoreQuestData;
+import su.nightexpress.quests.personal.data.PersonalQuestData;
 import su.nightexpress.quests.user.QuestUser;
 
 import java.sql.ResultSet;
@@ -45,18 +46,21 @@ public class DataQueries {
             }
             String disabledTrackerCategoriesStr = resultSet.getString(DataHandler.COLUMN_DISABLED_TRACKER_CATEGORIES.getName());
             String loreQuestsProgressStr = resultSet.getString(DataHandler.COLUMN_LORE_QUESTS_PROGRESS.getName());
+            String personalQuestDataStr = resultSet.getString(DataHandler.COLUMN_PERSONAL_QUEST_DATA.getName());
 
             Set<String> loreCompleted = DataHandler.GSON.fromJson(loreCompletedStr, new TypeToken<Set<String>>(){}.getType());
             Map<String, Double> rpgXp = DataHandler.GSON.fromJson(rpgXpStr, new TypeToken<Map<String, Double>>(){}.getType());
             Map<String, Integer> rpgLevels = DataHandler.GSON.fromJson(rpgLevelsStr, new TypeToken<Map<String, Integer>>(){}.getType());
             Set<String> disabledTrackerCategories = DataHandler.GSON.fromJson(disabledTrackerCategoriesStr, new TypeToken<Set<String>>(){}.getType());
             Map<String, LoreQuestData> loreQuestsProgress = DataHandler.GSON.fromJson(loreQuestsProgressStr, new TypeToken<Map<String, LoreQuestData>>(){}.getType());
+            Map<String, PersonalQuestData> personalQuestData = DataHandler.GSON.fromJson(personalQuestDataStr, new TypeToken<Map<String, PersonalQuestData>>(){}.getType());
 
             if (loreCompleted == null) loreCompleted = new HashSet<>();
             if (rpgXp == null) rpgXp = new HashMap<>();
             if (rpgLevels == null) rpgLevels = new HashMap<>();
             if (disabledTrackerCategories == null) disabledTrackerCategories = new HashSet<>();
             if (loreQuestsProgress == null) loreQuestsProgress = new HashMap<>();
+            if (personalQuestData == null) personalQuestData = new HashMap<>();
 
             return new QuestUser(
                 uuid, 
@@ -72,7 +76,8 @@ public class DataQueries {
                 rpgLevels,
                 disabledTrackerCategories,
                 loreQuestsProgress,
-                trackerMode
+                trackerMode,
+                personalQuestData
             );
         }
         catch (SQLException exception) {

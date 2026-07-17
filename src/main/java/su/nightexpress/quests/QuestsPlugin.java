@@ -22,6 +22,8 @@ import su.nightexpress.quests.quest.QuestManager;
 import su.nightexpress.quests.registry.Registries;
 import su.nightexpress.quests.task.TaskTypeRegistry;
 import su.nightexpress.quests.lore.LoreManager;
+import su.nightexpress.quests.lore.LoreManager;
+import su.nightexpress.quests.personal.PersonalQuestManager;
 import su.nightexpress.quests.tracker.QuestTrackerManager;
 import su.nightexpress.quests.user.UserManager;
 
@@ -39,6 +41,7 @@ public class QuestsPlugin extends NightPlugin {
     private QuestManager      questManager;
     private LoreManager       loreManager;
     private su.nightexpress.quests.island.IslandManager islandManager;
+    private PersonalQuestManager personalQuestManager;
 
     @Override
     @NotNull
@@ -125,6 +128,11 @@ public class QuestsPlugin extends NightPlugin {
             this.islandManager.setup();
         }
 
+        if (Config.FEATURES_PERSONAL_QUESTS_ENABLED.get()) {
+            this.personalQuestManager = new PersonalQuestManager(this);
+            this.personalQuestManager.setup();
+        }
+
         QuestTrackerManager.setup(this);
 
         this.loadCommands();
@@ -134,6 +142,7 @@ public class QuestsPlugin extends NightPlugin {
     public void disable() {
         QuestTrackerManager.shutdown();
 
+        if (this.personalQuestManager != null) this.personalQuestManager.shutdown();
         if (this.taskManager != null) this.taskManager.shutdown();
         if (this.milestoneManager != null) this.milestoneManager.shutdown();
         if (this.questManager != null) this.questManager.shutdown();
@@ -253,5 +262,15 @@ public class QuestsPlugin extends NightPlugin {
     @NotNull
     public Optional<IslandManager> islandManager() {
         return Optional.ofNullable(this.islandManager);
+    }
+
+    @Nullable
+    public PersonalQuestManager getPersonalQuestManager() {
+        return this.personalQuestManager;
+    }
+
+    @NotNull
+    public Optional<PersonalQuestManager> personalQuestManager() {
+        return Optional.ofNullable(this.personalQuestManager);
     }
 }

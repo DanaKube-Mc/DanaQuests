@@ -55,6 +55,21 @@ public class Lang implements LangContainer {
         GREEN.wrap("Félicitations ! Vous avez terminé la quête d'île.")
     );
 
+    public static final TextLocale COMMAND_PERSONAL_NAME = LangEntry.builder("Command.Personal.Name").text("personal");
+    public static final TextLocale COMMAND_PERSONAL_DESC = LangEntry.builder("Command.Personal.Desc").text("Ouvre le menu des quêtes personnelles (RPG).");
+
+    public static final MessageLocale PERSONAL_LIMIT_REACHED = LangEntry.builder("limit_reached").chatMessage(
+        RED.wrap("Vous avez atteint votre limite quotidienne de quêtes personnelles !")
+    );
+
+    public static final MessageLocale PERSONAL_LEVEL_UP = LangEntry.builder("rpg_level_up").chatMessage(
+        GREEN.wrap("Félicitations ! Votre catégorie %category% passe au niveau %level% !")
+    );
+
+    public static final MessageLocale PERSONAL_NO_QUEST = LangEntry.builder("personal_no_quest").chatMessage(
+        RED.wrap("Vous n'avez pas de quête active pour cette catégorie.")
+    );
+
     public static final TextLocale COMMAND_MILESTONES_NAME       = LangEntry.builder("Command.Milestones.Name").text("Milestones");
     public static final TextLocale COMMAND_MILESTONES_DESC       = LangEntry.builder("Command.Milestones.Desc").text("View milestones.");
     public static final TextLocale COMMAND_MILESTONES_RESET_DESC = LangEntry.builder("Command.Milestones.Reset.Desc").text("Reset a player's milestone.");

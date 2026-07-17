@@ -83,6 +83,41 @@ public class Config {
         "Command aliases for the Island Quests feature."
     );
 
+    public static final ConfigValue<Boolean> FEATURES_PERSONAL_QUESTS_ENABLED = ConfigValue.create("Features.PersonalQuests.Enabled",
+        true,
+        "Enables the Personal Quests feature."
+    );
+
+    public static final ConfigValue<String[]> FEATURES_PERSONAL_QUESTS_ALIASES = ConfigValue.create("Features.PersonalQuests.Aliases",
+        new String[]{"personal", "rpg"},
+        "Command aliases for the Personal Quests feature."
+    );
+
+    public static final ConfigValue<String> SOUNDS_LEVEL_UP = ConfigValue.create("sounds.level-up",
+        "ENTITY_PLAYER_LEVELUP",
+        "Sound played when RPG category levels up."
+    );
+
+    public static final ConfigValue<Integer> PERSONAL_QUESTS_DAILY_LIMITS_DEFAULT = ConfigValue.create("personal-quests.daily-limits.default",
+        3,
+        "Daily limit of personal quests for default players."
+    );
+
+    public static final ConfigValue<Integer> PERSONAL_QUESTS_DAILY_LIMITS_VIP = ConfigValue.create("personal-quests.daily-limits.vip",
+        5,
+        "Daily limit of personal quests for VIP players."
+    );
+
+    public static final ConfigValue<Integer> PERSONAL_QUESTS_DAILY_LIMITS_ADMIN = ConfigValue.create("personal-quests.daily-limits.admin",
+        999,
+        "Daily limit of personal quests for Admin players."
+    );
+
+    public static final ConfigValue<String> PERSONAL_QUESTS_MONEY_COMMAND = ConfigValue.create("personal-quests.money-command",
+        "eco give %player% %money%",
+        "Command executed to give money to the player upon quest completion."
+    );
+
     public static final ConfigValue<String> SOUNDS_DEPOSIT = ConfigValue.create("sounds.deposit",
         "ENTITY_EXPERIENCE_ORB_PICKUP",
         "Sound played when resource is deposited."

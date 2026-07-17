@@ -16,6 +16,8 @@ import su.nightexpress.quests.quest.QuestManager;
 import su.nightexpress.quests.tracker.QuestTrackerManager;
 import su.nightexpress.quests.lore.command.LoreCommands;
 import su.nightexpress.quests.island.command.IslandCommands;
+import su.nightexpress.quests.personal.command.PersonalQuestCommands;
+import java.util.ArrayList;
 
 public class QuestsCommands {
 
@@ -71,6 +73,32 @@ public class QuestsCommands {
                 );
             }
 
+            if (Config.FEATURES_PERSONAL_QUESTS_ENABLED.get()) {
+                PersonalQuestCommands.load(questsPlugin);
+                builder.branch(Commands.literal("personal")
+                    .permission(Perms.COMMAND_PERSONAL)
+                    .description(Lang.COMMAND_PERSONAL_DESC)
+                    .withArguments(
+                        Arguments.string("action").optional().suggestions((reader, context) -> java.util.Arrays.asList("setlevel", "addlevel")),
+                        Arguments.playerName("player").optional(),
+                        Arguments.string("category").optional().suggestions((reader, context) -> new ArrayList<>(questsPlugin.getPersonalQuestManager().getCategories().keySet())),
+                        Arguments.integer("level").optional()
+                    )
+                    .executes(PersonalQuestCommands::executePersonalCommand)
+                );
+                builder.branch(Commands.literal("rpg")
+                    .permission(Perms.COMMAND_PERSONAL)
+                    .description(Lang.COMMAND_PERSONAL_DESC)
+                    .withArguments(
+                        Arguments.string("action").optional().suggestions((reader, context) -> java.util.Arrays.asList("setlevel", "addlevel")),
+                        Arguments.playerName("player").optional(),
+                        Arguments.string("category").optional().suggestions((reader, context) -> new ArrayList<>(questsPlugin.getPersonalQuestManager().getCategories().keySet())),
+                        Arguments.integer("level").optional()
+                    )
+                    .executes(PersonalQuestCommands::executePersonalCommand)
+                );
+            }
+
             builder.executes(QuestsCommands::openQuests);
         });
         command.register();
@@ -79,6 +107,7 @@ public class QuestsCommands {
     public static void shutdown() {
         LoreCommands.shutdown();
         IslandCommands.shutdown();
+        PersonalQuestCommands.shutdown();
         command.unregister();
         command = null;
         manager = null;
