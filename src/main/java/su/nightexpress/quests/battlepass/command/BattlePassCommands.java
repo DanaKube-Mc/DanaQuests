@@ -39,81 +39,83 @@ public class BattlePassCommands {
         plugin = questsPlugin;
         manager = passManager;
 
-        command = NightCommand.hub(plugin, Config.FEATURES_BATTLE_PASS_ALIASES.get(), builder -> builder
-            .localized(Lang.COMMAND_BATTLE_PASS_NAME)
-            .permission(Perms.COMMAND_BATTLE_PASS)
-            .description(Lang.COMMAND_BATTLE_PASS_DESC)
-            .branch(Commands.literal("start")
-                .permission(Perms.COMMAND_BATTLE_PASS_START)
-                .description(Lang.COMMAND_BATTLE_PASS_START_DESC)
-                .withArguments(
-                    Arguments.string(ARG_NAME).localized(CoreLang.COMMAND_ARGUMENT_NAME_NAME).suggestions((reader, context) -> Lists.newList("<name>")),
-                    Arguments.integer(ARG_DURATION, 1, 365).localized(Lang.COMMAND_ARGUMENT_NAME_DURATION).suggestions((reader, context) -> Lists.newList("30", "45", "60"))
+        if (Config.FEATURES_BATTLE_PASS_STANDALONE_COMMAND.get()) {
+            command = NightCommand.hub(plugin, Config.FEATURES_BATTLE_PASS_ALIASES.get(), builder -> builder
+                .localized(Lang.COMMAND_BATTLE_PASS_NAME)
+                .permission(Perms.COMMAND_BATTLE_PASS)
+                .description(Lang.COMMAND_BATTLE_PASS_DESC)
+                .branch(Commands.literal("start")
+                    .permission(Perms.COMMAND_BATTLE_PASS_START)
+                    .description(Lang.COMMAND_BATTLE_PASS_START_DESC)
+                    .withArguments(
+                        Arguments.string(ARG_NAME).localized(CoreLang.COMMAND_ARGUMENT_NAME_NAME).suggestions((reader, context) -> Lists.newList("<name>")),
+                        Arguments.integer(ARG_DURATION, 1, 365).localized(Lang.COMMAND_ARGUMENT_NAME_DURATION).suggestions((reader, context) -> Lists.newList("30", "45", "60"))
+                    )
+                    .executes(BattlePassCommands::scheduleSeason)
                 )
-                .executes(BattlePassCommands::scheduleSeason)
-            )
-            .branch(Commands.literal("cancel")
-                .permission(Perms.COMMAND_BATTLE_PASS_CANCEL)
-                .description(Lang.COMMAND_BATTLE_PASS_CANCEL_DESC)
-                .executes(BattlePassCommands::cancelSeason)
-            )
-            .branch(Commands.literal("addlevel")
-                .description(Lang.COMMAND_BATTLE_PASS_ADD_LEVEL_DESC)
-                .permission(Perms.COMMAND_BATTLE_PASS_ADD_LEVEL)
-                .withArguments(
-                    Arguments.integer(ARG_AMOUNT, 1, BattlePassConfig.getMaxLevel()).localized(CoreLang.COMMAND_ARGUMENT_NAME_AMOUNT).suggestions((reader, context) -> Lists.newList("1", "5", "10")),
-                    Arguments.playerName(ARG_PLAYER).optional()
+                .branch(Commands.literal("cancel")
+                    .permission(Perms.COMMAND_BATTLE_PASS_CANCEL)
+                    .description(Lang.COMMAND_BATTLE_PASS_CANCEL_DESC)
+                    .executes(BattlePassCommands::cancelSeason)
                 )
-                .executes(BattlePassCommands::addLevel)
-            )
-            .branch(Commands.literal("removelevel")
-                .description(Lang.COMMAND_BATTLE_PASS_REMOVE_LEVEL_DESC)
-                .permission(Perms.COMMAND_BATTLE_PASS_REMOVE_LEVEL)
-                .withArguments(
-                    Arguments.integer(ARG_AMOUNT, 1, BattlePassConfig.getMaxLevel()).localized(CoreLang.COMMAND_ARGUMENT_NAME_AMOUNT).suggestions((reader, context) -> Lists.newList("1", "5", "10")),
-                    Arguments.playerName(ARG_PLAYER).optional()
+                .branch(Commands.literal("addlevel")
+                    .description(Lang.COMMAND_BATTLE_PASS_ADD_LEVEL_DESC)
+                    .permission(Perms.COMMAND_BATTLE_PASS_ADD_LEVEL)
+                    .withArguments(
+                        Arguments.integer(ARG_AMOUNT, 1, BattlePassConfig.getMaxLevel()).localized(CoreLang.COMMAND_ARGUMENT_NAME_AMOUNT).suggestions((reader, context) -> Lists.newList("1", "5", "10")),
+                        Arguments.playerName(ARG_PLAYER).optional()
+                    )
+                    .executes(BattlePassCommands::addLevel)
                 )
-                .executes(BattlePassCommands::removeLevel)
-            )
-            .branch(Commands.literal("setlevel")
-                .description(Lang.COMMAND_BATTLE_PASS_SET_LEVEL_DESC)
-                .permission(Perms.COMMAND_BATTLE_PASS_SET_LEVEL)
-                .withArguments(
-                    Arguments.integer(ARG_AMOUNT, 0, BattlePassConfig.getMaxLevel()).localized(CoreLang.COMMAND_ARGUMENT_NAME_AMOUNT).suggestions((reader, context) -> Lists.newList("0", "1", "5", "10")),
-                    Arguments.playerName(ARG_PLAYER).optional()
+                .branch(Commands.literal("removelevel")
+                    .description(Lang.COMMAND_BATTLE_PASS_REMOVE_LEVEL_DESC)
+                    .permission(Perms.COMMAND_BATTLE_PASS_REMOVE_LEVEL)
+                    .withArguments(
+                        Arguments.integer(ARG_AMOUNT, 1, BattlePassConfig.getMaxLevel()).localized(CoreLang.COMMAND_ARGUMENT_NAME_AMOUNT).suggestions((reader, context) -> Lists.newList("1", "5", "10")),
+                        Arguments.playerName(ARG_PLAYER).optional()
+                    )
+                    .executes(BattlePassCommands::removeLevel)
                 )
-                .executes(BattlePassCommands::setLevel)
-            )
-            .branch(Commands.literal("addxp")
-                .description(Lang.COMMAND_BATTLE_PASS_ADD_XP_DESC)
-                .permission(Perms.COMMAND_BATTLE_PASS_ADD_XP)
-                .withArguments(
-                    Arguments.integer(ARG_AMOUNT, 1).localized(CoreLang.COMMAND_ARGUMENT_NAME_AMOUNT).suggestions((reader, context) -> Lists.newList("10", "50", "100")),
-                    Arguments.playerName(ARG_PLAYER).optional()
+                .branch(Commands.literal("setlevel")
+                    .description(Lang.COMMAND_BATTLE_PASS_SET_LEVEL_DESC)
+                    .permission(Perms.COMMAND_BATTLE_PASS_SET_LEVEL)
+                    .withArguments(
+                        Arguments.integer(ARG_AMOUNT, 0, BattlePassConfig.getMaxLevel()).localized(CoreLang.COMMAND_ARGUMENT_NAME_AMOUNT).suggestions((reader, context) -> Lists.newList("0", "1", "5", "10")),
+                        Arguments.playerName(ARG_PLAYER).optional()
+                    )
+                    .executes(BattlePassCommands::setLevel)
                 )
-                .executes(BattlePassCommands::addXP)
-            )
-            .branch(Commands.literal("removexp")
-                .description(Lang.COMMAND_BATTLE_PASS_REMOVE_XP_DESC)
-                .permission(Perms.COMMAND_BATTLE_PASS_REMOVE_XP)
-                .withArguments(
-                    Arguments.integer(ARG_AMOUNT, 1).localized(CoreLang.COMMAND_ARGUMENT_NAME_AMOUNT).suggestions((reader, context) -> Lists.newList("10", "50", "100")),
-                    Arguments.playerName(ARG_PLAYER).optional()
+                .branch(Commands.literal("addxp")
+                    .description(Lang.COMMAND_BATTLE_PASS_ADD_XP_DESC)
+                    .permission(Perms.COMMAND_BATTLE_PASS_ADD_XP)
+                    .withArguments(
+                        Arguments.integer(ARG_AMOUNT, 1).localized(CoreLang.COMMAND_ARGUMENT_NAME_AMOUNT).suggestions((reader, context) -> Lists.newList("10", "50", "100")),
+                        Arguments.playerName(ARG_PLAYER).optional()
+                    )
+                    .executes(BattlePassCommands::addXP)
                 )
-                .executes(BattlePassCommands::removeXP)
-            )
-            .branch(Commands.literal("setxp")
-                .description(Lang.COMMAND_BATTLE_PASS_SET_XP_DESC)
-                .permission(Perms.COMMAND_BATTLE_PASS_SET_XP)
-                .withArguments(
-                    Arguments.integer(ARG_AMOUNT, 0).localized(CoreLang.COMMAND_ARGUMENT_NAME_AMOUNT).suggestions((reader, context) -> Lists.newList("0", "10", "50", "100")),
-                    Arguments.playerName(ARG_PLAYER).optional()
+                .branch(Commands.literal("removexp")
+                    .description(Lang.COMMAND_BATTLE_PASS_REMOVE_XP_DESC)
+                    .permission(Perms.COMMAND_BATTLE_PASS_REMOVE_XP)
+                    .withArguments(
+                        Arguments.integer(ARG_AMOUNT, 1).localized(CoreLang.COMMAND_ARGUMENT_NAME_AMOUNT).suggestions((reader, context) -> Lists.newList("10", "50", "100")),
+                        Arguments.playerName(ARG_PLAYER).optional()
+                    )
+                    .executes(BattlePassCommands::removeXP)
                 )
-                .executes(BattlePassCommands::setXP)
-            )
-            .executes(BattlePassCommands::openBattlePass)
-        );
-        command.register();
+                .branch(Commands.literal("setxp")
+                    .description(Lang.COMMAND_BATTLE_PASS_SET_XP_DESC)
+                    .permission(Perms.COMMAND_BATTLE_PASS_SET_XP)
+                    .withArguments(
+                        Arguments.integer(ARG_AMOUNT, 0).localized(CoreLang.COMMAND_ARGUMENT_NAME_AMOUNT).suggestions((reader, context) -> Lists.newList("0", "10", "50", "100")),
+                        Arguments.playerName(ARG_PLAYER).optional()
+                    )
+                    .executes(BattlePassCommands::setXP)
+                )
+                .executes(BattlePassCommands::openBattlePass)
+            );
+            command.register();
+        }
     }
 
     public static void shutdown() {

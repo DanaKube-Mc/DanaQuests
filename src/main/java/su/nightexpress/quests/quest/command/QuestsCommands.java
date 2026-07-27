@@ -28,6 +28,7 @@ public class QuestsCommands {
     private static QuestsPlugin plugin;
     private static QuestManager manager;
     private static NightCommand command;
+    private static NightCommand dailyCommand;
 
     public static void load(@NotNull QuestsPlugin questsPlugin, @NotNull QuestManager questManager) {
         plugin = questsPlugin;
@@ -128,6 +129,7 @@ public class QuestsCommands {
             }
 
             if (Config.FEATURES_COMMUNITY_QUESTS_ENABLED.get()) {
+                CommunityCommands.load(questsPlugin);
                 builder.branch(Commands.literal("community")
                     .permission(Perms.COMMAND_COMMUNITY)
                     .description(Lang.COMMAND_COMMUNITY_DESC)
@@ -144,6 +146,16 @@ public class QuestsCommands {
             builder.executes(QuestsCommands::openMainMenu);
         });
         command.register();
+
+        if (Config.FEATURES_QUESTS_ENABLED.get() && Config.FEATURES_QUESTS_STANDALONE_COMMAND.get()) {
+            dailyCommand = NightCommand.hub(plugin, Config.FEATURES_QUESTS_ALIASES.get(), builder -> builder
+                .localized(Lang.COMMAND_QUESTS_NAME)
+                .permission(Perms.COMMAND_QUESTS)
+                .description(Lang.COMMAND_QUESTS_DESC)
+                .executes(QuestsCommands::openDailyQuests)
+            );
+            dailyCommand.register();
+        }
     }
 
     public static void shutdown() {
@@ -154,6 +166,10 @@ public class QuestsCommands {
         if (command != null) {
             command.unregister();
             command = null;
+        }
+        if (dailyCommand != null) {
+            dailyCommand.unregister();
+            dailyCommand = null;
         }
         manager = null;
         plugin = null;
