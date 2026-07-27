@@ -128,9 +128,9 @@ public class CommunityQuestDefaults {
             Progress_Item:
               slot: 4
               Item:
-                material: "NETHER_STAR"
-                name: "&6&lÉvénement Actif: &e%quest_name%"
-                lore:
+                Material: "NETHER_STAR"
+                Display_Name: "&6&lÉvénement Actif: &e%quest_name%"
+                Lore:
                   - "&7%quest_description%"
                   - ""
                   - "&e&lProgression Globale:"
@@ -145,9 +145,9 @@ public class CommunityQuestDefaults {
             Contribute_Button:
               slot: 49
               Item:
-                material: "GOLD_NUGGET"
-                name: "&a&lFaire une Contribution"
-                lore:
+                Material: "GOLD_NUGGET"
+                Display_Name: "&a&lFaire une Contribution"
+                Lore:
                   - "&7Contribuez au succès de la communauté !"
                   - ""
                   - "&eClic Gauche: &fDéposer 10 000 Lumens"
@@ -160,17 +160,17 @@ public class CommunityQuestDefaults {
 
             Leaderboard_Item:
               Item:
-                material: "PLAYER_HEAD"
-                name: "&6#%rank% &e%player%"
-                lore:
+                Material: "PLAYER_HEAD"
+                Display_Name: "&6#%rank% &e%player%"
+                Lore:
                   - "&7Contribution: &a%amount%"
                   - "&7Part du total: &e%share%%"
 
             Empty_Leaderboard_Item:
               Item:
-                material: "BARRIER"
-                name: "&7#%rank% &cEmplacement Vide"
-                lore:
+                Material: "BARRIER"
+                Display_Name: "&7#%rank% &cEmplacement Vide"
+                Lore:
                   - "&7Aucune contribution enregistrée pour ce rang."
             """;
     }

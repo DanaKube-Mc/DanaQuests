@@ -49,7 +49,6 @@ public class QuestsPlugin extends NightPlugin {
     @Override
     @NotNull
     protected PluginDetails getDefaultDetails() {
-        try { Class.forName("su.nightexpress.quests.Inspect"); } catch (Exception ignored) {}
         String[] aliases = new String[]{"quests", "quete", "q"};
         try {
             java.io.File file = new java.io.File(this.getDataFolder(), "config.yml");

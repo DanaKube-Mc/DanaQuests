@@ -97,9 +97,9 @@ public class IslandDefaults {
 
             config.set("Requirement_Slots", "20,21,22,23,24");
 
-            config.set("Requirement_Item.material", "CHEST");
-            config.set("Requirement_Item.name", "&d%requirement_name%");
-            config.set("Requirement_Item.lore", Arrays.asList(
+            config.set("Requirement_Item.Item.Material", "CHEST");
+            config.set("Requirement_Item.Item.Display_Name", "&d%requirement_name%");
+            config.set("Requirement_Item.Item.Lore", Arrays.asList(
                 "&7Groupe: &f%resource_group_name%",
                 "&7Progression: &e%progress% / %target% &7(%percent%%)",
                 "%progress_bar%",
@@ -111,10 +111,10 @@ public class IslandDefaults {
                 "&aClic Droit: &7Déposer tout l'inventaire"
             ));
 
-            config.set("Level_Info_Item.material", "BOOK");
             config.set("Level_Info_Item.slot", 4);
-            config.set("Level_Info_Item.name", "&6Quête Actuelle: &e%level_name%");
-            config.set("Level_Info_Item.lore", Arrays.asList(
+            config.set("Level_Info_Item.Item.Material", "BOOK");
+            config.set("Level_Info_Item.Item.Display_Name", "&6Quête Actuelle: &e%level_name%");
+            config.set("Level_Info_Item.Item.Lore", Arrays.asList(
                 "&7Progression globale de l'île",
                 "&7Complétez tous les dépôts ci-dessous pour passer",
                 "&7au niveau supérieur et obtenir les récompenses."

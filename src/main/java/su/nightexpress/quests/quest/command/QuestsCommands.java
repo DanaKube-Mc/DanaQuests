@@ -142,7 +142,7 @@ public class QuestsCommands {
         plugin = null;
     }
 
-    private static boolean openQuests(@NotNull CommandContext context, @NotNull ParsedArguments arguments) {
+    public static boolean openQuests(@NotNull CommandContext context, @NotNull ParsedArguments arguments) {
         if (!context.isPlayer()) {
             context.errorPlayerOnly();
             return false;
@@ -153,7 +153,7 @@ public class QuestsCommands {
         return true;
     }
 
-    private static boolean refreshQuests(@NotNull CommandContext context, @NotNull ParsedArguments arguments) {
+    public static boolean refreshQuests(@NotNull CommandContext context, @NotNull ParsedArguments arguments) {
         String playerName = arguments.getString(ARG_PLAYER);
         plugin.getUserManager().manageUser(playerName, user -> {
             if (user == null) {
@@ -174,7 +174,7 @@ public class QuestsCommands {
         return true;
     }
 
-    private static boolean trackMode(@NotNull CommandContext context, @NotNull ParsedArguments arguments) {
+    public static boolean trackMode(@NotNull CommandContext context, @NotNull ParsedArguments arguments) {
         if (!context.isPlayer()) {
             context.errorPlayerOnly();
             return false;
