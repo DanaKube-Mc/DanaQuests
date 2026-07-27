@@ -27,6 +27,8 @@ import su.nightexpress.quests.personal.PersonalQuestManager;
 import su.nightexpress.quests.tracker.QuestTrackerManager;
 import su.nightexpress.quests.user.UserManager;
 
+import su.nightexpress.quests.community.CommunityQuestManager;
+
 import java.util.Optional;
 
 public class QuestsPlugin extends NightPlugin {
@@ -42,10 +44,12 @@ public class QuestsPlugin extends NightPlugin {
     private LoreManager       loreManager;
     private su.nightexpress.quests.island.IslandManager islandManager;
     private PersonalQuestManager personalQuestManager;
+    private CommunityQuestManager communityQuestManager;
 
     @Override
     @NotNull
     protected PluginDetails getDefaultDetails() {
+        try { Class.forName("su.nightexpress.quests.Inspect"); } catch (Exception ignored) {}
         String[] aliases = new String[]{"quests", "quete", "q"};
         try {
             java.io.File file = new java.io.File(this.getDataFolder(), "config.yml");
@@ -133,6 +137,11 @@ public class QuestsPlugin extends NightPlugin {
             this.personalQuestManager.setup();
         }
 
+        if (Config.FEATURES_COMMUNITY_QUESTS_ENABLED.get()) {
+            this.communityQuestManager = new CommunityQuestManager(this);
+            this.communityQuestManager.setup();
+        }
+
         QuestTrackerManager.setup(this);
 
         this.loadCommands();
@@ -142,6 +151,7 @@ public class QuestsPlugin extends NightPlugin {
     public void disable() {
         QuestTrackerManager.shutdown();
 
+        if (this.communityQuestManager != null) this.communityQuestManager.shutdown();
         if (this.personalQuestManager != null) this.personalQuestManager.shutdown();
         if (this.taskManager != null) this.taskManager.shutdown();
         if (this.milestoneManager != null) this.milestoneManager.shutdown();
@@ -272,5 +282,15 @@ public class QuestsPlugin extends NightPlugin {
     @NotNull
     public Optional<PersonalQuestManager> personalQuestManager() {
         return Optional.ofNullable(this.personalQuestManager);
+    }
+
+    @Nullable
+    public CommunityQuestManager getCommunityQuestManager() {
+        return this.communityQuestManager;
+    }
+
+    @NotNull
+    public Optional<CommunityQuestManager> communityQuestManager() {
+        return Optional.ofNullable(this.communityQuestManager);
     }
 }

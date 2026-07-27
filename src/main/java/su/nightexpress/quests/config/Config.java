@@ -93,6 +93,51 @@ public class Config {
         "Command aliases for the Personal Quests feature."
     );
 
+    public static final ConfigValue<Boolean> FEATURES_COMMUNITY_QUESTS_ENABLED = ConfigValue.create("community-quests.enabled",
+        true,
+        "Enables the Community Quests feature."
+    );
+
+    public static final ConfigValue<Boolean> DISCORD_WEBHOOK_ENABLED = ConfigValue.create("discord-webhook.enabled",
+        true,
+        "Enables Discord Webhook notifications for Community Events."
+    );
+
+    public static final ConfigValue<String> DISCORD_WEBHOOK_URL = ConfigValue.create("discord-webhook.url",
+        "https://discord.com/api/webhooks/YOUR_WEBHOOK_URL",
+        "Discord Webhook URL."
+    );
+
+    public static final ConfigValue<String> DISCORD_WEBHOOK_AVATAR_URL = ConfigValue.create("discord-webhook.avatar-url",
+        "https://i.imgur.com/4M34hi2.png",
+        "Avatar URL for Discord Webhook messages."
+    );
+
+    public static final ConfigValue<String> DISCORD_WEBHOOK_USERNAME = ConfigValue.create("discord-webhook.username",
+        "DanaQuests - Événements",
+        "Username for Discord Webhook messages."
+    );
+
+    public static final ConfigValue<Integer> DISCORD_WEBHOOK_COLOR_START = ConfigValue.create("discord-webhook.colors.start",
+        3447003,
+        "Decimal color code for event start embed."
+    );
+
+    public static final ConfigValue<Integer> DISCORD_WEBHOOK_COLOR_SUCCESS = ConfigValue.create("discord-webhook.colors.success",
+        3066993,
+        "Decimal color code for event victory embed."
+    );
+
+    public static final ConfigValue<Integer> DISCORD_WEBHOOK_COLOR_FAILED = ConfigValue.create("discord-webhook.colors.failed",
+        15158332,
+        "Decimal color code for event failure embed."
+    );
+
+    public static final ConfigValue<String> COMMUNITY_LOGS_PATH = ConfigValue.create("community-quests.logs-path",
+        "logs/community_events",
+        "Relative path for community event log files."
+    );
+
     public static final ConfigValue<String> SOUNDS_LEVEL_UP = ConfigValue.create("sounds.level-up",
         "ENTITY_PLAYER_LEVELUP",
         "Sound played when RPG category levels up."

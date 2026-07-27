@@ -70,6 +70,53 @@ public class Lang implements LangContainer {
         RED.wrap("Vous n'avez pas de quête active pour cette catégorie.")
     );
 
+    public static final TextLocale COMMAND_COMMUNITY_NAME = LangEntry.builder("Command.Community.Name").text("community");
+    public static final TextLocale COMMAND_COMMUNITY_DESC = LangEntry.builder("Command.Community.Desc").text("Ouvre le menu des quêtes communautaires.");
+
+    public static final MessageLocale COMMUNITY_EVENT_STARTED = LangEntry.builder("community_event_started").chatMessage(
+        GREEN.wrap("Événement communautaire démarré : %quest% (Objectif: %target%, Durée: %duration%h) !")
+    );
+
+    public static final MessageLocale COMMUNITY_EVENT_STOPPED = LangEntry.builder("community_event_stopped").chatMessage(
+        RED.wrap("L'événement communautaire actif a été arrêté.")
+    );
+
+    public static final MessageLocale COMMUNITY_EVENT_NO_ACTIVE = LangEntry.builder("community_event_no_active").chatMessage(
+        RED.wrap("Il n'y a pas d'événement communautaire actif en ce moment.")
+    );
+
+    public static final MessageLocale COMMUNITY_EVENT_ALREADY_ACTIVE = LangEntry.builder("community_event_already_active").chatMessage(
+        RED.wrap("Un événement communautaire est déjà en cours !")
+    );
+
+    public static final MessageLocale COMMUNITY_EVENT_SUCCESS = LangEntry.builder("community_event_success").chatMessage(
+        GREEN.wrap("🎉 VICTOIRE ! La communauté a accompli la quête %quest% !")
+    );
+
+    public static final MessageLocale COMMUNITY_EVENT_FAILED = LangEntry.builder("community_event_failed").chatMessage(
+        RED.wrap("❌ ÉCHEC ! L'événement communautaire %quest% s'est terminé sans atteindre l'objectif.")
+    );
+
+    public static final MessageLocale COMMUNITY_CONTRIBUTED = LangEntry.builder("community_contributed").chatMessage(
+        GREEN.wrap("Vous avez déposé %amount% Lumens ! Votre total: %total_player% | Global: %current_global% / %target_global%")
+    );
+
+    public static final MessageLocale COMMUNITY_DEPOSIT_NOT_MONEY_TYPE = LangEntry.builder("community_deposit_not_money_type").chatMessage(
+        RED.wrap("Cet événement n'accepte pas les dépôts d'argent !")
+    );
+
+    public static final MessageLocale COMMUNITY_DEPOSIT_INVALID_AMOUNT = LangEntry.builder("community_deposit_invalid_amount").chatMessage(
+        RED.wrap("Veuillez spécifier un montant positif.")
+    );
+
+    public static final MessageLocale COMMUNITY_DEPOSIT_NOT_ENOUGH_MONEY = LangEntry.builder("community_deposit_not_enough_money").chatMessage(
+        RED.wrap("Vous n'avez pas assez d'argent sur votre solde !")
+    );
+
+    public static final MessageLocale COMMUNITY_INVALID_QUEST = LangEntry.builder("community_invalid_quest").chatMessage(
+        RED.wrap("Quête communautaire introuvable !")
+    );
+
     public static final TextLocale COMMAND_MILESTONES_NAME       = LangEntry.builder("Command.Milestones.Name").text("Milestones");
     public static final TextLocale COMMAND_MILESTONES_DESC       = LangEntry.builder("Command.Milestones.Desc").text("View milestones.");
     public static final TextLocale COMMAND_MILESTONES_RESET_DESC = LangEntry.builder("Command.Milestones.Reset.Desc").text("Reset a player's milestone.");

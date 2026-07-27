@@ -9,6 +9,7 @@ import su.nightexpress.nightcore.commands.context.CommandContext;
 import su.nightexpress.nightcore.commands.context.ParsedArguments;
 import su.nightexpress.quests.QuestsPlaceholders;
 import su.nightexpress.quests.QuestsPlugin;
+import su.nightexpress.quests.community.command.CommunityCommands;
 import su.nightexpress.quests.config.Config;
 import su.nightexpress.quests.config.Lang;
 import su.nightexpress.quests.config.Perms;
@@ -99,6 +100,32 @@ public class QuestsCommands {
                 );
             }
 
+            if (Config.FEATURES_COMMUNITY_QUESTS_ENABLED.get()) {
+                builder.branch(Commands.hub("community")
+                    .permission(Perms.COMMAND_COMMUNITY)
+                    .description(Lang.COMMAND_COMMUNITY_DESC)
+                    .branch(Commands.literal("start")
+                        .permission(Perms.ADMIN_COMMUNITY)
+                        .withArguments(
+                            Arguments.string("quest_id"),
+                            Arguments.integer("duration").optional(),
+                            Arguments.decimal("target").optional()
+                        )
+                        .executes(CommunityCommands::startEvent)
+                    )
+                    .branch(Commands.literal("stop")
+                        .permission(Perms.ADMIN_COMMUNITY)
+                        .executes(CommunityCommands::stopEvent)
+                    )
+                    .branch(Commands.literal("contribute")
+                        .permission(Perms.COMMAND_COMMUNITY)
+                        .withArguments(Arguments.decimal("amount"))
+                        .executes(CommunityCommands::contribute)
+                    )
+                    .executes(CommunityCommands::openLeaderboardMenu)
+                );
+            }
+
             builder.executes(QuestsCommands::openQuests);
         });
         command.register();
@@ -108,6 +135,7 @@ public class QuestsCommands {
         LoreCommands.shutdown();
         IslandCommands.shutdown();
         PersonalQuestCommands.shutdown();
+        CommunityCommands.shutdown();
         command.unregister();
         command = null;
         manager = null;
