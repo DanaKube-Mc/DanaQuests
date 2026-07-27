@@ -14,7 +14,42 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-public class SuperiorSkyblockHookImpl implements ISkyblockHook {
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import com.bgsoftware.superiorskyblock.api.events.IslandDisbandEvent;
+import com.bgsoftware.superiorskyblock.api.events.IslandKickEvent;
+import com.bgsoftware.superiorskyblock.api.events.IslandQuitEvent;
+import su.nightexpress.quests.QuestsPlugin;
+
+public class SuperiorSkyblockHookImpl implements ISkyblockHook, Listener {
+
+    private QuestsPlugin plugin;
+
+    @Override
+    public void registerListeners(@NotNull QuestsPlugin plugin) {
+        this.plugin = plugin;
+        Bukkit.getPluginManager().registerEvents(this, plugin);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onIslandDisband(IslandDisbandEvent event) {
+        if (plugin == null) return;
+        UUID islandUuid = event.getIsland().getUniqueId();
+        plugin.getIslandManager().purgeIslandData(islandUuid);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onIslandQuit(IslandQuitEvent event) {
+        if (plugin == null) return;
+        plugin.getIslandManager().invalidatePlayer(event.getPlayer().getUniqueId());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onIslandKick(IslandKickEvent event) {
+        if (plugin == null) return;
+        plugin.getIslandManager().invalidatePlayer(event.getTarget().getUniqueId());
+    }
 
     @Override
     @Nullable

@@ -139,7 +139,7 @@ public class IslandQuestTest {
 
             @Override
             public IslandQuestProgress getProgress(UUID islandUuid, String questId) {
-                String key = islandUuid.toString() + "_" + questId;
+                String key = islandUuid.toString() + ":" + questId;
                 return testProgress.computeIfAbsent(key, k -> new IslandQuestProgress(islandUuid, questId));
             }
 
@@ -193,5 +193,38 @@ public class IslandQuestTest {
             }
         }
         assertEquals(92, remainingIron);
+    }
+
+    @Test
+    public void testPlayerSwitchIslandLock() {
+        IslandLockManager lockManager = new IslandLockManager();
+        UUID island1 = UUID.randomUUID();
+        UUID island2 = UUID.randomUUID();
+        UUID player1 = UUID.randomUUID();
+
+        assertTrue(lockManager.acquireLock(island1, player1));
+        assertEquals(island1, lockManager.getPlayerLockedIsland(player1));
+
+        assertTrue(lockManager.acquireLock(island2, player1));
+        assertEquals(island2, lockManager.getPlayerLockedIsland(player1));
+        assertNull(lockManager.getLockHolder(island1));
+        assertEquals(player1, lockManager.getLockHolder(island2));
+    }
+
+    @Test
+    public void testPurgeIslandData() {
+        IslandManager manager = new IslandManager(null);
+        UUID islandUuid = UUID.randomUUID();
+        UUID playerUuid = UUID.randomUUID();
+
+        manager.getLockManager().acquireLock(islandUuid, playerUuid);
+        IslandQuestProgress progress = manager.getProgress(islandUuid, "quest_1");
+        progress.setRequirementProgress("req_1", 50);
+
+        manager.purgeIslandData(islandUuid);
+
+        assertNull(manager.getLockManager().getLockHolder(islandUuid));
+        IslandQuestProgress newProgress = manager.getProgress(islandUuid, "quest_1");
+        assertEquals(0, newProgress.getRequirementProgress("req_1"));
     }
 }
