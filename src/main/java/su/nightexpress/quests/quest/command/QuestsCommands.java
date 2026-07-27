@@ -18,7 +18,6 @@ import su.nightexpress.quests.tracker.QuestTrackerManager;
 import su.nightexpress.quests.lore.command.LoreCommands;
 import su.nightexpress.quests.island.command.IslandCommands;
 import su.nightexpress.quests.personal.command.PersonalQuestCommands;
-import java.util.ArrayList;
 
 public class QuestsCommands {
 
@@ -34,16 +33,27 @@ public class QuestsCommands {
         plugin = questsPlugin;
         manager = questManager;
 
-        command = NightCommand.hub(plugin, Config.FEATURES_QUESTS_ALIASES.get(), builder -> {
+        String[] aliases = parseAliases(Config.GENERAL_COMMAND_ALIASES.get());
+
+        command = NightCommand.hub(plugin, aliases, builder -> {
             builder
                 .localized(Lang.COMMAND_QUESTS_NAME)
                 .permission(Perms.COMMAND_QUESTS)
                 .description(Lang.COMMAND_QUESTS_DESC)
-                .branch(Commands.literal("refresh")
-                    .permission(Perms.COMMAND_QUESTS_REFRESH)
-                    .description(Lang.COMMAND_QUESTS_REFRESH_DESC)
-                    .withArguments(Arguments.playerName(ARG_PLAYER))
-                    .executes(QuestsCommands::refreshQuests)
+                .branch(Commands.literal("daily")
+                    .permission(Perms.COMMAND_QUESTS)
+                    .description(Lang.COMMAND_QUESTS_DESC)
+                    .executes(QuestsCommands::openDailyQuests)
+                )
+                .branch(Commands.literal("dailyquests")
+                    .permission(Perms.COMMAND_QUESTS)
+                    .description(Lang.COMMAND_QUESTS_DESC)
+                    .executes(QuestsCommands::openDailyQuests)
+                )
+                .branch(Commands.literal("dquests")
+                    .permission(Perms.COMMAND_QUESTS)
+                    .description(Lang.COMMAND_QUESTS_DESC)
+                    .executes(QuestsCommands::openDailyQuests)
                 )
                 .branch(Commands.literal("track")
                     .permission(Perms.COMMAND_TRACK_TOGGLE)
@@ -51,9 +61,38 @@ public class QuestsCommands {
                     .executes(QuestsCommands::trackMode)
                 );
 
+            if (Config.FEATURES_BATTLE_PASS_ENABLED.get()) {
+                builder.branch(Commands.literal("battlepass")
+                    .permission(Perms.COMMAND_BATTLE_PASS)
+                    .description(Lang.COMMAND_BATTLE_PASS_DESC)
+                    .executes(QuestsCommands::openBattlePass)
+                );
+                builder.branch(Commands.literal("bp")
+                    .permission(Perms.COMMAND_BATTLE_PASS)
+                    .description(Lang.COMMAND_BATTLE_PASS_DESC)
+                    .executes(QuestsCommands::openBattlePass)
+                );
+            }
+
+            if (Config.FEATURES_MILESTONES_ENABLED.get()) {
+                builder.branch(Commands.literal("milestones")
+                    .permission(Perms.COMMAND_MILESTONES)
+                    .executes(QuestsCommands::openMilestones)
+                );
+                builder.branch(Commands.literal("ms")
+                    .permission(Perms.COMMAND_MILESTONES)
+                    .executes(QuestsCommands::openMilestones)
+                );
+            }
+
             if (Config.FEATURES_LORE_ENABLED.get()) {
                 LoreCommands.load(questsPlugin);
                 builder.branch(Commands.literal("lore")
+                    .permission(Perms.COMMAND_QUESTS_LORE)
+                    .description(Lang.COMMAND_QUESTS_LORE_DESC)
+                    .executes(LoreCommands::openLoreMenu)
+                );
+                builder.branch(Commands.literal("lorequest")
                     .permission(Perms.COMMAND_QUESTS_LORE)
                     .description(Lang.COMMAND_QUESTS_LORE_DESC)
                     .executes(LoreCommands::openLoreMenu)
@@ -79,54 +118,30 @@ public class QuestsCommands {
                 builder.branch(Commands.literal("personal")
                     .permission(Perms.COMMAND_PERSONAL)
                     .description(Lang.COMMAND_PERSONAL_DESC)
-                    .withArguments(
-                        Arguments.string("action").optional().suggestions((reader, context) -> java.util.Arrays.asList("setlevel", "addlevel")),
-                        Arguments.playerName("player").optional(),
-                        Arguments.string("category").optional().suggestions((reader, context) -> new ArrayList<>(questsPlugin.getPersonalQuestManager().getCategories().keySet())),
-                        Arguments.integer("level").optional()
-                    )
                     .executes(PersonalQuestCommands::executePersonalCommand)
                 );
                 builder.branch(Commands.literal("rpg")
                     .permission(Perms.COMMAND_PERSONAL)
                     .description(Lang.COMMAND_PERSONAL_DESC)
-                    .withArguments(
-                        Arguments.string("action").optional().suggestions((reader, context) -> java.util.Arrays.asList("setlevel", "addlevel")),
-                        Arguments.playerName("player").optional(),
-                        Arguments.string("category").optional().suggestions((reader, context) -> new ArrayList<>(questsPlugin.getPersonalQuestManager().getCategories().keySet())),
-                        Arguments.integer("level").optional()
-                    )
                     .executes(PersonalQuestCommands::executePersonalCommand)
                 );
             }
 
             if (Config.FEATURES_COMMUNITY_QUESTS_ENABLED.get()) {
-                builder.branch(Commands.hub("community")
+                builder.branch(Commands.literal("community")
                     .permission(Perms.COMMAND_COMMUNITY)
                     .description(Lang.COMMAND_COMMUNITY_DESC)
-                    .branch(Commands.literal("start")
-                        .permission(Perms.ADMIN_COMMUNITY)
-                        .withArguments(
-                            Arguments.string("quest_id"),
-                            Arguments.integer("duration").optional(),
-                            Arguments.decimal("target").optional()
-                        )
-                        .executes(CommunityCommands::startEvent)
-                    )
-                    .branch(Commands.literal("stop")
-                        .permission(Perms.ADMIN_COMMUNITY)
-                        .executes(CommunityCommands::stopEvent)
-                    )
-                    .branch(Commands.literal("contribute")
-                        .permission(Perms.COMMAND_COMMUNITY)
-                        .withArguments(Arguments.decimal("amount"))
-                        .executes(CommunityCommands::contribute)
-                    )
+                    .executes(CommunityCommands::openLeaderboardMenu)
+                );
+                builder.branch(Commands.literal("cq")
+                    .permission(Perms.COMMAND_COMMUNITY)
+                    .description(Lang.COMMAND_COMMUNITY_DESC)
                     .executes(CommunityCommands::openLeaderboardMenu)
                 );
             }
 
-            builder.executes(QuestsCommands::openQuests);
+            // Default execution for /quests (/quete, /q) -> opens Main Menu (quete.yml)
+            builder.executes(QuestsCommands::openMainMenu);
         });
         command.register();
     }
@@ -136,13 +151,26 @@ public class QuestsCommands {
         IslandCommands.shutdown();
         PersonalQuestCommands.shutdown();
         CommunityCommands.shutdown();
-        command.unregister();
-        command = null;
+        if (command != null) {
+            command.unregister();
+            command = null;
+        }
         manager = null;
         plugin = null;
     }
 
-    public static boolean openQuests(@NotNull CommandContext context, @NotNull ParsedArguments arguments) {
+    public static boolean openMainMenu(@NotNull CommandContext context, @NotNull ParsedArguments arguments) {
+        if (!context.isPlayer()) {
+            context.errorPlayerOnly();
+            return false;
+        }
+
+        Player player = context.getPlayerOrThrow();
+        manager.openMainMenu(player);
+        return true;
+    }
+
+    public static boolean openDailyQuests(@NotNull CommandContext context, @NotNull ParsedArguments arguments) {
         if (!context.isPlayer()) {
             context.errorPlayerOnly();
             return false;
@@ -150,6 +178,28 @@ public class QuestsCommands {
 
         Player player = context.getPlayerOrThrow();
         manager.openQuests(player);
+        return true;
+    }
+
+    public static boolean openBattlePass(@NotNull CommandContext context, @NotNull ParsedArguments arguments) {
+        if (!context.isPlayer()) {
+            context.errorPlayerOnly();
+            return false;
+        }
+
+        Player player = context.getPlayerOrThrow();
+        plugin.battlePassManager().ifPresent(bpm -> bpm.openBattlePass(player));
+        return true;
+    }
+
+    public static boolean openMilestones(@NotNull CommandContext context, @NotNull ParsedArguments arguments) {
+        if (!context.isPlayer()) {
+            context.errorPlayerOnly();
+            return false;
+        }
+
+        Player player = context.getPlayerOrThrow();
+        plugin.milestoneManager().ifPresent(mm -> mm.openCategories(player));
         return true;
     }
 
@@ -225,5 +275,14 @@ public class QuestsCommands {
             }
         });
         return true;
+    }
+
+    private static String[] parseAliases(String raw) {
+        if (raw == null || raw.trim().isEmpty()) return new String[]{"quests", "quete", "q"};
+        String[] split = raw.split(",");
+        for (int i = 0; i < split.length; i++) {
+            split[i] = split[i].trim();
+        }
+        return split;
     }
 }

@@ -26,7 +26,12 @@ public class Config {
 
     public static final ConfigValue<String> GENERAL_COMMAND_ALIASES = ConfigValue.create("General.Command_Aliases",
         "quests,quete,q",
-        "Main command aliases"
+        "Main command aliases for players"
+    );
+
+    public static final ConfigValue<String> GENERAL_ADMIN_COMMAND_ALIASES = ConfigValue.create("General.Admin_Command_Aliases",
+        "danaquests,dquests,dq",
+        "Main command aliases for administrators"
     );
 
     public static final ConfigValue<Boolean> FEATURES_BATTLE_PASS_ENABLED = ConfigValue.create("Features.BattlePass.Enabled",
@@ -46,7 +51,7 @@ public class Config {
     );
 
     public static final ConfigValue<String[]> FEATURES_QUESTS_ALIASES = ConfigValue.create("Features.DailyQuests.Aliases",
-        new String[]{QuestsCommands.DEFAULT_ALIAS},
+        new String[]{"dailyquests", "dquests", "daily"},
         "Command aliases for the Daily Quests feature.",
         "[*] Server reboot is highly recommended when changed."
     );
@@ -57,7 +62,7 @@ public class Config {
     );
 
     public static final ConfigValue<String[]> FEATURES_MILESTONES_ALIASES = ConfigValue.create("Features.Milestones.Aliases",
-        new String[]{MilestoneCommands.DEFAULT_ALIAS},
+        new String[]{MilestoneCommands.DEFAULT_ALIAS, "ms"},
         "Command aliases for the Milestones feature.",
         "[*] Server reboot is highly recommended when changed."
     );
@@ -68,7 +73,7 @@ public class Config {
     );
 
     public static final ConfigValue<String[]> FEATURES_LORE_ALIASES = ConfigValue.create("Features.LoreQuests.Aliases",
-        new String[]{LoreCommands.DEFAULT_ALIAS, "lq"},
+        new String[]{LoreCommands.DEFAULT_ALIAS, "lq", "lore"},
         "Command aliases for the Lore Quests feature.",
         "[*] Server reboot is highly recommended when changed."
     );
@@ -89,13 +94,18 @@ public class Config {
     );
 
     public static final ConfigValue<String[]> FEATURES_PERSONAL_QUESTS_ALIASES = ConfigValue.create("Features.PersonalQuests.Aliases",
-        new String[]{"personal", "rpg"},
+        new String[]{"personal", "rpg", "pq"},
         "Command aliases for the Personal Quests feature."
     );
 
-    public static final ConfigValue<Boolean> FEATURES_COMMUNITY_QUESTS_ENABLED = ConfigValue.create("community-quests.enabled",
+    public static final ConfigValue<Boolean> FEATURES_COMMUNITY_QUESTS_ENABLED = ConfigValue.create("Features.CommunityQuests.Enabled",
         true,
         "Enables the Community Quests feature."
+    );
+
+    public static final ConfigValue<String[]> FEATURES_COMMUNITY_QUESTS_ALIASES = ConfigValue.create("Features.CommunityQuests.Aliases",
+        new String[]{"community", "cq"},
+        "Command aliases for the Community Quests feature."
     );
 
     public static final ConfigValue<Boolean> DISCORD_WEBHOOK_ENABLED = ConfigValue.create("discord-webhook.enabled",

@@ -105,6 +105,14 @@ public class QuestManager extends AbstractManager<QuestsPlugin> {
         return this.mainMenu;
     }
 
+    public void openMainMenu(@NotNull Player player) {
+        if (this.mainMenu != null) {
+            this.mainMenu.open(player);
+        } else {
+            this.openQuests(player);
+        }
+    }
+
     public boolean isQuestsAvailable() {
         if (Config.isQuestsForBattlePass()) {
             return this.plugin.battlePassManager().map(BattlePassManager::isSeasonActive).orElse(false);

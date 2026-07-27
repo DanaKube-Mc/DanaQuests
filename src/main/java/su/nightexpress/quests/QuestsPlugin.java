@@ -148,6 +148,7 @@ public class QuestsPlugin extends NightPlugin {
 
     @Override
     public void disable() {
+        BaseCommands.shutdown();
         QuestTrackerManager.shutdown();
 
         if (this.communityQuestManager != null) this.communityQuestManager.shutdown();
@@ -174,22 +175,7 @@ public class QuestsPlugin extends NightPlugin {
     }
 
     private void loadCommands() {
-        this.rootCommand = NightCommand.forPlugin(this, builder -> {
-            BaseCommands.load(this, builder);
-            builder.executes((context, arguments) -> {
-                if (!context.isPlayer()) {
-                    context.errorPlayerOnly();
-                    return false;
-                }
-                Player player = context.getPlayerOrThrow();
-                this.questManager().ifPresent(qm -> {
-                    if (qm.getMainMenu() != null) {
-                        qm.getMainMenu().open(player);
-                    }
-                });
-                return true;
-            });
-        });
+        BaseCommands.load(this);
     }
 
     @NotNull
