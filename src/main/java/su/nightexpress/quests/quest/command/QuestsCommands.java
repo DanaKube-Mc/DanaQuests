@@ -62,84 +62,77 @@ public class QuestsCommands {
                     .executes(QuestsCommands::trackMode)
                 );
 
+            if (Config.FEATURES_QUESTS_ENABLED.get()) {
+                for (String alias : Config.FEATURES_QUESTS_ALIASES.get()) {
+                    builder.branch(Commands.literal(alias)
+                        .permission(Perms.COMMAND_QUESTS)
+                        .description(Lang.COMMAND_QUESTS_DESC)
+                        .executes(QuestsCommands::openDailyQuests)
+                    );
+                }
+            }
+
             if (Config.FEATURES_BATTLE_PASS_ENABLED.get()) {
-                builder.branch(Commands.literal("battlepass")
-                    .permission(Perms.COMMAND_BATTLE_PASS)
-                    .description(Lang.COMMAND_BATTLE_PASS_DESC)
-                    .executes(QuestsCommands::openBattlePass)
-                );
-                builder.branch(Commands.literal("bp")
-                    .permission(Perms.COMMAND_BATTLE_PASS)
-                    .description(Lang.COMMAND_BATTLE_PASS_DESC)
-                    .executes(QuestsCommands::openBattlePass)
-                );
+                for (String alias : Config.FEATURES_BATTLE_PASS_ALIASES.get()) {
+                    builder.branch(Commands.literal(alias)
+                        .permission(Perms.COMMAND_BATTLE_PASS)
+                        .description(Lang.COMMAND_BATTLE_PASS_DESC)
+                        .executes(QuestsCommands::openBattlePass)
+                    );
+                }
             }
 
             if (Config.FEATURES_MILESTONES_ENABLED.get()) {
-                builder.branch(Commands.literal("milestones")
-                    .permission(Perms.COMMAND_MILESTONES)
-                    .executes(QuestsCommands::openMilestones)
-                );
-                builder.branch(Commands.literal("ms")
-                    .permission(Perms.COMMAND_MILESTONES)
-                    .executes(QuestsCommands::openMilestones)
-                );
+                for (String alias : Config.FEATURES_MILESTONES_ALIASES.get()) {
+                    builder.branch(Commands.literal(alias)
+                        .permission(Perms.COMMAND_MILESTONES)
+                        .executes(QuestsCommands::openMilestones)
+                    );
+                }
             }
 
             if (Config.FEATURES_LORE_ENABLED.get()) {
                 LoreCommands.load(questsPlugin);
-                builder.branch(Commands.literal("lore")
-                    .permission(Perms.COMMAND_QUESTS_LORE)
-                    .description(Lang.COMMAND_QUESTS_LORE_DESC)
-                    .executes(LoreCommands::openLoreMenu)
-                );
-                builder.branch(Commands.literal("lorequest")
-                    .permission(Perms.COMMAND_QUESTS_LORE)
-                    .description(Lang.COMMAND_QUESTS_LORE_DESC)
-                    .executes(LoreCommands::openLoreMenu)
-                );
+                for (String alias : Config.FEATURES_LORE_ALIASES.get()) {
+                    builder.branch(Commands.literal(alias)
+                        .permission(Perms.COMMAND_QUESTS_LORE)
+                        .description(Lang.COMMAND_QUESTS_LORE_DESC)
+                        .executes(LoreCommands::openLoreMenu)
+                    );
+                }
             }
 
             if (Config.FEATURES_ISLAND_QUESTS_ENABLED.get()) {
                 IslandCommands.load(questsPlugin);
-                builder.branch(Commands.literal("island")
-                    .permission(Perms.COMMAND_ISLAND)
-                    .description(Lang.COMMAND_ISLAND_DESC)
-                    .executes(IslandCommands::openIslandMenu)
-                );
-                builder.branch(Commands.literal("is")
-                    .permission(Perms.COMMAND_ISLAND)
-                    .description(Lang.COMMAND_ISLAND_DESC)
-                    .executes(IslandCommands::openIslandMenu)
-                );
+                for (String alias : Config.FEATURES_ISLAND_QUESTS_ALIASES.get()) {
+                    builder.branch(Commands.literal(alias)
+                        .permission(Perms.COMMAND_ISLAND)
+                        .description(Lang.COMMAND_ISLAND_DESC)
+                        .executes(IslandCommands::openIslandMenu)
+                    );
+                }
             }
 
             if (Config.FEATURES_PERSONAL_QUESTS_ENABLED.get()) {
                 PersonalQuestCommands.load(questsPlugin);
-                builder.branch(Commands.literal("personal")
-                    .permission(Perms.COMMAND_PERSONAL)
-                    .description(Lang.COMMAND_PERSONAL_DESC)
-                    .executes(PersonalQuestCommands::executePersonalCommand)
-                );
-                builder.branch(Commands.literal("rpg")
-                    .permission(Perms.COMMAND_PERSONAL)
-                    .description(Lang.COMMAND_PERSONAL_DESC)
-                    .executes(PersonalQuestCommands::executePersonalCommand)
-                );
+                for (String alias : Config.FEATURES_PERSONAL_QUESTS_ALIASES.get()) {
+                    builder.branch(Commands.literal(alias)
+                        .permission(Perms.COMMAND_PERSONAL)
+                        .description(Lang.COMMAND_PERSONAL_DESC)
+                        .executes(PersonalQuestCommands::executePersonalCommand)
+                    );
+                }
             }
 
             if (Config.FEATURES_COMMUNITY_QUESTS_ENABLED.get()) {
                 CommunityCommands.load(questsPlugin);
-                builder.branch(Commands.literal("community")
-                    .permission(Perms.COMMAND_COMMUNITY)
-                    .description(Lang.COMMAND_COMMUNITY_DESC)
-                    .executes(CommunityCommands::openLeaderboardMenu)
-                );
-                builder.branch(Commands.literal("cq")
-                    .permission(Perms.COMMAND_COMMUNITY)
-                    .description(Lang.COMMAND_COMMUNITY_DESC)
-                    .executes(CommunityCommands::openLeaderboardMenu)
-                );
+                for (String alias : Config.FEATURES_COMMUNITY_QUESTS_ALIASES.get()) {
+                    builder.branch(Commands.literal(alias)
+                        .permission(Perms.COMMAND_COMMUNITY)
+                        .description(Lang.COMMAND_COMMUNITY_DESC)
+                        .executes(CommunityCommands::openLeaderboardMenu)
+                    );
+                }
             }
 
             // Default execution for /quests (/quete, /q) -> opens Main Menu (quests.yml)
@@ -182,7 +175,11 @@ public class QuestsCommands {
         }
 
         Player player = context.getPlayerOrThrow();
-        manager.openMainMenu(player);
+        if (manager != null) {
+            manager.openMainMenu(player);
+        } else {
+            plugin.mainMenu().ifPresent(menu -> menu.open(player));
+        }
         return true;
     }
 
@@ -193,7 +190,9 @@ public class QuestsCommands {
         }
 
         Player player = context.getPlayerOrThrow();
-        manager.openQuests(player);
+        if (manager != null) {
+            manager.openQuests(player);
+        }
         return true;
     }
 

@@ -56,8 +56,6 @@ public class QuestManager extends AbstractManager<QuestsPlugin> {
 
         this.addListener(new QuestGenericListener(this.plugin, this));
         this.addAsyncTask(this::updatePlayerQuests, 1);
-
-        QuestsCommands.load(this.plugin, this);
     }
 
     @Override

@@ -19,6 +19,7 @@ import su.nightexpress.quests.milestone.MilestoneManager;
 import su.nightexpress.quests.reward.RewardManager;
 import su.nightexpress.quests.task.TaskManager;
 import su.nightexpress.quests.quest.QuestManager;
+import su.nightexpress.quests.quest.command.QuestsCommands;
 import su.nightexpress.quests.registry.Registries;
 import su.nightexpress.quests.task.TaskTypeRegistry;
 import su.nightexpress.quests.lore.LoreManager;
@@ -148,6 +149,7 @@ public class QuestsPlugin extends NightPlugin {
 
     @Override
     public void disable() {
+        QuestsCommands.shutdown();
         BaseCommands.shutdown();
         QuestTrackerManager.shutdown();
 
@@ -176,6 +178,7 @@ public class QuestsPlugin extends NightPlugin {
 
     private void loadCommands() {
         BaseCommands.load(this);
+        QuestsCommands.load(this, this.questManager);
     }
 
     @NotNull
