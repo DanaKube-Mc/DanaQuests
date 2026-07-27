@@ -139,7 +139,7 @@ public class BattlePassCommands {
         return true;
     }
 
-    private static boolean scheduleSeason(@NotNull CommandContext context, @NotNull ParsedArguments arguments) {
+    public static boolean scheduleSeason(@NotNull CommandContext context, @NotNull ParsedArguments arguments) {
         CommandSender sender = context.getSender();
         String name = arguments.getString(ARG_NAME);
         int days = arguments.getInt(ARG_DURATION);
@@ -148,7 +148,7 @@ public class BattlePassCommands {
         return true;
     }
 
-    private static boolean cancelSeason(@NotNull CommandContext context, @NotNull ParsedArguments arguments) {
+    public static boolean cancelSeason(@NotNull CommandContext context, @NotNull ParsedArguments arguments) {
         manager.cancelSeason(context.getSender());
         return true;
     }

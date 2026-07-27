@@ -67,7 +67,7 @@ public class QuestsPlugin extends NightPlugin {
             }
         } catch (Exception ignored) {}
 
-        return PluginDetails.create("Quests", aliases)
+        return PluginDetails.create("DanaQuests", aliases)
             .setConfigClass(Config.class)
             .setPermissionsClass(Perms.class);
     }
