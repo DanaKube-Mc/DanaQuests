@@ -46,9 +46,9 @@ public class QuestManager extends AbstractManager<QuestsPlugin> {
     public QuestManager(@NotNull QuestsPlugin plugin) {
         super(plugin);
         this.questById = new HashMap<>();
-        this.dirPath = this.plugin.getDataFolder() + Config.DIR_QUESTS;
+        this.dirPath = this.plugin.getDataFolder() + Config.DIR_DAILY;
     }
-
+ 
     @Override
     protected void onLoad() {
         this.loadQuests();
@@ -96,8 +96,8 @@ public class QuestManager extends AbstractManager<QuestsPlugin> {
     }
 
     private void loadUI() {
-        this.questsMenu = this.addMenu(new QuestsMenu(this.plugin, this), Config.DIR_MENU, "daily.yml");
-        this.mainMenu = this.addMenu(new MainMenu(this.plugin), Config.DIR_MENU, "quete.yml");
+        this.questsMenu = this.addMenu(new QuestsMenu(this.plugin, this), Config.DIR_MENU_DAILY, "daily.yml");
+        this.mainMenu = this.addMenu(new MainMenu(this.plugin), Config.DIR_MENU, "quests.yml");
     }
 
     @Nullable

@@ -46,7 +46,7 @@ public class IslandManager extends AbstractManager<QuestsPlugin> {
         loadResourceGroups();
         loadQuests();
 
-        this.menu = this.addMenu(new IslandQuestMenu(this.plugin, this), Config.DIR_MENU, "island_quests.yml");
+        this.menu = this.addMenu(new IslandQuestMenu(this.plugin, this), Config.DIR_MENU_ISLAND, "island_quests.yml");
 
         this.plugin.getServer().getPluginManager().registerEvents(new IslandGenericListener(this.plugin, this), this.plugin);
     }
@@ -62,7 +62,7 @@ public class IslandManager extends AbstractManager<QuestsPlugin> {
 
     private void loadResourceGroups() {
         resourceGroups.clear();
-        File file = new File(plugin.getDataFolder(), "resource_groups.yml");
+        File file = new File(plugin.getDataFolder() + Config.DIR_ISLAND, "resource_groups.yml");
         if (!file.exists()) return;
         FileConfig config = new FileConfig(file);
         config.load();
@@ -89,7 +89,7 @@ public class IslandManager extends AbstractManager<QuestsPlugin> {
 
     private void loadQuests() {
         quests.clear();
-        File file = new File(plugin.getDataFolder(), "island_quests.yml");
+        File file = new File(plugin.getDataFolder() + Config.DIR_ISLAND, "island_quests.yml");
         if (!file.exists()) return;
         FileConfig config = new FileConfig(file);
         config.load();

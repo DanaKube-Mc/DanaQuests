@@ -2,6 +2,7 @@ package su.nightexpress.quests.island;
 
 import su.nightexpress.nightcore.config.FileConfig;
 import su.nightexpress.quests.QuestsPlugin;
+import su.nightexpress.quests.config.Config;
 
 import java.io.File;
 import java.util.Arrays;
@@ -10,18 +11,22 @@ public class IslandDefaults {
 
     public static void setupDefaults(QuestsPlugin plugin) {
         File dataFolder = plugin.getDataFolder();
+        File islandDir = new File(dataFolder, Config.DIR_ISLAND);
+        if (!islandDir.exists()) {
+            islandDir.mkdirs();
+        }
 
-        File resourceGroupsFile = new File(dataFolder, "resource_groups.yml");
+        File resourceGroupsFile = new File(islandDir, "resource_groups.yml");
         if (!resourceGroupsFile.exists()) {
             createResourceGroupsDefault(resourceGroupsFile);
         }
 
-        File islandQuestsFile = new File(dataFolder, "island_quests.yml");
+        File islandQuestsFile = new File(islandDir, "island_quests.yml");
         if (!islandQuestsFile.exists()) {
             createIslandQuestsDefault(islandQuestsFile);
         }
 
-        File menuFile = new File(dataFolder, "menu/island_quests.yml");
+        File menuFile = new File(dataFolder, Config.DIR_MENU_ISLAND + "island_quests.yml");
         if (!menuFile.exists()) {
             createMenuDefault(menuFile);
         }

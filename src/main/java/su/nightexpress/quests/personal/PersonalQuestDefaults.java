@@ -10,11 +10,17 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import su.nightexpress.quests.config.Config;
+
 public class PersonalQuestDefaults {
 
     public static void createDefaults(@NotNull QuestsPlugin plugin) {
         // 1. rpg_categories.yml
-        File categoriesFile = new File(plugin.getDataFolder(), "rpg_categories.yml");
+        File personalDir = new File(plugin.getDataFolder(), Config.DIR_PERSONAL);
+        if (!personalDir.exists()) {
+            personalDir.mkdirs();
+        }
+        File categoriesFile = new File(personalDir, "rpg_categories.yml");
         if (!categoriesFile.exists()) {
             try {
                 FileConfig config = new FileConfig(categoriesFile);
@@ -62,7 +68,7 @@ public class PersonalQuestDefaults {
         }
 
         // Create menu directory if not exist
-        File menuDir = new File(plugin.getDataFolder(), "menu");
+        File menuDir = new File(plugin.getDataFolder(), Config.DIR_MENU_PERSONAL);
         if (!menuDir.exists()) {
             menuDir.mkdirs();
         }

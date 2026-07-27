@@ -140,7 +140,7 @@ public class QuestsCommands {
                 );
             }
 
-            // Default execution for /quests (/quete, /q) -> opens Main Menu (quete.yml)
+            // Default execution for /quests (/quete, /q) -> opens Main Menu (quests.yml)
             builder.executes(QuestsCommands::openMainMenu);
         });
         command.register();

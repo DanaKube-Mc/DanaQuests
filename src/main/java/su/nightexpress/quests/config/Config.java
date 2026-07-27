@@ -15,9 +15,22 @@ import static org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 
 public class Config {
 
-    public static final String DIR_QUESTS     = "/quests/";
+    public static final String DIR_DAILY      = "/daily/";
+    public static final String DIR_BATTLEPASS = "/battlepass/";
+    public static final String DIR_COMMUNITY  = "/community/";
+    public static final String DIR_LORE       = "/lore/";
     public static final String DIR_MILESTONES = "/milestones/";
-    public static final String DIR_MENU       = "/menu/";
+    public static final String DIR_ISLAND     = "/island/";
+    public static final String DIR_PERSONAL   = "/personal/";
+
+    public static final String DIR_MENU            = "/menu/";
+    public static final String DIR_MENU_DAILY      = "/menu/daily/";
+    public static final String DIR_MENU_BATTLEPASS = "/menu/battlepass/";
+    public static final String DIR_MENU_COMMUNITY  = "/menu/community/";
+    public static final String DIR_MENU_LORE       = "/menu/lore/";
+    public static final String DIR_MENU_MILESTONES = "/menu/milestones/";
+    public static final String DIR_MENU_ISLAND     = "/menu/island/";
+    public static final String DIR_MENU_PERSONAL   = "/menu/personal/";
 
     public static final ConfigValue<String> GENERAL_DATE_TIME_FORMAT = ConfigValue.create("General.DateTimeFormat",
         "dd/MM/yyyy HH:mm",

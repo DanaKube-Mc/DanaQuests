@@ -56,7 +56,7 @@ public class BattlePassManager extends AbstractManager<QuestsPlugin> {
 
     @Override
     protected void onLoad() {
-        FileConfig config = FileConfig.load(this.plugin.getDataFolder().getAbsolutePath(), FILE_NAME);
+        FileConfig config = FileConfig.loadOrExtract(this.plugin, Config.DIR_BATTLEPASS + FILE_NAME);
 
         config.initializeOptions(BattlePassConfig.class);
         this.plugin.runTaskAsync(task -> this.loadSeasons());
@@ -123,7 +123,7 @@ public class BattlePassManager extends AbstractManager<QuestsPlugin> {
     }
 
     private void loadUI() {
-        this.battlePassMenu = this.addMenu(new BattlePassMenu(this.plugin, this), Config.DIR_MENU, "battlepass_levels.yml");
+        this.battlePassMenu = this.addMenu(new BattlePassMenu(this.plugin, this), Config.DIR_MENU_BATTLEPASS, "battlepass_levels.yml");
     }
 
     private void loadCommands() {
