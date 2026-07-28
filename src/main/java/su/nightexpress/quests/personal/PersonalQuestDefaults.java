@@ -90,13 +90,13 @@ public class PersonalQuestDefaults {
                 config.set("Quest.SlotsByCount.5", "20,21,22,23,24");
 
                 // Content
-                config.set("Content.back-profile.Priority", 10);
-                config.set("Content.back-profile.Slots", "40");
-                config.set("Content.back-profile.Item.Material", "PLAYER_HEAD");
-                config.set("Content.back-profile.Item.Skull-Texture", "%player%");
-                config.set("Content.back-profile.Item.Display_Name", "<#ffeea2><b>Profile");
-                config.set("Content.back-profile.Item.Lore", Collections.singletonList("<#d4d9d8>Cliquez pour retourner à votre profil."));
-                config.set("Content.back-profile.Item.Hide_Components", true);
+                config.set("Content.back.Priority", 10);
+                config.set("Content.back.Slots", "40");
+                config.set("Content.back.Item.Material", "PLAYER_HEAD");
+                config.set("Content.back.Item.Skull-Texture", "%player%");
+                config.set("Content.back.Item.Display_Name", "<#ffeea2><b>Profile");
+                config.set("Content.back.Item.Lore", Collections.singletonList("<#d4d9d8>Cliquez pour retourner à votre profil."));
+                config.set("Content.back.Item.Hide_Components", true);
 
                 config.set("Content.black_stained_glass_pane.Priority", -1);
                 config.set("Content.black_stained_glass_pane.Slots", "0,1,2,3,4,5,6,7,8,36,37,38,39,41,42,43,44");

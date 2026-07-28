@@ -160,7 +160,7 @@ public class IslandQuestTest {
         manager.getResourceGroups().put("minerals_test", group);
 
         IslandQuestRequirement req = new IslandQuestRequirement("iron_test_deposit", "Iron Test Deposit", "minerals_test", 100);
-        IslandQuest quest = new IslandQuest("quest_test_1", "Quest Test 1", 1, Collections.singletonList(req), Collections.singletonList("eco give %player% 500"));
+        IslandQuest quest = new IslandQuest("quest_test_1", "Quest Test 1", 1, Collections.singletonList("Description Test"), Collections.singletonList(req), Collections.singletonList("eco give %player% 500"));
         manager.getQuests().put("quest_test_1", quest);
 
         Player player = server.addPlayer("Tester");

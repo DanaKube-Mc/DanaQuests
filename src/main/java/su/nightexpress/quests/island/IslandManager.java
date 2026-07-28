@@ -19,6 +19,7 @@ import su.nightexpress.quests.island.definition.IslandQuestRequirement;
 import su.nightexpress.quests.island.definition.IslandResourceGroup;
 import su.nightexpress.quests.island.listener.IslandGenericListener;
 import su.nightexpress.quests.island.menu.IslandQuestMenu;
+import su.nightexpress.quests.island.menu.IslandResourceGroupMenu;
 
 import java.io.File;
 import java.util.*;
@@ -31,6 +32,7 @@ public class IslandManager extends AbstractManager<QuestsPlugin> {
     private final Map<String, IslandQuestProgress> progressCache = new ConcurrentHashMap<>();
     private final IslandLockManager lockManager = new IslandLockManager();
     private IslandQuestMenu menu;
+    private IslandResourceGroupMenu resourceGroupMenu;
 
     public IslandManager(@NotNull QuestsPlugin plugin) {
         super(plugin);
@@ -47,6 +49,7 @@ public class IslandManager extends AbstractManager<QuestsPlugin> {
         loadQuests();
 
         this.menu = this.addMenu(new IslandQuestMenu(this.plugin, this), Config.DIR_MENU_ISLAND, "island_quests.yml");
+        this.resourceGroupMenu = this.addMenu(new IslandResourceGroupMenu(this.plugin, this), Config.DIR_MENU_ISLAND, "resource_groups.yml");
 
         this.plugin.getServer().getPluginManager().registerEvents(new IslandGenericListener(this.plugin, this), this.plugin);
 
@@ -63,6 +66,7 @@ public class IslandManager extends AbstractManager<QuestsPlugin> {
         progressCache.clear();
         lockManager.clear();
         menu = null;
+        resourceGroupMenu = null;
     }
 
     private void loadResourceGroups() {
@@ -104,6 +108,11 @@ public class IslandManager extends AbstractManager<QuestsPlugin> {
                 String name = config.getString(path + ".name", questId);
                 int order = config.getInt(path + ".order", 1);
                 
+                List<String> description = config.getStringList(path + ".description");
+                if (description.isEmpty()) {
+                    description = config.getStringList(path + ".lore");
+                }
+
                 List<IslandQuestRequirement> requirements = new ArrayList<>();
                 if (config.contains(path + ".requirements")) {
                     for (String reqId : config.getSection(path + ".requirements")) {
@@ -116,7 +125,7 @@ public class IslandManager extends AbstractManager<QuestsPlugin> {
                 }
                 
                 List<String> rewards = config.getStringList(path + ".rewards");
-                quests.put(questId, new IslandQuest(questId, name, order, requirements, rewards));
+                quests.put(questId, new IslandQuest(questId, name, order, description, requirements, rewards));
             }
         }
     }
@@ -143,6 +152,16 @@ public class IslandManager extends AbstractManager<QuestsPlugin> {
 
     public IslandQuestMenu getMenu() {
         return menu;
+    }
+
+    public IslandResourceGroupMenu getResourceGroupMenu() {
+        return resourceGroupMenu;
+    }
+
+    public void openResourceGroupMenu(@NotNull Player player) {
+        if (resourceGroupMenu != null) {
+            resourceGroupMenu.open(player);
+        }
     }
 
     @Nullable

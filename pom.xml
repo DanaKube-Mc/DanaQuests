@@ -6,7 +6,7 @@
 
     <groupId>su.nightexpress.quests</groupId>
     <artifactId>DanaQuests</artifactId>
-    <version>4.0.6</version>
+    <version>5.0.0</version>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>

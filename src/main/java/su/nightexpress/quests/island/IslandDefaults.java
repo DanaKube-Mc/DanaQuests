@@ -30,6 +30,11 @@ public class IslandDefaults {
         if (!menuFile.exists()) {
             createMenuDefault(menuFile);
         }
+
+        File resourceGroupsMenuFile = new File(dataFolder, Config.DIR_MENU_ISLAND + "resource_groups.yml");
+        if (!resourceGroupsMenuFile.exists()) {
+            createResourceGroupsMenuDefault(resourceGroupsMenuFile);
+        }
     }
 
     private static void createResourceGroupsDefault(File file) {
@@ -58,6 +63,11 @@ public class IslandDefaults {
             FileConfig config = new FileConfig(file);
             config.set("quests.level_1.name", "Niveau 1: Le Commencement");
             config.set("quests.level_1.order", 1);
+            config.set("quests.level_1.description", Arrays.asList(
+                "&7Récompenses au passage du niveau 1:",
+                "&e- 5x Diamants",
+                "&e- 1,000 $"
+            ));
             config.set("quests.level_1.requirements.iron_deposit.name", "Dépôt de Fer");
             config.set("quests.level_1.requirements.iron_deposit.resource_group", "minerals");
             config.set("quests.level_1.requirements.iron_deposit.target", 1000);
@@ -71,6 +81,11 @@ public class IslandDefaults {
 
             config.set("quests.level_2.name", "Niveau 2: L'Expansion");
             config.set("quests.level_2.order", 2);
+            config.set("quests.level_2.description", Arrays.asList(
+                "&7Récompenses au passage du niveau 2:",
+                "&e- 15x Diamants",
+                "&e- 5,000 $"
+            ));
             config.set("quests.level_2.requirements.gold_deposit.name", "Dépôt d'Or");
             config.set("quests.level_2.requirements.gold_deposit.resource_group", "minerals");
             config.set("quests.level_2.requirements.gold_deposit.target", 5000);
@@ -95,7 +110,7 @@ public class IslandDefaults {
             config.set("Settings.Size", 45);
 
             config.set("Decorations.black_glass.material", "BLACK_STAINED_GLASS_PANE");
-            config.set("Decorations.black_glass.slots", "0,1,2,3,5,6,7,8,36,37,38,39,40,41,42,43,44");
+            config.set("Decorations.black_glass.slots", "0,1,2,3,5,6,7,8,36,37,38,39,41,42,43,44");
 
             config.set("Decorations.gray_glass.material", "GRAY_STAINED_GLASS_PANE");
             config.set("Decorations.gray_glass.slots", "9,10,11,12,13,14,15,16,17,18,19,25,26,27,28,29,30,31,32,33,34,35");
@@ -109,9 +124,6 @@ public class IslandDefaults {
                 "&7Progression: &e%progress% / %target% &7(%percent%%)",
                 "%progress_bar%",
                 "",
-                "&ePoids des conversions:",
-                "%weight_lore%",
-                "",
                 "&aClic Gauche: &7Déposer l'item tenu (1 stack)",
                 "&aClic Droit: &7Déposer tout l'inventaire"
             ));
@@ -122,7 +134,48 @@ public class IslandDefaults {
             config.set("Level_Info_Item.Item.Lore", Arrays.asList(
                 "&7Progression globale de l'île",
                 "&7Complétez tous les dépôts ci-dessous pour passer",
-                "&7au niveau supérieur et obtenir les récompenses."
+                "&7au niveau supérieur.",
+                "",
+                "%level_description%"
+            ));
+
+            config.set("Resource_Group_Info_Item.slot", 40);
+            config.set("Resource_Group_Info_Item.Item.Material", "PAPER");
+            config.set("Resource_Group_Info_Item.Item.Display_Name", "&ePoids des Ressources");
+            config.set("Resource_Group_Info_Item.Item.Lore", Arrays.asList(
+                "&7Cliquez pour consulter le taux de conversion",
+                "&7et la valeur en points de chaque matériau."
+            ));
+
+            config.save();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void createResourceGroupsMenuDefault(File file) {
+        try {
+            if (!file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
+            FileConfig config = new FileConfig(file);
+            config.set("Settings.Title", "Poids des Ressources");
+            config.set("Settings.Size", 45);
+
+            config.set("Group_Slots", "10,11,12,13,14,15,16,19,20,21,22,23,24,25");
+
+            config.set("Group_Item.Item.Material", "GOLD_NUGGET");
+            config.set("Group_Item.Item.Display_Name", "&eGroupe: &f%group_name%");
+            config.set("Group_Item.Item.Lore", Arrays.asList(
+                "&7Valeur des matériaux:",
+                "%weight_lore%"
+            ));
+
+            config.set("Return_Item.slot", 40);
+            config.set("Return_Item.Item.Material", "ARROW");
+            config.set("Return_Item.Item.Display_Name", "&cRetour");
+            config.set("Return_Item.Item.Lore", Arrays.asList(
+                "&7Cliquez pour revenir au menu des quêtes d'île."
             ));
 
             config.save();
