@@ -6,6 +6,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.MenuType;
 import org.jetbrains.annotations.NotNull;
+import su.nightexpress.quests.config.Config;
 import su.nightexpress.nightcore.config.ConfigValue;
 import su.nightexpress.nightcore.config.FileConfig;
 import su.nightexpress.nightcore.ui.menu.MenuViewer;
@@ -39,6 +40,7 @@ public class IslandQuestMenu extends NormalMenu<QuestsPlugin> implements ConfigB
     private int levelInfoSlot = 4;
     private NightItem resourceGroupInfoItemTemplate;
     private int resourceGroupInfoSlot = 40;
+    private String weightFormat;
 
     public IslandQuestMenu(@NotNull QuestsPlugin plugin, @NotNull IslandManager manager) {
         super(plugin, MenuType.GENERIC_9X5, "Quêtes d'Île");
@@ -114,21 +116,22 @@ public class IslandQuestMenu extends NormalMenu<QuestsPlugin> implements ConfigB
             IslandResourceGroup grp = manager.getResourceGroup(req.getResourceGroupId());
             String groupName = grp != null ? grp.getName() : req.getResourceGroupId();
 
-            StringBuilder sb = new StringBuilder();
-            if (grp != null) {
-                grp.getMaterials().forEach((mat, weight) -> {
-                    sb.append("&7- &f").append(mat.name()).append("&7: &e").append(weight).append(" pts\n");
-                });
-            }
-            String weightLore = sb.toString().trim();
+            String weightLore = grp != null ? MenuUtils.formatWeightLore(grp, this.weightFormat) : "";
 
-            NightItem reqItem = requirementItemTemplate.copy()
-                .hideAllComponents()
+            NightItem reqItem;
+            if (grp != null && grp.getIcon() != null) {
+                reqItem = NightItem.fromType(grp.getIcon());
+                reqItem.setDisplayName(requirementItemTemplate.getDisplayName());
+                reqItem.setLore(requirementItemTemplate.getLore());
+            } else {
+                reqItem = requirementItemTemplate.copy();
+            }
+            reqItem.hideAllComponents()
                 .replacement(replacer -> replacer
                     .replace("%requirement_name%", req.getName())
                     .replace("%resource_group_name%", groupName)
-                    .replace("%progress%", String.valueOf(reqProgress))
-                    .replace("%target%", String.valueOf(target))
+                    .replace("%progress%", MenuUtils.formatNumber(reqProgress))
+                    .replace("%target%", MenuUtils.formatNumber(target))
                     .replace("%percent%", String.format("%.1f", percent))
                     .replace("%progress_bar%", progressBar)
                     .replace("%weight_lore%", weightLore)
@@ -167,6 +170,8 @@ public class IslandQuestMenu extends NormalMenu<QuestsPlugin> implements ConfigB
     public void loadConfiguration(@NotNull FileConfig config, @NotNull MenuLoader loader) {
         this.menuTitle = ConfigValue.create("Settings.Title", "Quêtes d'Île").read(config);
         this.setTitle(menuTitle);
+
+        this.weightFormat = ConfigValue.create("Weight_Format", Config.ISLAND_WEIGHT_FORMAT.get()).read(config);
 
         loader.addDefaultItem(MenuItem.buildReturn(this, 40, this::handleReturn));
 

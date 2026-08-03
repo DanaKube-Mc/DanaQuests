@@ -6,6 +6,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.MenuType;
 import org.jetbrains.annotations.NotNull;
+import su.nightexpress.quests.config.Config;
 import su.nightexpress.nightcore.config.ConfigValue;
 import su.nightexpress.nightcore.config.FileConfig;
 import su.nightexpress.nightcore.ui.menu.MenuViewer;
@@ -16,6 +17,7 @@ import su.nightexpress.nightcore.util.bukkit.NightItem;
 import su.nightexpress.quests.QuestsPlugin;
 import su.nightexpress.quests.island.IslandManager;
 import su.nightexpress.quests.island.definition.IslandResourceGroup;
+import su.nightexpress.quests.util.MenuUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +31,7 @@ public class IslandResourceGroupMenu extends NormalMenu<QuestsPlugin> implements
     private NightItem groupItemTemplate;
     private NightItem returnItemTemplate;
     private int returnSlot = 40;
+    private String weightFormat;
 
     public IslandResourceGroupMenu(@NotNull QuestsPlugin plugin, @NotNull IslandManager manager) {
         super(plugin, MenuType.GENERIC_9X5, "Poids des Ressources");
@@ -56,13 +59,18 @@ public class IslandResourceGroupMenu extends NormalMenu<QuestsPlugin> implements
             IslandResourceGroup grp = groups.get(i);
             int slot = groupSlots[i];
 
-            StringBuilder sb = new StringBuilder();
-            grp.getMaterials().forEach((mat, weight) -> {
-                sb.append("&7- &f").append(mat.name()).append("&7: &e").append(weight).append(" pts\n");
-            });
-            String weightLore = sb.toString().trim();
+            String weightLore = MenuUtils.formatWeightLore(grp, this.weightFormat);
 
-            NightItem item = groupItemTemplate != null ? groupItemTemplate.copy() : NightItem.fromType(Material.GOLD_NUGGET);
+            NightItem item;
+            if (grp.getIcon() != null) {
+                item = NightItem.fromType(grp.getIcon());
+                if (groupItemTemplate != null) {
+                    item.setDisplayName(groupItemTemplate.getDisplayName());
+                    item.setLore(groupItemTemplate.getLore());
+                }
+            } else {
+                item = groupItemTemplate != null ? groupItemTemplate.copy() : NightItem.fromType(Material.GOLD_NUGGET);
+            }
             item.hideAllComponents();
             item.replacement(replacer -> replacer
                 .replace("%group_id%", grp.getId())
@@ -86,6 +94,8 @@ public class IslandResourceGroupMenu extends NormalMenu<QuestsPlugin> implements
     public void loadConfiguration(@NotNull FileConfig config, @NotNull MenuLoader loader) {
         this.menuTitle = ConfigValue.create("Settings.Title", "Poids des Ressources").read(config);
         this.setTitle(menuTitle);
+
+        this.weightFormat = ConfigValue.create("Weight_Format", Config.ISLAND_WEIGHT_FORMAT.get()).read(config);
 
         String slotsStr = config.getString("Group_Slots", "10,11,12,13,14,15,16,19,20,21,22,23,24,25");
         this.groupSlots = parseSlots(slotsStr);

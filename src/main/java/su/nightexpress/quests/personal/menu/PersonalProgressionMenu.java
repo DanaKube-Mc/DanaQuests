@@ -129,9 +129,9 @@ public class PersonalProgressionMenu extends LinkedMenu<QuestsPlugin, RpgCategor
             for (String line : activeLore) {
                 actLoreList.add(line
                     .replace("%objective%", objectiveIdStr)
-                    .replace("%progress%", String.valueOf(activeQuest.getProgress()))
-                    .replace("%required%", String.valueOf(activeQuest.getRequiredAmount()))
-                    .replace("%money%", String.valueOf(activeQuest.getScaledMoney()))
+                    .replace("%progress%", MenuUtils.formatNumber(activeQuest.getProgress()))
+                    .replace("%required%", MenuUtils.formatNumber(activeQuest.getRequiredAmount()))
+                    .replace("%money%", MenuUtils.formatNumber(activeQuest.getScaledMoney()))
                     .replace("%progress_bar%", progressBar)
                 );
             }

@@ -79,6 +79,14 @@ public class IslandManager extends AbstractManager<QuestsPlugin> {
             for (String groupId : config.getSection("resource_groups")) {
                 String path = "resource_groups." + groupId;
                 String name = config.getString(path + ".name", groupId);
+                String iconStr = config.getString(path + ".icon", config.getString(path + ".material", ""));
+                Material icon = null;
+                if (iconStr != null && !iconStr.isEmpty()) {
+                    try {
+                        icon = Material.valueOf(iconStr.toUpperCase());
+                    } catch (Exception ignored) {}
+                }
+
                 Map<Material, Double> materials = new HashMap<>();
                 if (config.contains(path + ".materials")) {
                     for (String matStr : config.getSection(path + ".materials")) {
@@ -91,7 +99,7 @@ public class IslandManager extends AbstractManager<QuestsPlugin> {
                         }
                     }
                 }
-                resourceGroups.put(groupId, new IslandResourceGroup(groupId, name, materials));
+                resourceGroups.put(groupId, new IslandResourceGroup(groupId, name, icon, materials));
             }
         }
     }

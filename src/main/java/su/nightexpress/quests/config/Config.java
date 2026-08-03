@@ -321,6 +321,11 @@ public class Config {
         "Displays percentage inside the progress bar."
     );
 
+    public static final ConfigValue<String> ISLAND_WEIGHT_FORMAT = ConfigValue.create("island.weight-format",
+        "<gray>- </gray><white>%material%</white><gray>: </gray><lyellow>%weight% pts</lyellow>",
+        "Format for each resource entry in %weight_lore%."
+    );
+
     public static final ConfigValue<Integer> UI_PROGRESS_BAR_LENGTH = PROGRESS_BAR_LENGTH;
     public static final ConfigValue<String> UI_PROGRESS_BAR_CHAR = PROGRESS_BAR_SYMBOL;
     public static final ConfigValue<String> UI_PROGRESS_BAR_COLOR_FILL = PROGRESS_BAR_COLOR_FILLED;

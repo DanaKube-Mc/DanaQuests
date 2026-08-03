@@ -7,6 +7,7 @@ import su.nightexpress.nightcore.util.text.night.NightMessage;
 import su.nightexpress.nightcore.util.text.night.wrapper.TagWrappers;
 import su.nightexpress.quests.config.Config;
 import su.nightexpress.quests.config.Lang;
+import su.nightexpress.quests.island.definition.IslandResourceGroup;
 import su.nightexpress.quests.quest.definition.QuestXPReward;
 import su.nightexpress.quests.reward.Reward;
 import su.nightexpress.quests.task.adapter.Adapter;
@@ -153,5 +154,36 @@ public class MenuUtils {
         return Lists.newList(
             Lang.UI_ENTRY_REWARD_BATTLE_PASS_XP.text().replace(GENERIC_XP, NumberUtil.format(reward.getXP(unitsWorth)))
         );
+    }
+
+    @NotNull
+    public static String formatNumber(long number) {
+        return NumberUtil.format(number).replace(',', ' ').replace('\u00A0', ' ').replace('\u202F', ' ');
+    }
+
+    @NotNull
+    public static String formatNumber(double number) {
+        if (number % 1 == 0) {
+            return formatNumber((long) number);
+        }
+        return NumberUtil.format(number).replace(',', ' ').replace('\u00A0', ' ').replace('\u202F', ' ');
+    }
+
+    @NotNull
+    public static String formatWeightLore(@NotNull IslandResourceGroup group, String format) {
+        if (format == null || format.trim().isEmpty()) {
+            format = Config.ISLAND_WEIGHT_FORMAT.get();
+        }
+        String lineFormat = format;
+        StringBuilder sb = new StringBuilder();
+        group.getMaterials().forEach((mat, weight) -> {
+            String weightStr = formatNumber(weight);
+            String line = lineFormat
+                .replace("%material%", mat.name())
+                .replace("%material_name%", mat.name())
+                .replace("%weight%", weightStr);
+            sb.append(line).append("\n");
+        });
+        return sb.toString().trim();
     }
 }

@@ -38,4 +38,11 @@ public class QuestsPluginTest {
         assertTrue(bar.contains("<gray>"));
         assertTrue(bar.contains("</gray>"));
     }
+
+    @Test
+    public void testFormatNumber() {
+        assertEquals("10 000", MenuUtils.formatNumber(10000));
+        assertEquals("1 000 000", MenuUtils.formatNumber(1000000));
+        assertEquals("500", MenuUtils.formatNumber(500));
+    }
 }
