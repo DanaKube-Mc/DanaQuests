@@ -8,6 +8,10 @@ public class IslandLockManager {
     private final Map<UUID, UUID> locks = new ConcurrentHashMap<>();
 
     public boolean acquireLock(UUID islandUuid, UUID playerUuid) {
+        UUID existingLockedIsland = getPlayerLockedIsland(playerUuid);
+        if (existingLockedIsland != null && !existingLockedIsland.equals(islandUuid)) {
+            releasePlayerLock(playerUuid);
+        }
         UUID currentHolder = locks.putIfAbsent(islandUuid, playerUuid);
         return currentHolder == null || currentHolder.equals(playerUuid);
     }

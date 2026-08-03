@@ -114,20 +114,21 @@ public class PersonalProgressionMenu extends LinkedMenu<QuestsPlugin, RpgCategor
         viewer.addItem(lpItem.toMenuItem().setSlots(13).setPriority(Integer.MAX_VALUE).build());
 
         // 2. Active Quest or No Quest Item
-        if (activeQuest != null) {
+        if (activeQuest != null && activeQuest.hasActiveQuest()) {
             Material actMat = Material.WRITABLE_BOOK;
             try {
                 actMat = Material.valueOf(activeMaterial.toUpperCase());
             } catch (Exception ignored) {}
 
-            String actTitle = activeName.replace("%objective%", activeQuest.getObjectiveId());
+            String objectiveIdStr = activeQuest.getObjectiveId() != null ? activeQuest.getObjectiveId() : "";
+            String actTitle = activeName.replace("%objective%", objectiveIdStr);
             List<String> actLoreList = new ArrayList<>();
             double progressPercent = (double) activeQuest.getProgress() / activeQuest.getRequiredAmount();
             String progressBar = MenuUtils.buildProgressBar(progressPercent);
 
             for (String line : activeLore) {
                 actLoreList.add(line
-                    .replace("%objective%", activeQuest.getObjectiveId())
+                    .replace("%objective%", objectiveIdStr)
                     .replace("%progress%", String.valueOf(activeQuest.getProgress()))
                     .replace("%required%", String.valueOf(activeQuest.getRequiredAmount()))
                     .replace("%money%", String.valueOf(activeQuest.getScaledMoney()))
@@ -171,7 +172,6 @@ public class PersonalProgressionMenu extends LinkedMenu<QuestsPlugin, RpgCategor
             try {
                 noMat = Material.valueOf(noQuestMaterial.toUpperCase());
             } catch (Exception ignored) {}
-
             NightItem noItem = NightItem.fromType(noMat)
                 .setDisplayName(noQuestName)
                 .setLore(noQuestLore)
@@ -186,13 +186,22 @@ public class PersonalProgressionMenu extends LinkedMenu<QuestsPlugin, RpgCategor
     }
 
     @Override
+    protected void onItemPrepare(@NotNull MenuViewer viewer, @NotNull MenuItem menuItem, @NotNull NightItem item) {
+        super.onItemPrepare(viewer, menuItem, item);
+
+        Player player = viewer.getPlayer();
+        item.replacement(replacer -> replacer.replace("%player%", player.getName()));
+        item.setSkullOwner(player);
+    }
+
+    @Override
     public void loadConfiguration(@NotNull FileConfig config, @NotNull MenuLoader loader) {
-        this.menuTitle = ConfigValue.create("Settings.Title", "Progression: %category_name%").read(config);
+        this.menuTitle = ConfigValue.create("Settings.Title", "Progression").read(config);
         this.setTitle(menuTitle);
 
-        this.activeName = ConfigValue.create("active_quest.name", activeName).read(config);
-        this.activeLore = ConfigValue.create("active_quest.lore", activeLore).read(config);
-        this.activeMaterial = ConfigValue.create("active_quest.material", activeMaterial).read(config);
+        this.activeName = ConfigValue.create("active.name", activeName).read(config);
+        this.activeLore = ConfigValue.create("active.lore", activeLore).read(config);
+        this.activeMaterial = ConfigValue.create("active.material", activeMaterial).read(config);
 
         this.noQuestName = ConfigValue.create("no_quest.name", noQuestName).read(config);
         this.noQuestLore = ConfigValue.create("no_quest.lore", noQuestLore).read(config);

@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>su.nightexpress.quests</groupId>
-    <artifactId>ExcellentQuests</artifactId>
-    <version>4.0.6</version>
+    <artifactId>DanaQuests</artifactId>
+    <version>5.0.0</version>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>

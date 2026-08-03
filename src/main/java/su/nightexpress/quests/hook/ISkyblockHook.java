@@ -16,4 +16,6 @@ public interface ISkyblockHook {
 
     @Nullable
     String getIslandLeaderName(@NotNull UUID islandUuid);
+
+    default void registerListeners(@NotNull su.nightexpress.quests.QuestsPlugin plugin) {}
 }

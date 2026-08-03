@@ -19,6 +19,7 @@ import su.nightexpress.quests.milestone.MilestoneManager;
 import su.nightexpress.quests.reward.RewardManager;
 import su.nightexpress.quests.task.TaskManager;
 import su.nightexpress.quests.quest.QuestManager;
+import su.nightexpress.quests.quest.command.QuestsCommands;
 import su.nightexpress.quests.registry.Registries;
 import su.nightexpress.quests.task.TaskTypeRegistry;
 import su.nightexpress.quests.lore.LoreManager;
@@ -67,7 +68,7 @@ public class QuestsPlugin extends NightPlugin {
             }
         } catch (Exception ignored) {}
 
-        return PluginDetails.create("Quests", aliases)
+        return PluginDetails.create("DanaQuests", aliases)
             .setConfigClass(Config.class)
             .setPermissionsClass(Perms.class);
     }
@@ -148,6 +149,8 @@ public class QuestsPlugin extends NightPlugin {
 
     @Override
     public void disable() {
+        QuestsCommands.shutdown();
+        BaseCommands.shutdown();
         QuestTrackerManager.shutdown();
 
         if (this.communityQuestManager != null) this.communityQuestManager.shutdown();
@@ -174,22 +177,8 @@ public class QuestsPlugin extends NightPlugin {
     }
 
     private void loadCommands() {
-        this.rootCommand = NightCommand.forPlugin(this, builder -> {
-            BaseCommands.load(this, builder);
-            builder.executes((context, arguments) -> {
-                if (!context.isPlayer()) {
-                    context.errorPlayerOnly();
-                    return false;
-                }
-                Player player = context.getPlayerOrThrow();
-                this.questManager().ifPresent(qm -> {
-                    if (qm.getMainMenu() != null) {
-                        qm.getMainMenu().open(player);
-                    }
-                });
-                return true;
-            });
-        });
+        BaseCommands.load(this);
+        QuestsCommands.load(this, this.questManager);
     }
 
     @NotNull

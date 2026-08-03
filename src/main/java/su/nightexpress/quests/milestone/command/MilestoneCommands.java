@@ -35,22 +35,24 @@ public class MilestoneCommands {
         plugin = questsPlugin;
         manager = milestoneManager;
 
-        command = NightCommand.hub(plugin, Config.FEATURES_MILESTONES_ALIASES.get(), builder -> builder
-            .localized(Lang.COMMAND_MILESTONES_NAME)
-            .permission(Perms.COMMAND_MILESTONES)
-            .description(Lang.COMMAND_MILESTONES_DESC)
-            .branch(Commands.literal("reset")
-                .permission(Perms.COMMAND_MILESTONES_RESET)
-                .description(Lang.COMMAND_MILESTONES_RESET_DESC)
-                .withArguments(
-                    Arguments.playerName(ARG_PLAYER),
-                    milestoneArgument()
+        if (Config.FEATURES_MILESTONES_STANDALONE_COMMAND.get()) {
+            command = NightCommand.hub(plugin, Config.FEATURES_MILESTONES_ALIASES.get(), builder -> builder
+                .localized(Lang.COMMAND_MILESTONES_NAME)
+                .permission(Perms.COMMAND_MILESTONES)
+                .description(Lang.COMMAND_MILESTONES_DESC)
+                .branch(Commands.literal("reset")
+                    .permission(Perms.COMMAND_MILESTONES_RESET)
+                    .description(Lang.COMMAND_MILESTONES_RESET_DESC)
+                    .withArguments(
+                        Arguments.playerName(ARG_PLAYER),
+                        milestoneArgument()
+                    )
+                    .executes(MilestoneCommands::resetMilestone)
                 )
-                .executes(MilestoneCommands::resetMilestone)
-            )
-            .executes(MilestoneCommands::openCategories)
-        );
-        command.register();
+                .executes(MilestoneCommands::openCategories)
+            );
+            command.register();
+        }
     }
 
     @NotNull

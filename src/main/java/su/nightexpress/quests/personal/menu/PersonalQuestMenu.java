@@ -83,8 +83,11 @@ public class PersonalQuestMenu extends NormalMenu<QuestsPlugin> implements Confi
             finalLore.add("");
             finalLore.add("&7Limite journalière: &e" + acceptedToday + "/" + dailyLimit);
 
-            if (activeQuest != null) {
+            boolean hasActive = activeQuest != null && activeQuest.hasActiveQuest();
+
+            if (hasActive) {
                 String objectiveName = activeQuest.getObjectiveId();
+                if (objectiveName == null) objectiveName = "";
                 String suffix = categoryLoreSuffixActive
                     .replace("%objective%", objectiveName)
                     .replace("%progress%", String.valueOf(activeQuest.getProgress()))
@@ -110,7 +113,7 @@ public class PersonalQuestMenu extends NormalMenu<QuestsPlugin> implements Confi
                 .setPriority(Integer.MAX_VALUE)
                 .setHandler((viewer1, event) -> {
                     if (event.isLeftClick()) {
-                        if (activeQuest == null) {
+                        if (!hasActive) {
                             if (this.manager.acceptQuest(player, category)) {
                                 player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5f, 1.0f);
                                 this.runNextTick(() -> this.flush(viewer1));
@@ -134,6 +137,15 @@ public class PersonalQuestMenu extends NormalMenu<QuestsPlugin> implements Confi
 
     private void handleReturn(@NotNull MenuViewer viewer, @NotNull org.bukkit.event.inventory.InventoryClickEvent event) {
         this.runNextTick(() -> this.plugin.mainMenu().ifPresent(menu -> menu.open(viewer.getPlayer())));
+    }
+
+    @Override
+    protected void onItemPrepare(@NotNull MenuViewer viewer, @NotNull MenuItem menuItem, @NotNull NightItem item) {
+        super.onItemPrepare(viewer, menuItem, item);
+
+        Player player = viewer.getPlayer();
+        item.replacement(replacer -> replacer.replace("%player%", player.getName()));
+        item.setSkullOwner(player);
     }
 
     @Override

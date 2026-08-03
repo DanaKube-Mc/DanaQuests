@@ -206,15 +206,33 @@ public class DataHandler extends AbstractUserDataManager<QuestsPlugin, QuestUser
     public void saveIslandProgress(@NotNull UUID islandUuid, @NotNull String questId, @NotNull Map<String, Integer> progress, boolean completed) {
         String key = islandUuid.toString() + ":" + questId;
         String objectivesJson = GSON.toJson(progress);
-        String sql = "REPLACE INTO " + ISLANDS_TABLE + " (" + 
+        String deleteSql = "DELETE FROM " + ISLANDS_TABLE + " WHERE " + COLUMN_ISLANDS_KEY.getName() + " = ?";
+        String insertSql = "INSERT INTO " + ISLANDS_TABLE + " (" + 
                 COLUMN_ISLANDS_KEY.getName() + ", " + 
                 COLUMN_ISLANDS_OBJECTIVES.getName() + ", " + 
                 COLUMN_ISLANDS_COMPLETED.getName() + ") VALUES (?, ?, ?)";
+        try (Connection conn = this.getConnection()) {
+            try (PreparedStatement delStmt = conn.prepareStatement(deleteSql)) {
+                delStmt.setString(1, key);
+                delStmt.executeUpdate();
+            }
+            try (PreparedStatement insStmt = conn.prepareStatement(insertSql)) {
+                insStmt.setString(1, key);
+                insStmt.setString(2, objectivesJson);
+                insStmt.setBoolean(3, completed);
+                insStmt.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void deleteIslandProgress(@NotNull UUID islandUuid) {
+        String prefix = islandUuid.toString() + ":%";
+        String sql = "DELETE FROM " + ISLANDS_TABLE + " WHERE " + COLUMN_ISLANDS_KEY.getName() + " LIKE ?";
         try (Connection conn = this.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, key);
-            stmt.setString(2, objectivesJson);
-            stmt.setBoolean(3, completed);
+            stmt.setString(1, prefix);
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

@@ -19,6 +19,7 @@ import su.nightexpress.quests.island.definition.IslandQuestRequirement;
 import su.nightexpress.quests.island.definition.IslandResourceGroup;
 import su.nightexpress.quests.island.listener.IslandGenericListener;
 import su.nightexpress.quests.island.menu.IslandQuestMenu;
+import su.nightexpress.quests.island.menu.IslandResourceGroupMenu;
 
 import java.io.File;
 import java.util.*;
@@ -31,6 +32,7 @@ public class IslandManager extends AbstractManager<QuestsPlugin> {
     private final Map<String, IslandQuestProgress> progressCache = new ConcurrentHashMap<>();
     private final IslandLockManager lockManager = new IslandLockManager();
     private IslandQuestMenu menu;
+    private IslandResourceGroupMenu resourceGroupMenu;
 
     public IslandManager(@NotNull QuestsPlugin plugin) {
         super(plugin);
@@ -46,9 +48,15 @@ public class IslandManager extends AbstractManager<QuestsPlugin> {
         loadResourceGroups();
         loadQuests();
 
-        this.menu = this.addMenu(new IslandQuestMenu(this.plugin, this), Config.DIR_MENU, "island_quests.yml");
+        this.menu = this.addMenu(new IslandQuestMenu(this.plugin, this), Config.DIR_MENU_ISLAND, "island_quests.yml");
+        this.resourceGroupMenu = this.addMenu(new IslandResourceGroupMenu(this.plugin, this), Config.DIR_MENU_ISLAND, "resource_groups.yml");
 
         this.plugin.getServer().getPluginManager().registerEvents(new IslandGenericListener(this.plugin, this), this.plugin);
+
+        var hook = SkyblockHookManager.getHook();
+        if (hook != null) {
+            hook.registerListeners(this.plugin);
+        }
     }
 
     @Override
@@ -58,11 +66,12 @@ public class IslandManager extends AbstractManager<QuestsPlugin> {
         progressCache.clear();
         lockManager.clear();
         menu = null;
+        resourceGroupMenu = null;
     }
 
     private void loadResourceGroups() {
         resourceGroups.clear();
-        File file = new File(plugin.getDataFolder(), "resource_groups.yml");
+        File file = new File(plugin.getDataFolder() + Config.DIR_ISLAND, "resource_groups.yml");
         if (!file.exists()) return;
         FileConfig config = new FileConfig(file);
         config.load();
@@ -89,7 +98,7 @@ public class IslandManager extends AbstractManager<QuestsPlugin> {
 
     private void loadQuests() {
         quests.clear();
-        File file = new File(plugin.getDataFolder(), "island_quests.yml");
+        File file = new File(plugin.getDataFolder() + Config.DIR_ISLAND, "island_quests.yml");
         if (!file.exists()) return;
         FileConfig config = new FileConfig(file);
         config.load();
@@ -99,6 +108,11 @@ public class IslandManager extends AbstractManager<QuestsPlugin> {
                 String name = config.getString(path + ".name", questId);
                 int order = config.getInt(path + ".order", 1);
                 
+                List<String> description = config.getStringList(path + ".description");
+                if (description.isEmpty()) {
+                    description = config.getStringList(path + ".lore");
+                }
+
                 List<IslandQuestRequirement> requirements = new ArrayList<>();
                 if (config.contains(path + ".requirements")) {
                     for (String reqId : config.getSection(path + ".requirements")) {
@@ -111,7 +125,7 @@ public class IslandManager extends AbstractManager<QuestsPlugin> {
                 }
                 
                 List<String> rewards = config.getStringList(path + ".rewards");
-                quests.put(questId, new IslandQuest(questId, name, order, requirements, rewards));
+                quests.put(questId, new IslandQuest(questId, name, order, description, requirements, rewards));
             }
         }
     }
@@ -140,6 +154,16 @@ public class IslandManager extends AbstractManager<QuestsPlugin> {
         return menu;
     }
 
+    public IslandResourceGroupMenu getResourceGroupMenu() {
+        return resourceGroupMenu;
+    }
+
+    public void openResourceGroupMenu(@NotNull Player player) {
+        if (resourceGroupMenu != null) {
+            resourceGroupMenu.open(player);
+        }
+    }
+
     @Nullable
     public UUID getPlayerIsland(@NotNull Player player) {
         var hook = SkyblockHookManager.getHook();
@@ -161,20 +185,34 @@ public class IslandManager extends AbstractManager<QuestsPlugin> {
 
     @NotNull
     public IslandQuestProgress getProgress(@NotNull UUID islandUuid, @NotNull String questId) {
-        String key = islandUuid.toString() + "_" + questId;
-        return progressCache.computeIfAbsent(key, k -> plugin.getDataHandler().loadIslandProgress(islandUuid, questId));
+        String key = islandUuid.toString() + ":" + questId;
+        return progressCache.computeIfAbsent(key, k -> plugin != null && plugin.getDataHandler() != null ? plugin.getDataHandler().loadIslandProgress(islandUuid, questId) : new IslandQuestProgress(islandUuid, questId));
+    }
+
+    public void purgeIslandData(@NotNull UUID islandUuid) {
+        lockManager.releaseLock(islandUuid);
+        progressCache.keySet().removeIf(k -> k.startsWith(islandUuid.toString()));
+        if (plugin != null && plugin.getDataHandler() != null) {
+            plugin.getDataHandler().deleteIslandProgress(islandUuid);
+        }
+    }
+
+    public void invalidatePlayer(@NotNull UUID playerUuid) {
+        UUID lockedIsland = lockManager.getPlayerLockedIsland(playerUuid);
+        if (lockedIsland != null) {
+            lockManager.releasePlayerLock(playerUuid);
+            progressCache.keySet().removeIf(k -> k.startsWith(lockedIsland.toString()));
+        }
     }
 
     public void saveProgress(@NotNull IslandQuestProgress progress) {
-        plugin.getDataHandler().saveIslandProgress(progress.getIslandUuid(), progress.getQuestId(), progress.getProgress(), progress.isCompleted());
+        if (plugin != null && plugin.getDataHandler() != null) {
+            plugin.getDataHandler().saveIslandProgress(progress.getIslandUuid(), progress.getQuestId(), progress.getProgress(), progress.isCompleted());
+        }
     }
 
     public void handleInventoryClose(@NotNull Player player) {
-        UUID lockedIsland = lockManager.getPlayerLockedIsland(player.getUniqueId());
-        if (lockedIsland != null) {
-            lockManager.releasePlayerLock(player.getUniqueId());
-            progressCache.keySet().removeIf(k -> k.startsWith(lockedIsland.toString()));
-        }
+        lockManager.releasePlayerLock(player.getUniqueId());
     }
 
     public void handlePlayerQuit(@NotNull Player player) {
@@ -209,8 +247,7 @@ public class IslandManager extends AbstractManager<QuestsPlugin> {
             return;
         }
 
-        UUID holder = lockManager.getLockHolder(islandUuid);
-        if (holder != null && !holder.equals(player.getUniqueId())) {
+        if (!lockManager.acquireLock(islandUuid, player.getUniqueId())) {
             Lang.ISLAND_QUEST_MENU_LOCKED.message().send(player);
             return;
         }
@@ -280,6 +317,17 @@ public class IslandManager extends AbstractManager<QuestsPlugin> {
             saveProgress(progress);
 
             playDepositSound(player);
+
+            if (menu != null) {
+                var hook = SkyblockHookManager.getHook();
+                List<Player> members = hook != null ? hook.getOnlineMembers(islandUuid) : Collections.singletonList(player);
+                for (Player member : members) {
+                    var viewer = menu.getViewer(member);
+                    if (viewer != null) {
+                        menu.open(member);
+                    }
+                }
+            }
 
             boolean allCompleted = true;
             for (IslandQuestRequirement req : activeQuest.getRequirements()) {

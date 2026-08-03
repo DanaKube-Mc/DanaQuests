@@ -112,9 +112,9 @@ public class MilestoneManager extends AbstractManager<QuestsPlugin> {
     }
 
     private void loadUI() {
-        this.categoriesMenu = this.addMenu(new CategoriesMenu(this.plugin, this), Config.DIR_MENU, "milestone_categories.yml");
-        this.milestonesMenu = this.addMenu(new MilestonesMenu(this.plugin, this), Config.DIR_MENU, "milestones.yml");
-        this.progressionMenu = this.addMenu(new ProgressionMenu(this.plugin, this), Config.DIR_MENU, "milestone_progression.yml");
+        this.categoriesMenu = this.addMenu(new CategoriesMenu(this.plugin, this), Config.DIR_MENU_MILESTONES, "milestone_categories.yml");
+        this.milestonesMenu = this.addMenu(new MilestonesMenu(this.plugin, this), Config.DIR_MENU_MILESTONES, "milestones.yml");
+        this.progressionMenu = this.addMenu(new ProgressionMenu(this.plugin, this), Config.DIR_MENU_MILESTONES, "milestone_progression.yml");
     }
 
     private void loadCommands() {

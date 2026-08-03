@@ -110,4 +110,8 @@ public class PersonalQuestData {
         }
         return false;
     }
+
+    public boolean hasActiveQuest() {
+        return this.objectiveId != null && !this.objectiveId.isEmpty();
+    }
 }

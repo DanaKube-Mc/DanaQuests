@@ -35,6 +35,8 @@ public class IslandQuestMenu extends NormalMenu<QuestsPlugin> implements ConfigB
     private NightItem requirementItemTemplate;
     private NightItem levelInfoItemTemplate;
     private int levelInfoSlot = 4;
+    private NightItem resourceGroupInfoItemTemplate;
+    private int resourceGroupInfoSlot = 40;
 
     public IslandQuestMenu(@NotNull QuestsPlugin plugin, @NotNull IslandManager manager) {
         super(plugin, MenuType.GENERIC_9X5, "Quêtes d'Île");
@@ -67,16 +69,32 @@ public class IslandQuestMenu extends NormalMenu<QuestsPlugin> implements ConfigB
         IslandQuestProgress progress = manager.getProgress(islandUuid, activeQuest.getId());
 
         if (levelInfoItemTemplate != null && levelInfoSlot >= 0) {
+            String descStr = activeQuest.getDescription() != null ? String.join("\n", activeQuest.getDescription()) : "";
             viewer.addItem(levelInfoItemTemplate.copy()
                 .hideAllComponents()
                 .replacement(replacer -> replacer
                     .replace("%level_name%", activeQuest.getName())
                     .replace("%level_id%", activeQuest.getId())
                     .replace("%level_order%", String.valueOf(activeQuest.getOrder()))
+                    .replace("%level_description%", descStr)
+                    .replace("%level_lore%", descStr)
                 )
                 .toMenuItem()
                 .setPriority(10)
                 .setSlots(levelInfoSlot)
+                .build()
+            );
+        }
+
+        if (resourceGroupInfoItemTemplate != null && resourceGroupInfoSlot >= 0) {
+            viewer.addItem(resourceGroupInfoItemTemplate.copy()
+                .hideAllComponents()
+                .toMenuItem()
+                .setPriority(10)
+                .setSlots(resourceGroupInfoSlot)
+                .setHandler((viewer1, event) -> {
+                    this.runNextTick(() -> manager.openResourceGroupMenu(player));
+                })
                 .build()
             );
         }
@@ -168,6 +186,17 @@ public class IslandQuestMenu extends NormalMenu<QuestsPlugin> implements ConfigB
             this.levelInfoItemTemplate = ConfigValue.create("Level_Info_Item", NightItem.fromType(Material.BOOK)).read(config);
         }
         this.levelInfoSlot = config.getInt("Level_Info_Item.slot", 4);
+
+        if (config.contains("Resource_Group_Info_Item")) {
+            this.resourceGroupInfoItemTemplate = ConfigValue.create("Resource_Group_Info_Item.Item", NightItem.fromType(Material.PAPER)).read(config);
+            if (!config.contains("Resource_Group_Info_Item.Item")) {
+                this.resourceGroupInfoItemTemplate = ConfigValue.create("Resource_Group_Info_Item", NightItem.fromType(Material.PAPER)).read(config);
+            }
+            this.resourceGroupInfoSlot = config.getInt("Resource_Group_Info_Item.slot", 40);
+        } else {
+            this.resourceGroupInfoItemTemplate = null;
+            this.resourceGroupInfoSlot = -1;
+        }
     }
 
     private int[] parseSlots(String slotsStr) {

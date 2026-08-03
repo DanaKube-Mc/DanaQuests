@@ -1,4 +1,4 @@
-name: ExcellentQuests
+name: DanaQuests
 main: su.nightexpress.quests.QuestsPlugin
 version: '${project.version}'
 description: A lightweight milestones & daily quests system!

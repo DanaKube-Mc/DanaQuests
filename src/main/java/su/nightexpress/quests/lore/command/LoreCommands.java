@@ -20,7 +20,7 @@ public class LoreCommands {
     public static void load(@NotNull QuestsPlugin questsPlugin) {
         plugin = questsPlugin;
 
-        if (Config.FEATURES_LORE_ENABLED.get()) {
+        if (Config.FEATURES_LORE_ENABLED.get() && Config.FEATURES_LORE_STANDALONE_COMMAND.get()) {
             command = NightCommand.hub(plugin, Config.FEATURES_LORE_ALIASES.get(), builder -> builder
                 .localized(Lang.COMMAND_QUESTS_LORE_NAME)
                 .permission(Perms.COMMAND_QUESTS_LORE)

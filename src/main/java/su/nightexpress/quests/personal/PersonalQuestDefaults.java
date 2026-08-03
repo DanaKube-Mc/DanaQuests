@@ -10,11 +10,17 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import su.nightexpress.quests.config.Config;
+
 public class PersonalQuestDefaults {
 
     public static void createDefaults(@NotNull QuestsPlugin plugin) {
         // 1. rpg_categories.yml
-        File categoriesFile = new File(plugin.getDataFolder(), "rpg_categories.yml");
+        File personalDir = new File(plugin.getDataFolder(), Config.DIR_PERSONAL);
+        if (!personalDir.exists()) {
+            personalDir.mkdirs();
+        }
+        File categoriesFile = new File(personalDir, "rpg_categories.yml");
         if (!categoriesFile.exists()) {
             try {
                 FileConfig config = new FileConfig(categoriesFile);
@@ -62,7 +68,7 @@ public class PersonalQuestDefaults {
         }
 
         // Create menu directory if not exist
-        File menuDir = new File(plugin.getDataFolder(), "menu");
+        File menuDir = new File(plugin.getDataFolder(), Config.DIR_MENU_PERSONAL);
         if (!menuDir.exists()) {
             menuDir.mkdirs();
         }
@@ -84,13 +90,13 @@ public class PersonalQuestDefaults {
                 config.set("Quest.SlotsByCount.5", "20,21,22,23,24");
 
                 // Content
-                config.set("Content.back-profile.Priority", 10);
-                config.set("Content.back-profile.Slots", "40");
-                config.set("Content.back-profile.Item.Material", "PLAYER_HEAD");
-                config.set("Content.back-profile.Item.Skull-Texture", "%player%");
-                config.set("Content.back-profile.Item.Display_Name", "<#ffeea2><b>Profile");
-                config.set("Content.back-profile.Item.Lore", Collections.singletonList("<#d4d9d8>Cliquez pour retourner à votre profil."));
-                config.set("Content.back-profile.Item.Hide_Components", true);
+                config.set("Content.back.Priority", 10);
+                config.set("Content.back.Slots", "40");
+                config.set("Content.back.Item.Material", "PLAYER_HEAD");
+                config.set("Content.back.Item.Skull-Texture", "%player%");
+                config.set("Content.back.Item.Display_Name", "<#ffeea2><b>Profile");
+                config.set("Content.back.Item.Lore", Collections.singletonList("<#d4d9d8>Cliquez pour retourner à votre profil."));
+                config.set("Content.back.Item.Hide_Components", true);
 
                 config.set("Content.black_stained_glass_pane.Priority", -1);
                 config.set("Content.black_stained_glass_pane.Slots", "0,1,2,3,4,5,6,7,8,36,37,38,39,41,42,43,44");
