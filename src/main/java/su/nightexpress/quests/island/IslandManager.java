@@ -275,38 +275,53 @@ public class IslandManager extends AbstractManager<QuestsPlugin> {
         int totalPointsDeposited = 0;
 
         var inventory = player.getInventory();
-        var contents = inventory.getContents();
 
-        for (int i = 0; i < contents.length; i++) {
-            var item = contents[i];
-            if (item == null || item.getType().isAir()) continue;
+        if (!all) {
+            var handItem = inventory.getItemInMainHand();
+            if (handItem == null || handItem.getType().isAir() || !group.contains(handItem.getType())) {
+                Lang.ISLAND_QUESTS_INVALID_HAND_ITEM.message().send(player);
+                return;
+            }
 
-            Material mat = item.getType();
-            if (group.contains(mat)) {
-                double weight = group.getWeight(mat);
-                if (weight <= 0) continue;
-
-                int amountInStack = item.getAmount();
+            Material mat = handItem.getType();
+            double weight = group.getWeight(mat);
+            if (weight > 0) {
+                int amountInStack = handItem.getAmount();
                 int maxItemsNeeded = (int) Math.ceil((neededPoints - totalPointsDeposited) / weight);
-                if (maxItemsNeeded <= 0) break;
+                if (maxItemsNeeded > 0) {
+                    int toTake = Math.min(amountInStack, maxItemsNeeded);
+                    int pointsAdded = (int) Math.round(toTake * weight);
+                    totalPointsDeposited += pointsAdded;
 
-                int toTake = Math.min(amountInStack, maxItemsNeeded);
-                if (!all) {
-                    toTake = Math.min(toTake, amountInStack);
+                    handItem.setAmount(amountInStack - toTake);
+                    inventory.setItemInMainHand(handItem);
                 }
+            }
+        } else {
+            var contents = inventory.getContents();
+            for (int i = 0; i < contents.length; i++) {
+                var item = contents[i];
+                if (item == null || item.getType().isAir()) continue;
 
-                int pointsAdded = (int) Math.round(toTake * weight);
-                totalPointsDeposited += pointsAdded;
+                Material mat = item.getType();
+                if (group.contains(mat)) {
+                    double weight = group.getWeight(mat);
+                    if (weight <= 0) continue;
 
-                item.setAmount(amountInStack - toTake);
-                inventory.setItem(i, item);
+                    int amountInStack = item.getAmount();
+                    int maxItemsNeeded = (int) Math.ceil((neededPoints - totalPointsDeposited) / weight);
+                    if (maxItemsNeeded <= 0) break;
 
-                if (!all) {
-                    break;
-                }
+                    int toTake = Math.min(amountInStack, maxItemsNeeded);
+                    int pointsAdded = (int) Math.round(toTake * weight);
+                    totalPointsDeposited += pointsAdded;
 
-                if (totalPointsDeposited >= neededPoints) {
-                    break;
+                    item.setAmount(amountInStack - toTake);
+                    inventory.setItem(i, item);
+
+                    if (totalPointsDeposited >= neededPoints) {
+                        break;
+                    }
                 }
             }
         }

@@ -25,19 +25,75 @@ public class MenuUtils {
 
     @NotNull
     public static String buildProgressBar(double percent) {
-        int length = Config.UI_PROGRESS_BAR_LENGTH.get();
-        int filled = Math.clamp((int) Math.ceil(length * percent), 0, length);
+        int length = Math.max(1, Config.PROGRESS_BAR_LENGTH.get());
+        double clampedPercent = Math.clamp(percent, 0.0, 1.0);
+        int filled = Math.clamp((int) Math.round(length * clampedPercent), 0, length);
 
-        String colorFill = Config.UI_PROGRESS_BAR_COLOR_FILL.get();
-        String colorEmpty = Config.UI_PROGRESS_BAR_COLOR_EMPTY.get();
-        String point = Config.UI_PROGRESS_BAR_CHAR.get();
+        String symbol = Config.PROGRESS_BAR_SYMBOL.get();
+        if (symbol == null || symbol.isEmpty()) symbol = "■";
 
-        StringBuilder builder = new StringBuilder();
-        for (int index = 0; index < length; index++) {
-            String color = filled > index ? colorFill : colorEmpty;
-            builder.append(TagWrappers.COLOR.with(color).wrap(point));
+        String colorFill = Config.PROGRESS_BAR_COLOR_FILLED.get();
+        String colorEmpty = Config.PROGRESS_BAR_COLOR_EMPTY.get();
+        boolean showPercent = Config.PROGRESS_BAR_SHOW_PERCENTAGE_INSIDE.get();
+
+        if (showPercent) {
+            String pctText = Math.round(clampedPercent * 100) + "%";
+            int pctLen = pctText.length();
+            if (pctLen <= length) {
+                int startIdx = (length - pctLen) / 2;
+
+                StringBuilder filledSb = new StringBuilder();
+                StringBuilder emptySb = new StringBuilder();
+
+                for (int index = 0; index < length; index++) {
+                    String charAtIdx;
+                    if (index >= startIdx && index < startIdx + pctLen) {
+                        charAtIdx = String.valueOf(pctText.charAt(index - startIdx));
+                    } else {
+                        charAtIdx = symbol;
+                    }
+
+                    if (index < filled) {
+                        filledSb.append(charAtIdx);
+                    } else {
+                        emptySb.append(charAtIdx);
+                    }
+                }
+
+                return formatSection(filledSb.toString(), colorFill) + formatSection(emptySb.toString(), colorEmpty);
+            }
         }
-        return builder.toString();
+
+        StringBuilder filledSb = new StringBuilder();
+        for (int i = 0; i < filled; i++) {
+            filledSb.append(symbol);
+        }
+        StringBuilder emptySb = new StringBuilder();
+        for (int i = filled; i < length; i++) {
+            emptySb.append(symbol);
+        }
+
+        return formatSection(filledSb.toString(), colorFill) + formatSection(emptySb.toString(), colorEmpty);
+    }
+
+    @NotNull
+    private static String formatSection(@NotNull String text, String color) {
+        if (text.isEmpty()) return "";
+        if (color == null || color.isEmpty()) return text;
+
+        String trimmedColor = color.trim();
+        if (!trimmedColor.startsWith("<")) {
+            return "<" + trimmedColor + ">" + text + "</" + trimmedColor.split(":")[0] + ">";
+        }
+
+        String tagName = trimmedColor.substring(1);
+        if (tagName.endsWith(">")) {
+            tagName = tagName.substring(0, tagName.length() - 1);
+        }
+        int colonIndex = tagName.indexOf(':');
+        String baseTagName = colonIndex != -1 ? tagName.substring(0, colonIndex) : tagName;
+
+        return trimmedColor + text + "</" + baseTagName + ">";
     }
 
     @NotNull

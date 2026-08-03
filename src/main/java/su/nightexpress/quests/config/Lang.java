@@ -51,6 +51,10 @@ public class Lang implements LangContainer {
         RED.wrap("L'interface de quête d'île est actuellement verrouillée par un autre joueur.")
     );
 
+    public static final MessageLocale ISLAND_QUESTS_INVALID_HAND_ITEM = LangEntry.builder("island_quests_invalid_hand_item").chatMessage(
+        RED.wrap("L'item tenu dans votre main ne correspond pas à la ressource requise !")
+    );
+
     public static final MessageLocale ISLAND_QUEST_COMPLETED = LangEntry.builder("island_quest_completed").chatMessage(
         GREEN.wrap("Félicitations ! Vous avez terminé la quête d'île.")
     );

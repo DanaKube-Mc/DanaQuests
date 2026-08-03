@@ -166,7 +166,7 @@ public class IslandQuestTest {
         Player player = server.addPlayer("Tester");
         testHook.members.add(player);
 
-        player.getInventory().addItem(new ItemStack(Material.IRON_INGOT, 64));
+        player.getInventory().setItemInMainHand(new ItemStack(Material.IRON_INGOT, 64));
 
         assertTrue(manager.getLockManager().acquireLock(testHook.islandUuid, player.getUniqueId()));
 
@@ -176,7 +176,7 @@ public class IslandQuestTest {
         manager.deposit(player, req, false);
 
         assertEquals(64, progress.getRequirementProgress("iron_test_deposit"));
-        assertFalse(player.getInventory().contains(Material.IRON_INGOT));
+        assertEquals(0, player.getInventory().getItemInMainHand().getAmount());
 
         player.getInventory().addItem(new ItemStack(Material.IRON_INGOT, 64));
         player.getInventory().addItem(new ItemStack(Material.IRON_INGOT, 64));
