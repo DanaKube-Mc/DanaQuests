@@ -268,12 +268,6 @@ public class LoreMenu extends NormalMenu<QuestsPlugin> implements ConfigBased {
         }
 
         loader.addDefaultItem(MenuItem.buildReturn(this, 40, this::handleReturn));
-        loader.addHandler("back-profile", (viewer, event) -> {
-            this.runNextTick(() -> this.plugin.mainMenu().ifPresent(menu -> menu.open(viewer.getPlayer())));
-        });
-        loader.addHandler("back_profile", (viewer, event) -> {
-            this.runNextTick(() -> this.plugin.mainMenu().ifPresent(menu -> menu.open(viewer.getPlayer())));
-        });
 
         loader.addDefaultItem(NightItem.fromType(Material.BLACK_STAINED_GLASS_PANE)
             .setHideTooltip(true)

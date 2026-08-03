@@ -201,12 +201,6 @@ public class CommunityLeaderboardMenu extends NormalMenu<QuestsPlugin> implement
         this.setTitle(menuTitle);
 
         loader.addDefaultItem(MenuItem.buildReturn(this, 40, this::handleReturn));
-        loader.addHandler("back-profile", (viewer, event) -> {
-            this.runNextTick(() -> this.plugin.mainMenu().ifPresent(menu -> menu.open(viewer.getPlayer())));
-        });
-        loader.addHandler("back_profile", (viewer, event) -> {
-            this.runNextTick(() -> this.plugin.mainMenu().ifPresent(menu -> menu.open(viewer.getPlayer())));
-        });
 
         if (config.contains("Decorations")) {
             for (String decId : config.getSection("Decorations")) {
