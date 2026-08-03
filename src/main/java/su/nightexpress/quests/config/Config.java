@@ -15,9 +15,22 @@ import static org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 
 public class Config {
 
-    public static final String DIR_QUESTS     = "/quests/";
+    public static final String DIR_DAILY      = "/daily/";
+    public static final String DIR_BATTLEPASS = "/battlepass/";
+    public static final String DIR_COMMUNITY  = "/community/";
+    public static final String DIR_LORE       = "/lore/";
     public static final String DIR_MILESTONES = "/milestones/";
-    public static final String DIR_MENU       = "/menu/";
+    public static final String DIR_ISLAND     = "/island/";
+    public static final String DIR_PERSONAL   = "/personal/";
+
+    public static final String DIR_MENU            = "/menu/";
+    public static final String DIR_MENU_DAILY      = "/menu/daily/";
+    public static final String DIR_MENU_BATTLEPASS = "/menu/battlepass/";
+    public static final String DIR_MENU_COMMUNITY  = "/menu/community/";
+    public static final String DIR_MENU_LORE       = "/menu/lore/";
+    public static final String DIR_MENU_MILESTONES = "/menu/milestones/";
+    public static final String DIR_MENU_ISLAND     = "/menu/island/";
+    public static final String DIR_MENU_PERSONAL   = "/menu/personal/";
 
     public static final ConfigValue<String> GENERAL_DATE_TIME_FORMAT = ConfigValue.create("General.DateTimeFormat",
         "dd/MM/yyyy HH:mm",
@@ -39,6 +52,11 @@ public class Config {
         "Enables the Battle Pass feature."
     );
 
+    public static final ConfigValue<Boolean> FEATURES_BATTLE_PASS_STANDALONE_COMMAND = ConfigValue.create("Features.BattlePass.Standalone_Command",
+        true,
+        "Whether the Battle Pass command can be run standalone directly without the main command prefix."
+    );
+
     public static final ConfigValue<String[]> FEATURES_BATTLE_PASS_ALIASES = ConfigValue.create("Features.BattlePass.Aliases",
         new String[]{BattlePassCommands.DEFAULT_ALIAS, "bp"},
         "Command aliases for the Battle Pass feature.",
@@ -48,6 +66,11 @@ public class Config {
     public static final ConfigValue<Boolean> FEATURES_QUESTS_ENABLED = ConfigValue.create("Features.DailyQuests.Enabled",
         true,
         "Enables the Daily Quests feature."
+    );
+
+    public static final ConfigValue<Boolean> FEATURES_QUESTS_STANDALONE_COMMAND = ConfigValue.create("Features.DailyQuests.Standalone_Command",
+        true,
+        "Whether the Daily Quests command can be run standalone directly without the main command prefix."
     );
 
     public static final ConfigValue<String[]> FEATURES_QUESTS_ALIASES = ConfigValue.create("Features.DailyQuests.Aliases",
@@ -61,6 +84,11 @@ public class Config {
         "Enables the milestones feature."
     );
 
+    public static final ConfigValue<Boolean> FEATURES_MILESTONES_STANDALONE_COMMAND = ConfigValue.create("Features.Milestones.Standalone_Command",
+        true,
+        "Whether the Milestones command can be run standalone directly without the main command prefix."
+    );
+
     public static final ConfigValue<String[]> FEATURES_MILESTONES_ALIASES = ConfigValue.create("Features.Milestones.Aliases",
         new String[]{MilestoneCommands.DEFAULT_ALIAS, "ms"},
         "Command aliases for the Milestones feature.",
@@ -70,6 +98,11 @@ public class Config {
     public static final ConfigValue<Boolean> FEATURES_LORE_ENABLED = ConfigValue.create("Features.LoreQuests.Enabled",
         true,
         "Enables the Lore Quests feature."
+    );
+
+    public static final ConfigValue<Boolean> FEATURES_LORE_STANDALONE_COMMAND = ConfigValue.create("Features.LoreQuests.Standalone_Command",
+        true,
+        "Whether the Lore Quests command can be run standalone directly without the main command prefix."
     );
 
     public static final ConfigValue<String[]> FEATURES_LORE_ALIASES = ConfigValue.create("Features.LoreQuests.Aliases",
@@ -83,6 +116,11 @@ public class Config {
         "Enables the Island Quests feature."
     );
 
+    public static final ConfigValue<Boolean> FEATURES_ISLAND_QUESTS_STANDALONE_COMMAND = ConfigValue.create("Features.IslandQuests.Standalone_Command",
+        true,
+        "Whether the Island Quests command can be run standalone directly without the main command prefix."
+    );
+
     public static final ConfigValue<String[]> FEATURES_ISLAND_QUESTS_ALIASES = ConfigValue.create("Features.IslandQuests.Aliases",
         new String[]{"island", "is"},
         "Command aliases for the Island Quests feature."
@@ -93,6 +131,11 @@ public class Config {
         "Enables the Personal Quests feature."
     );
 
+    public static final ConfigValue<Boolean> FEATURES_PERSONAL_QUESTS_STANDALONE_COMMAND = ConfigValue.create("Features.PersonalQuests.Standalone_Command",
+        true,
+        "Whether the Personal Quests command can be run standalone directly without the main command prefix."
+    );
+
     public static final ConfigValue<String[]> FEATURES_PERSONAL_QUESTS_ALIASES = ConfigValue.create("Features.PersonalQuests.Aliases",
         new String[]{"personal", "rpg", "pq"},
         "Command aliases for the Personal Quests feature."
@@ -101,6 +144,11 @@ public class Config {
     public static final ConfigValue<Boolean> FEATURES_COMMUNITY_QUESTS_ENABLED = ConfigValue.create("Features.CommunityQuests.Enabled",
         true,
         "Enables the Community Quests feature."
+    );
+
+    public static final ConfigValue<Boolean> FEATURES_COMMUNITY_QUESTS_STANDALONE_COMMAND = ConfigValue.create("Features.CommunityQuests.Standalone_Command",
+        true,
+        "Whether the Community Quests command can be run standalone directly without the main command prefix."
     );
 
     public static final ConfigValue<String[]> FEATURES_COMMUNITY_QUESTS_ALIASES = ConfigValue.create("Features.CommunityQuests.Aliases",

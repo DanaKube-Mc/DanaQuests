@@ -2,6 +2,7 @@ package su.nightexpress.quests.community;
 
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.quests.QuestsPlugin;
+import su.nightexpress.quests.config.Config;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -10,11 +11,12 @@ public class CommunityQuestDefaults {
 
     public static void createDefaults(@NotNull QuestsPlugin plugin) {
         File dataFolder = plugin.getDataFolder();
-        if (!dataFolder.exists()) {
-            dataFolder.mkdirs();
+        File communityFolder = new File(dataFolder, Config.DIR_COMMUNITY);
+        if (!communityFolder.exists()) {
+            communityFolder.mkdirs();
         }
 
-        File questsFile = new File(dataFolder, "community_quests.yml");
+        File questsFile = new File(communityFolder, "community_quests.yml");
         if (!questsFile.exists()) {
             try (FileWriter writer = new FileWriter(questsFile)) {
                 writer.write(getQuestsYamlContent());
@@ -23,7 +25,7 @@ public class CommunityQuestDefaults {
             }
         }
 
-        File menuFolder = new File(dataFolder, "menu");
+        File menuFolder = new File(dataFolder, Config.DIR_MENU_COMMUNITY);
         if (!menuFolder.exists()) {
             menuFolder.mkdirs();
         }
@@ -33,7 +35,7 @@ public class CommunityQuestDefaults {
             try (FileWriter writer = new FileWriter(menuFile)) {
                 writer.write(getLeaderboardMenuYamlContent());
             } catch (Exception e) {
-                plugin.error("Failed to create default menu/community_leaderboard.yml: " + e.getMessage());
+                plugin.error("Failed to create default menu/community/community_leaderboard.yml: " + e.getMessage());
             }
         }
     }

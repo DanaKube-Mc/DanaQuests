@@ -34,7 +34,7 @@ public class PersonalQuestManager extends AbstractManager<QuestsPlugin> {
     public PersonalQuestManager(@NotNull QuestsPlugin plugin) {
         super(plugin);
         this.categories = new LinkedHashMap<>();
-        this.configPath = this.plugin.getDataFolder() + "/rpg_categories.yml";
+        this.configPath = this.plugin.getDataFolder() + Config.DIR_PERSONAL + "rpg_categories.yml";
     }
 
     @Override
@@ -42,9 +42,9 @@ public class PersonalQuestManager extends AbstractManager<QuestsPlugin> {
         PersonalQuestDefaults.createDefaults(this.plugin);
         this.loadCategories();
 
-        this.personalMenu = this.addMenu(new PersonalQuestMenu(this.plugin, this), Config.DIR_MENU, "personal.yml");
-        this.categoriesMenu = this.addMenu(new PersonalCategoriesMenu(this.plugin, this), Config.DIR_MENU, "personal_categories.yml");
-        this.progressionMenu = this.addMenu(new PersonalProgressionMenu(this.plugin, this), Config.DIR_MENU, "personal_progression.yml");
+        this.personalMenu = this.addMenu(new PersonalQuestMenu(this.plugin, this), Config.DIR_MENU_PERSONAL, "personal.yml");
+        this.categoriesMenu = this.addMenu(new PersonalCategoriesMenu(this.plugin, this), Config.DIR_MENU_PERSONAL, "personal_categories.yml");
+        this.progressionMenu = this.addMenu(new PersonalProgressionMenu(this.plugin, this), Config.DIR_MENU_PERSONAL, "personal_progression.yml");
 
         Bukkit.getPluginManager().registerEvents(new PersonalQuestListener(this.plugin, this), this.plugin);
     }

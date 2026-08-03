@@ -18,7 +18,7 @@ public class IslandCommands {
     public static void load(@NotNull QuestsPlugin questsPlugin) {
         plugin = questsPlugin;
 
-        if (Config.FEATURES_ISLAND_QUESTS_ENABLED.get()) {
+        if (Config.FEATURES_ISLAND_QUESTS_ENABLED.get() && Config.FEATURES_ISLAND_QUESTS_STANDALONE_COMMAND.get()) {
             command = NightCommand.hub(plugin, Config.FEATURES_ISLAND_QUESTS_ALIASES.get(), builder -> builder
                 .localized(Lang.COMMAND_ISLAND_NAME)
                 .permission(Perms.COMMAND_ISLAND)

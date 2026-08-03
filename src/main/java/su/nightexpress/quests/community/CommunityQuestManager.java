@@ -46,7 +46,7 @@ public class CommunityQuestManager extends AbstractManager<QuestsPlugin> {
         this.loadQuests();
         this.loadActiveEvent();
 
-        this.leaderboardMenu = this.addMenu(new CommunityLeaderboardMenu(this.plugin, this), Config.DIR_MENU, "community_leaderboard.yml");
+        this.leaderboardMenu = this.addMenu(new CommunityLeaderboardMenu(this.plugin, this), Config.DIR_MENU_COMMUNITY, "community_leaderboard.yml");
 
         Bukkit.getPluginManager().registerEvents(new CommunityQuestListener(this.plugin, this), this.plugin);
 
@@ -72,7 +72,7 @@ public class CommunityQuestManager extends AbstractManager<QuestsPlugin> {
 
     public void loadQuests() {
         this.communityQuests.clear();
-        File file = new File(this.plugin.getDataFolder(), "community_quests.yml");
+        File file = new File(this.plugin.getDataFolder() + Config.DIR_COMMUNITY, "community_quests.yml");
         if (!file.exists()) return;
 
         try {

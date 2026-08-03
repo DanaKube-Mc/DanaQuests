@@ -94,6 +94,15 @@ public class PersonalCategoriesMenu extends LinkedMenu<QuestsPlugin, RpgCategory
     }
 
     @Override
+    protected void onItemPrepare(@NotNull MenuViewer viewer, @NotNull MenuItem menuItem, @NotNull NightItem item) {
+        super.onItemPrepare(viewer, menuItem, item);
+
+        Player player = viewer.getPlayer();
+        item.replacement(replacer -> replacer.replace("%player%", player.getName()));
+        item.setSkullOwner(player);
+    }
+
+    @Override
     public void loadConfiguration(@NotNull FileConfig config, @NotNull MenuLoader loader) {
         this.menuTitle = ConfigValue.create("Settings.Title", "Objectifs: %category_name%").read(config);
         this.setTitle(menuTitle);

@@ -38,15 +38,15 @@ public class LoreManager extends AbstractManager<QuestsPlugin> {
         super(plugin);
         this.categories = new LinkedHashMap<>();
         this.quests = new HashMap<>();
-        this.dirPath = this.plugin.getDataFolder() + "/lore";
+        this.dirPath = this.plugin.getDataFolder() + DIR_LORE;
     }
 
     @Override
     protected void onLoad() {
         this.loadLoreQuests();
-        this.categoriesMenu = this.addMenu(new LoreCategoriesMenu(this.plugin, this), DIR_MENU, "lore_categories.yml");
-        this.loreMenu = this.addMenu(new LoreMenu(this.plugin, this), DIR_MENU, "lore.yml");
-        this.progressionMenu = this.addMenu(new LoreProgressionMenu(this.plugin, this), DIR_MENU, "lore_progression.yml");
+        this.categoriesMenu = this.addMenu(new LoreCategoriesMenu(this.plugin, this), DIR_MENU_LORE, "lore_categories.yml");
+        this.loreMenu = this.addMenu(new LoreMenu(this.plugin, this), DIR_MENU_LORE, "lore.yml");
+        this.progressionMenu = this.addMenu(new LoreProgressionMenu(this.plugin, this), DIR_MENU_LORE, "lore_progression.yml");
         
         // Register events
         Bukkit.getPluginManager().registerEvents(new LoreGenericListener(this.plugin, this), this.plugin);
