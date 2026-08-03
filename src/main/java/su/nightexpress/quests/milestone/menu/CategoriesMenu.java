@@ -95,6 +95,12 @@ public class CategoriesMenu extends NormalMenu<QuestsPlugin> implements ConfigBa
     @Override
     public void loadConfiguration(@NotNull FileConfig config, @NotNull MenuLoader loader) {
         loader.addDefaultItem(MenuItem.buildReturn(this, 40, this::handleReturn));
+        loader.addHandler("back-profile", (viewer, event) -> {
+            this.runNextTick(() -> this.plugin.mainMenu().ifPresent(menu -> menu.open(viewer.getPlayer())));
+        });
+        loader.addHandler("back_profile", (viewer, event) -> {
+            this.runNextTick(() -> this.plugin.mainMenu().ifPresent(menu -> menu.open(viewer.getPlayer())));
+        });
 
         for (int count = 0; count < 10; count++) {
             int amount = count + 1;

@@ -240,6 +240,12 @@ public class BattlePassMenu extends LinkedMenu<QuestsPlugin, BattlePassSeason> i
     @Override
     public void loadConfiguration(@NotNull FileConfig config, @NotNull MenuLoader loader) {
         loader.addDefaultItem(MenuItem.buildReturn(this, 40, this::handleReturn));
+        loader.addHandler("back-profile", (viewer, event) -> {
+            this.runNextTick(() -> this.plugin.mainMenu().ifPresent(menu -> menu.open(viewer.getPlayer())));
+        });
+        loader.addHandler("back_profile", (viewer, event) -> {
+            this.runNextTick(() -> this.plugin.mainMenu().ifPresent(menu -> menu.open(viewer.getPlayer())));
+        });
 
         this.lockedLevel = ConfigValue.create("Level.Locked", NightItem.fromType(Material.RED_STAINED_GLASS_PANE)
             .setDisplayName(RED.wrap(BOLD.wrap("Level " + GENERIC_LEVEL)) + GRAY.wrap(" • ") + WHITE.wrap("Locked"))

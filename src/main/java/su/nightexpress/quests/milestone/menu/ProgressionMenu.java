@@ -152,6 +152,12 @@ public class ProgressionMenu extends LinkedMenu<QuestsPlugin, Milestone> impleme
         this.levelSlots = ConfigValue.create("Level.Slots", IntStream.range(9, 27).toArray()).read(config);
 
         loader.addDefaultItem(MenuItem.buildReturn(this, 22, this::handleReturn));
+        loader.addHandler("back-profile", (viewer, event) -> {
+            this.runNextTick(() -> this.plugin.mainMenu().ifPresent(menu -> menu.open(viewer.getPlayer())));
+        });
+        loader.addHandler("back_profile", (viewer, event) -> {
+            this.runNextTick(() -> this.plugin.mainMenu().ifPresent(menu -> menu.open(viewer.getPlayer())));
+        });
 
         loader.addDefaultItem(NightItem.fromType(Material.BLACK_STAINED_GLASS_PANE)
             .setHideTooltip(true)

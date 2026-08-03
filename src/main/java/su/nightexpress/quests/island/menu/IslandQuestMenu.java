@@ -174,6 +174,12 @@ public class IslandQuestMenu extends NormalMenu<QuestsPlugin> implements ConfigB
         this.weightFormat = ConfigValue.create("Weight_Format", Config.ISLAND_WEIGHT_FORMAT.get()).read(config);
 
         loader.addDefaultItem(MenuItem.buildReturn(this, 40, this::handleReturn));
+        loader.addHandler("back-profile", (viewer, event) -> {
+            this.runNextTick(() -> this.plugin.mainMenu().ifPresent(menu -> menu.open(viewer.getPlayer())));
+        });
+        loader.addHandler("back_profile", (viewer, event) -> {
+            this.runNextTick(() -> this.plugin.mainMenu().ifPresent(menu -> menu.open(viewer.getPlayer())));
+        });
 
         if (config.contains("Decorations")) {
             for (String decId : config.getSection("Decorations")) {
