@@ -118,6 +118,15 @@ public class LoreProgressionMenu extends LinkedMenu<QuestsPlugin, LoreQuestCateg
     protected void onReady(@NotNull MenuViewer viewer, @NotNull Inventory inventory) {
     }
 
+    @Override
+    protected void onItemPrepare(@NotNull MenuViewer viewer, @NotNull MenuItem menuItem, @NotNull NightItem item) {
+        super.onItemPrepare(viewer, menuItem, item);
+
+        Player player = viewer.getPlayer();
+        item.replacement(replacer -> replacer.replace("%player%", player.getName()));
+        item.setSkullOwner(player);
+    }
+
     private void handleReturn(@NotNull MenuViewer viewer, @NotNull InventoryClickEvent event) {
         this.runNextTick(() -> this.manager.openCategories(viewer.getPlayer()));
     }

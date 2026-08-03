@@ -13,6 +13,8 @@ import su.nightexpress.nightcore.ui.menu.data.ConfigBased;
 import su.nightexpress.nightcore.ui.menu.data.MenuLoader;
 import su.nightexpress.nightcore.ui.menu.type.NormalMenu;
 import su.nightexpress.nightcore.util.bukkit.NightItem;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import su.nightexpress.nightcore.ui.menu.item.MenuItem;
 import su.nightexpress.quests.QuestsPlugin;
 import su.nightexpress.quests.island.IslandManager;
 import su.nightexpress.quests.island.data.IslandQuestProgress;
@@ -149,9 +151,24 @@ public class IslandQuestMenu extends NormalMenu<QuestsPlugin> implements ConfigB
     }
 
     @Override
+    protected void onItemPrepare(@NotNull MenuViewer viewer, @NotNull MenuItem menuItem, @NotNull NightItem item) {
+        super.onItemPrepare(viewer, menuItem, item);
+
+        Player player = viewer.getPlayer();
+        item.replacement(replacer -> replacer.replace("%player%", player.getName()));
+        item.setSkullOwner(player);
+    }
+
+    private void handleReturn(@NotNull MenuViewer viewer, @NotNull InventoryClickEvent event) {
+        this.runNextTick(() -> this.plugin.mainMenu().ifPresent(menu -> menu.open(viewer.getPlayer())));
+    }
+
+    @Override
     public void loadConfiguration(@NotNull FileConfig config, @NotNull MenuLoader loader) {
         this.menuTitle = ConfigValue.create("Settings.Title", "Quêtes d'Île").read(config);
         this.setTitle(menuTitle);
+
+        loader.addDefaultItem(MenuItem.buildReturn(this, 40, this::handleReturn));
 
         if (config.contains("Decorations")) {
             for (String decId : config.getSection("Decorations")) {

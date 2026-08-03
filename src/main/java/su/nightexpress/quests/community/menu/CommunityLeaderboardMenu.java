@@ -4,11 +4,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MenuType;
-import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.nightcore.config.ConfigValue;
 import su.nightexpress.nightcore.config.FileConfig;
@@ -184,9 +183,24 @@ public class CommunityLeaderboardMenu extends NormalMenu<QuestsPlugin> implement
     }
 
     @Override
+    protected void onItemPrepare(@NotNull MenuViewer viewer, @NotNull MenuItem menuItem, @NotNull NightItem item) {
+        super.onItemPrepare(viewer, menuItem, item);
+
+        Player player = viewer.getPlayer();
+        item.replacement(replacer -> replacer.replace("%player%", player.getName()));
+        item.setSkullOwner(player);
+    }
+
+    private void handleReturn(@NotNull MenuViewer viewer, @NotNull InventoryClickEvent event) {
+        this.runNextTick(() -> this.plugin.mainMenu().ifPresent(menu -> menu.open(viewer.getPlayer())));
+    }
+
+    @Override
     public void loadConfiguration(@NotNull FileConfig config, @NotNull MenuLoader loader) {
-        this.menuTitle = ConfigValue.create("Settings.Title", "Quêtes Communautaires - Leaderboard").read(config);
+        this.menuTitle = ConfigValue.create("Settings.Title", "Événement Communautaire").read(config);
         this.setTitle(menuTitle);
+
+        loader.addDefaultItem(MenuItem.buildReturn(this, 40, this::handleReturn));
 
         if (config.contains("Decorations")) {
             for (String decId : config.getSection("Decorations")) {

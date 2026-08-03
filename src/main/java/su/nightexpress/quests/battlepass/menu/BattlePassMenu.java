@@ -104,10 +104,12 @@ public class BattlePassMenu extends LinkedMenu<QuestsPlugin, BattlePassSeason> i
         BattlePassData data = user.getBattlePassData(season);
 
         item.replacement(replacer -> replacer
+            .replace("%player%", player.getName())
             .replace(data.replacePlaceholders())
             .replace(season.replacePlaceholders())
             .replace(BATTLE_PASS_TYPE, Lang.BATTLE_PASS_MODE.getLocalized(BattlePassUtils.getPassType(player, user, season)))
         );
+        item.setSkullOwner(player);
     }
 
     @Override
@@ -231,8 +233,14 @@ public class BattlePassMenu extends LinkedMenu<QuestsPlugin, BattlePassSeason> i
         this.runNextTick(() -> this.plugin.questManager().ifPresent(questManager -> questManager.openQuests(viewer.getPlayer())));
     }
 
+    private void handleReturn(@NotNull MenuViewer viewer, @NotNull InventoryClickEvent event) {
+        this.runNextTick(() -> this.plugin.mainMenu().ifPresent(menu -> menu.open(viewer.getPlayer())));
+    }
+
     @Override
     public void loadConfiguration(@NotNull FileConfig config, @NotNull MenuLoader loader) {
+        loader.addDefaultItem(MenuItem.buildReturn(this, 40, this::handleReturn));
+
         this.lockedLevel = ConfigValue.create("Level.Locked", NightItem.fromType(Material.RED_STAINED_GLASS_PANE)
             .setDisplayName(RED.wrap(BOLD.wrap("Level " + GENERIC_LEVEL)) + GRAY.wrap(" • ") + WHITE.wrap("Locked"))
             .setLore(Lists.newList())

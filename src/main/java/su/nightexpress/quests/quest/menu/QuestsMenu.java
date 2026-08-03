@@ -4,6 +4,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.MenuType;
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.nightcore.config.ConfigValue;
@@ -135,11 +136,21 @@ public class QuestsMenu extends NormalMenu<QuestsPlugin> implements ConfigBased 
         Player player = viewer.getPlayer();
         QuestUser user = this.plugin.getUserManager().getOrFetch(player);
 
-        item.replacement(replacer -> replacer.replace(GENERIC_REFRESH_TIME, () -> TimeFormats.formatDuration(user.getNewQuestsDate(), TimeFormatType.LITERAL)));
+        item.replacement(replacer -> replacer
+            .replace("%player%", player.getName())
+            .replace(GENERIC_REFRESH_TIME, () -> TimeFormats.formatDuration(user.getNewQuestsDate(), TimeFormatType.LITERAL))
+        );
+        item.setSkullOwner(player);
+    }
+
+    private void handleReturn(@NotNull MenuViewer viewer, @NotNull InventoryClickEvent event) {
+        this.runNextTick(() -> this.plugin.mainMenu().ifPresent(menu -> menu.open(viewer.getPlayer())));
     }
 
     @Override
     public void loadConfiguration(@NotNull FileConfig config, @NotNull MenuLoader loader) {
+        loader.addDefaultItem(MenuItem.buildReturn(this, 40, this::handleReturn));
+
         for (int count = 0; count < 10; count++) {
             int amount = count + 1;
             int[] defSlots = getDefaultSlots(amount);

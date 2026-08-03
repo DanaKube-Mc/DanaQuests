@@ -253,8 +253,17 @@ public class LoreCategoriesMenu extends NormalMenu<QuestsPlugin> implements Conf
     protected void onReady(@NotNull MenuViewer viewer, @NotNull Inventory inventory) {
     }
 
+    @Override
+    protected void onItemPrepare(@NotNull MenuViewer viewer, @NotNull MenuItem menuItem, @NotNull NightItem item) {
+        super.onItemPrepare(viewer, menuItem, item);
+
+        Player player = viewer.getPlayer();
+        item.replacement(replacer -> replacer.replace("%player%", player.getName()));
+        item.setSkullOwner(player);
+    }
+
     private void handleReturn(@NotNull MenuViewer viewer, @NotNull InventoryClickEvent event) {
-        this.runNextTick(() -> this.plugin.mainMenu().ifPresent(menu -> menu.open(viewer.getPlayer())));
+        this.runNextTick(() -> this.manager.openLoreMenu(viewer.getPlayer()));
     }
 
     @Override
