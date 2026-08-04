@@ -14,7 +14,6 @@ import su.nightexpress.quests.lore.definition.LoreObjective;
 import su.nightexpress.quests.lore.definition.LoreQuest;
 import su.nightexpress.quests.lore.definition.LoreQuestCategory;
 import su.nightexpress.quests.lore.menu.LoreMenu;
-import su.nightexpress.quests.lore.menu.LoreCategoriesMenu;
 import su.nightexpress.quests.lore.menu.LoreProgressionMenu;
 import su.nightexpress.quests.lore.listener.LoreGenericListener;
 import su.nightexpress.quests.tracker.QuestTrackerManager;
@@ -30,7 +29,6 @@ public class LoreManager extends AbstractManager<QuestsPlugin> {
     private final Map<String, LoreQuestCategory> categories;
     private final Map<String, LoreQuest> quests;
     private final String dirPath;
-    private LoreCategoriesMenu categoriesMenu;
     private LoreMenu loreMenu;
     private LoreProgressionMenu progressionMenu;
 
@@ -44,7 +42,6 @@ public class LoreManager extends AbstractManager<QuestsPlugin> {
     @Override
     protected void onLoad() {
         this.loadLoreQuests();
-        this.categoriesMenu = this.addMenu(new LoreCategoriesMenu(this.plugin, this), DIR_MENU_LORE, "lore_categories.yml");
         this.loreMenu = this.addMenu(new LoreMenu(this.plugin, this), DIR_MENU_LORE, "lore.yml");
         this.progressionMenu = this.addMenu(new LoreProgressionMenu(this.plugin, this), DIR_MENU_LORE, "lore_progression.yml");
         
@@ -56,7 +53,6 @@ public class LoreManager extends AbstractManager<QuestsPlugin> {
     protected void onShutdown() {
         this.categories.clear();
         this.quests.clear();
-        this.categoriesMenu = null;
         this.loreMenu = null;
         this.progressionMenu = null;
     }
@@ -326,9 +322,7 @@ public class LoreManager extends AbstractManager<QuestsPlugin> {
     }
 
     public void openCategories(@NotNull Player player) {
-        if (this.categoriesMenu != null) {
-            this.categoriesMenu.open(player);
-        }
+        this.openLoreMenu(player);
     }
 
     public void openProgression(@NotNull Player player, @NotNull LoreQuestCategory category) {

@@ -23,25 +23,44 @@ import su.nightexpress.quests.lore.definition.LoreObjective;
 import su.nightexpress.quests.lore.definition.LoreQuest;
 import su.nightexpress.quests.lore.definition.LoreQuestCategory;
 import su.nightexpress.quests.user.QuestUser;
+import su.nightexpress.quests.util.MenuUtils;
 
 import java.util.*;
-import java.util.stream.IntStream;
 
 public class LoreProgressionMenu extends LinkedMenu<QuestsPlugin, LoreQuestCategory> implements ConfigBased, Filled<LoreQuest> {
 
     private final LoreManager manager;
-    private final TreeMap<Integer, int[]> slotsByQuestCount = new TreeMap<>();
+    private Map<Integer, int[]> slotsByQuestCount = new HashMap<>();
+
+    private String questItemDisplayName = "%status_name%";
+    private List<String> questItemLore = Collections.singletonList("%status_lore%");
+
+    private String lockedMaterialStr = "RED_STAINED_GLASS_PANE";
+    private int lockedCustomModelData = 0;
+    private String lockedName = "<lyellow>%quest_name% %status%";
+    private List<String> lockedLore = Collections.singletonList("Vous devez finir les quete precendete");
+
+    private String finishedMaterialStr = "GREEN_STAINED_GLASS_PANE";
+    private int finishedCustomModelData = 0;
+    private String finishedName = "<lyellow>%quest_name% %status%";
+    private List<String> finishedLore = Collections.singletonList("Quete fini");
+
+    private String activeMaterialStr = "ORANGE_STAINED_GLASS_PANE";
+    private int activeCustomModelData = 0;
+    private String activeName = "<lyellow>%quest_name% %status%";
+    private List<String> activeLore = Arrays.asList("%quest_lore%", "", "%quest_reward%");
 
     public LoreProgressionMenu(@NotNull QuestsPlugin plugin, @NotNull LoreManager manager) {
         super(plugin, MenuType.GENERIC_9X5, "Progression");
         this.manager = manager;
+        this.setAutoRefreshInterval(1);
     }
 
     @Override
     @NotNull
     protected String getTitle(@NotNull MenuViewer viewer) {
         LoreQuestCategory category = this.getLink(viewer);
-        return super.getTitle(viewer).replace("%lore_category_name%", category.getName());
+        return super.getTitle(viewer).replace("%lore_category_name%", category != null ? category.getName() : "");
     }
 
     @Override
@@ -51,23 +70,55 @@ public class LoreProgressionMenu extends LinkedMenu<QuestsPlugin, LoreQuestCateg
         LoreQuestCategory category = this.getLink(player);
         QuestUser user = this.plugin.getUserManager().getOrFetch(player);
 
-        List<LoreQuest> quests = category.getQuests();
+        List<LoreQuest> quests = category != null ? category.getQuests() : Collections.emptyList();
         int count = quests.size();
-        int[] slots = Optional.ofNullable(this.slotsByQuestCount.ceilingEntry(count)).map(Map.Entry::getValue).orElse(new int[0]);
+        int[] slots = this.slotsByQuestCount.getOrDefault(count, new int[0]);
 
         return MenuFiller.builder(this)
             .setSlots(slots)
             .setItems(quests)
             .setItemCreator(quest -> {
-                String statusStr;
-                if (user.hasCompletedLore(quest.getId())) {
-                    statusStr = "&aComplétée";
+                boolean isFinished = user.hasCompletedLore(quest.getId());
+                LoreQuest active = category != null ? this.manager.getActiveQuest(user, category) : null;
+                boolean isActive = active != null && active.getId().equals(quest.getId());
+
+                String materialStr;
+                int cmd;
+                String namePattern;
+                List<String> lorePattern;
+                String statusTag;
+
+                if (isFinished) {
+                    materialStr = finishedMaterialStr;
+                    cmd = finishedCustomModelData;
+                    namePattern = finishedName;
+                    lorePattern = finishedLore;
+                    statusTag = "&a[Complétée]";
+                } else if (isActive) {
+                    materialStr = activeMaterialStr;
+                    cmd = activeCustomModelData;
+                    namePattern = activeName;
+                    lorePattern = activeLore;
+                    statusTag = "&e[En cours]";
                 } else {
-                    LoreQuest active = this.manager.getActiveQuest(user, category);
-                    if (active != null && active.getId().equals(quest.getId())) {
-                        statusStr = "&eEn cours";
-                    } else {
-                        statusStr = "&cVerrouillée";
+                    materialStr = lockedMaterialStr;
+                    cmd = lockedCustomModelData;
+                    namePattern = lockedName;
+                    lorePattern = lockedLore;
+                    statusTag = "&c[Verrouillée]";
+                }
+
+                Material material = null;
+                if (materialStr != null && !materialStr.isEmpty()) {
+                    try {
+                        material = Material.valueOf(materialStr.toUpperCase());
+                    } catch (Exception ignored) {}
+                }
+                if (material == null) {
+                    try {
+                        material = Material.valueOf(quest.getIconMaterial().toUpperCase());
+                    } catch (Exception ignored) {
+                        material = Material.PAPER;
                     }
                 }
 
@@ -78,31 +129,59 @@ public class LoreProgressionMenu extends LinkedMenu<QuestsPlugin, LoreQuestCateg
                     objectivesFormatted.add("  " + color + "- " + obj.getDescription() + " &8(" + current + "/" + obj.getRequired() + ")");
                 }
 
-                Material material = Material.CHEST;
-                try {
-                    material = Material.valueOf(quest.getIconMaterial().toUpperCase());
-                } catch (Exception ignored) {}
-
-                NightItem icon = NightItem.fromType(material)
-                    .setDisplayName(quest.getName())
-                    .hideAllComponents();
-
-                if (quest.getIconCustomModelData() > 0) {
-                    icon.setCustomModelData((float) quest.getIconCustomModelData());
+                List<String> rewardsFormatted = new ArrayList<>();
+                for (String rw : quest.getRewards()) {
+                    rewardsFormatted.add("&7Récompense: &a" + rw);
                 }
 
-                List<String> finalLore = new ArrayList<>();
-                for (String line : quest.getIconLore()) {
-                    if (line.contains("%quest_objectives%")) {
-                        finalLore.addAll(objectivesFormatted);
+                String statusName = namePattern
+                    .replace("%quest_name%", quest.getName())
+                    .replace("%status%", statusTag);
+
+                List<String> statusLoreLines = new ArrayList<>();
+                for (String line : lorePattern) {
+                    if (line.contains("%quest_lore%")) {
+                        statusLoreLines.addAll(quest.getDescription());
+                    } else if (line.contains("%quest_objectives%")) {
+                        statusLoreLines.addAll(objectivesFormatted);
+                    } else if (line.contains("%quest_reward%") || line.contains("%rewards%")) {
+                        statusLoreLines.addAll(rewardsFormatted);
                     } else {
-                        finalLore.add(line
-                            .replace("%status%", statusStr)
+                        statusLoreLines.add(line
                             .replace("%quest_name%", quest.getName())
+                            .replace("%status%", statusTag)
                         );
                     }
                 }
-                icon.setLore(finalLore);
+
+                String finalTitle = questItemDisplayName
+                    .replace("%status_name%", statusName)
+                    .replace("%quest_name%", quest.getName())
+                    .replace("%status%", statusTag);
+
+                List<String> finalLore = new ArrayList<>();
+                for (String line : questItemLore) {
+                    if (line.contains("%status_lore%")) {
+                        finalLore.addAll(statusLoreLines);
+                    } else {
+                        finalLore.add(line
+                            .replace("%status_name%", statusName)
+                            .replace("%quest_name%", quest.getName())
+                            .replace("%status%", statusTag)
+                        );
+                    }
+                }
+
+                NightItem icon = NightItem.fromType(material)
+                    .setDisplayName(finalTitle)
+                    .setLore(finalLore)
+                    .hideAllComponents();
+
+                if (cmd > 0) {
+                    icon.setCustomModelData((float) cmd);
+                } else if (quest.getIconCustomModelData() > 0) {
+                    icon.setCustomModelData((float) quest.getIconCustomModelData());
+                }
 
                 return icon;
             })
@@ -128,7 +207,7 @@ public class LoreProgressionMenu extends LinkedMenu<QuestsPlugin, LoreQuestCateg
     }
 
     private void handleReturn(@NotNull MenuViewer viewer, @NotNull InventoryClickEvent event) {
-        this.runNextTick(() -> this.manager.openCategories(viewer.getPlayer()));
+        this.runNextTick(() -> this.manager.openLoreMenu(viewer.getPlayer()));
     }
 
     @Override
@@ -136,44 +215,26 @@ public class LoreProgressionMenu extends LinkedMenu<QuestsPlugin, LoreQuestCateg
         String title = ConfigValue.create("Settings.Title", "<yellow><b>%lore_category_name%</b></yellow>").read(config);
         this.setTitle(title);
 
-        this.slotsByQuestCount.clear();
-        for (int count = 0; count < 10; count++) {
-            int amount = count + 1;
-            int[] defSlots = getDefaultSlots(amount);
-            int[] skillSlots = ConfigValue.create("Quest.SlotsByCount." + amount, defSlots).read(config);
-            this.slotsByQuestCount.put(amount, skillSlots);
-        }
+        this.questItemDisplayName = ConfigValue.create("Quest.Item.Display_Name", "%status_name%").read(config);
+        this.questItemLore = ConfigValue.create("Quest.Item.Lore", Collections.singletonList("%status_lore%")).read(config);
+
+        this.slotsByQuestCount = MenuUtils.loadSlotsByCount(config, "Quest");
+
+        this.lockedMaterialStr = ConfigValue.create("status.locked.material", "RED_STAINED_GLASS_PANE").read(config);
+        this.lockedCustomModelData = ConfigValue.create("status.locked.custom_model_data", 0).read(config);
+        this.lockedName = ConfigValue.create("status.locked.name", "<lyellow>%quest_name% %status%").read(config);
+        this.lockedLore = ConfigValue.create("status.locked.lore", Collections.singletonList("Vous devez finir les quete precendete")).read(config);
+
+        this.finishedMaterialStr = ConfigValue.create("status.finished.material", "GREEN_STAINED_GLASS_PANE").read(config);
+        this.finishedCustomModelData = ConfigValue.create("status.finished.custom_model_data", 0).read(config);
+        this.finishedName = ConfigValue.create("status.finished.name", "<lyellow>%quest_name% %status%").read(config);
+        this.finishedLore = ConfigValue.create("status.finished.lore", Collections.singletonList("Quete fini")).read(config);
+
+        this.activeMaterialStr = ConfigValue.create("status.actived.material", ConfigValue.create("status.active.material", "ORANGE_STAINED_GLASS_PANE").read(config)).read(config);
+        this.activeCustomModelData = ConfigValue.create("status.actived.custom_model_data", ConfigValue.create("status.active.custom_model_data", 0).read(config)).read(config);
+        this.activeName = ConfigValue.create("status.actived.name", ConfigValue.create("status.active.name", "<lyellow>%quest_name% %status%").read(config)).read(config);
+        this.activeLore = ConfigValue.create("status.actived.lore", ConfigValue.create("status.active.lore", Arrays.asList("%quest_lore%", "", "%quest_reward%")).read(config)).read(config);
 
         loader.addDefaultItem(MenuItem.buildReturn(this, 40, this::handleReturn));
-
-        loader.addDefaultItem(NightItem.fromType(Material.BLACK_STAINED_GLASS_PANE)
-            .setHideTooltip(true)
-            .toMenuItem()
-            .setPriority(-1)
-            .setSlots(0,1,2,3,4,5,6,7,8,36,37,38,39,40,41,42,43,44)
-        );
-
-        loader.addDefaultItem(NightItem.fromType(Material.GRAY_STAINED_GLASS_PANE)
-            .setHideTooltip(true)
-            .toMenuItem()
-            .setPriority(-1)
-            .setSlots(java.util.stream.IntStream.range(9, 36).toArray())
-        );
-    }
-
-    private static int[] getDefaultSlots(int count) {
-        return switch (count) {
-            case 1 -> new int[]{22};
-            case 2 -> new int[]{21, 23};
-            case 3 -> new int[]{21, 22, 23};
-            case 4 -> new int[]{21, 22, 24, 25};
-            case 5 -> new int[]{20, 21, 22, 23, 24};
-            case 6 -> new int[]{20, 21, 22, 23, 24, 31};
-            case 7 -> new int[]{20, 21, 22, 23, 24, 30, 32};
-            case 8 -> new int[]{20, 21, 22, 23, 24, 30, 31, 32};
-            case 9 -> new int[]{20, 21, 22, 23, 24, 29, 30, 32, 33};
-            case 10 -> new int[]{20, 21, 22, 23, 24, 29, 30, 31, 32, 33};
-            default -> new int[]{};
-        };
     }
 }
