@@ -102,10 +102,14 @@ public class IslandQuestTest {
 
         assertEquals("minerals", group.getId());
         assertEquals("Minerals", group.getName());
+        assertNull(group.getIcon());
         assertEquals(10.0, group.getWeight(Material.DIAMOND));
         assertEquals(2.0, group.getWeight(Material.GOLD_INGOT));
         assertEquals(1.0, group.getWeight(Material.IRON_INGOT));
         assertEquals(0.0, group.getWeight(Material.COAL));
+
+        IslandResourceGroup groupWithIcon = new IslandResourceGroup("minerals", "Minerals", Material.COAL_ORE, materials);
+        assertEquals(Material.COAL_ORE, groupWithIcon.getIcon());
 
         assertTrue(group.contains(Material.DIAMOND));
         assertFalse(group.contains(Material.COAL));
@@ -166,7 +170,7 @@ public class IslandQuestTest {
         Player player = server.addPlayer("Tester");
         testHook.members.add(player);
 
-        player.getInventory().addItem(new ItemStack(Material.IRON_INGOT, 64));
+        player.getInventory().setItemInMainHand(new ItemStack(Material.IRON_INGOT, 64));
 
         assertTrue(manager.getLockManager().acquireLock(testHook.islandUuid, player.getUniqueId()));
 
@@ -176,7 +180,7 @@ public class IslandQuestTest {
         manager.deposit(player, req, false);
 
         assertEquals(64, progress.getRequirementProgress("iron_test_deposit"));
-        assertFalse(player.getInventory().contains(Material.IRON_INGOT));
+        assertEquals(0, player.getInventory().getItemInMainHand().getAmount());
 
         player.getInventory().addItem(new ItemStack(Material.IRON_INGOT, 64));
         player.getInventory().addItem(new ItemStack(Material.IRON_INGOT, 64));

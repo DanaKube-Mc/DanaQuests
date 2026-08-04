@@ -15,17 +15,17 @@ public class LoreDefaults {
             config.set("category-name", "Chapitre I: Le commencement");
             config.set("prerequisite", "");
 
-            config.set("icon.active.material", "BOOK");
+            config.set("icon.active.material", "WRITABLE_BOOK");
             config.set("icon.active.name", "&9Chapitre I: Le commencement");
             config.set("icon.active.lore", Arrays.asList("&7Débutez votre aventure", "&7Suivez l'histoire principale"));
             config.set("icon.active.custom_model_data", 1001);
 
-            config.set("icon.inactive.material", "BOOK");
+            config.set("icon.inactive.material", "WRITTEN_BOOK");
             config.set("icon.inactive.name", "&c[Verrouillé] &7Chapitre I: Le commencement");
             config.set("icon.inactive.lore", Arrays.asList("&7Complétez les chapitres précédents."));
             config.set("icon.inactive.custom_model_data", 1002);
 
-            config.set("icon.finished.material", "BOOK");
+            config.set("icon.finished.material", "KNOWLEDGE_BOOK");
             config.set("icon.finished.name", "&a[Complété] &fChapitre I: Le commencement");
             config.set("icon.finished.lore", Arrays.asList("&7Chapitre terminé !"));
             config.set("icon.finished.custom_model_data", 1003);

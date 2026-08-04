@@ -296,21 +296,40 @@ public class Config {
         "Whether to count quests/milestones progress for automated brewing, cooking and smelting."
     );
 
-    public static final ConfigValue<Integer> UI_PROGRESS_BAR_LENGTH = ConfigValue.create("UI.ProgressBar.Length",
-        15
+    public static final ConfigValue<Integer> PROGRESS_BAR_LENGTH = ConfigValue.create("progress-bar.length",
+        10,
+        "Total number of symbols in the progress bar."
     );
 
-    public static final ConfigValue<String> UI_PROGRESS_BAR_CHAR = ConfigValue.create("UI.ProgressBar.Char",
-        "■"
+    public static final ConfigValue<String> PROGRESS_BAR_SYMBOL = ConfigValue.create("progress-bar.symbol",
+        "■",
+        "Symbol used for progress bar."
     );
 
-    public static final ConfigValue<String> UI_PROGRESS_BAR_COLOR_FILL = ConfigValue.create("UI.ProgressBar.FillColor",
-        "#32E632"
+    public static final ConfigValue<String> PROGRESS_BAR_COLOR_FILLED = ConfigValue.create("progress-bar.color-filled",
+        "<gradient:#2ecc71:#a3cb38>",
+        "Color/Gradient for filled portion (MiniMessage format)."
     );
 
-    public static final ConfigValue<String> UI_PROGRESS_BAR_COLOR_EMPTY = ConfigValue.create("UI.ProgressBar.EmptyColor",
-        "#464646"
+    public static final ConfigValue<String> PROGRESS_BAR_COLOR_EMPTY = ConfigValue.create("progress-bar.color-empty",
+        "<gray>",
+        "Color for empty portion (MiniMessage format)."
     );
+
+    public static final ConfigValue<Boolean> PROGRESS_BAR_SHOW_PERCENTAGE_INSIDE = ConfigValue.create("progress-bar.show-percentage-inside",
+        false,
+        "Displays percentage inside the progress bar."
+    );
+
+    public static final ConfigValue<String> ISLAND_WEIGHT_FORMAT = ConfigValue.create("island.weight-format",
+        "<gray>- </gray><white>%material%</white><gray>: </gray><lyellow>%weight% pts</lyellow>",
+        "Format for each resource entry in %weight_lore%."
+    );
+
+    public static final ConfigValue<Integer> UI_PROGRESS_BAR_LENGTH = PROGRESS_BAR_LENGTH;
+    public static final ConfigValue<String> UI_PROGRESS_BAR_CHAR = PROGRESS_BAR_SYMBOL;
+    public static final ConfigValue<String> UI_PROGRESS_BAR_COLOR_FILL = PROGRESS_BAR_COLOR_FILLED;
+    public static final ConfigValue<String> UI_PROGRESS_BAR_COLOR_EMPTY = PROGRESS_BAR_COLOR_EMPTY;
 
     public static boolean isMilestonesResetProgress() {
         return MILESTONES_RESET_PROGRESS.get();

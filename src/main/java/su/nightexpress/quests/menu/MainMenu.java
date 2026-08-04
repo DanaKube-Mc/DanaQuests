@@ -12,6 +12,7 @@ import su.nightexpress.nightcore.ui.menu.MenuViewer;
 import su.nightexpress.nightcore.ui.menu.data.ConfigBased;
 import su.nightexpress.nightcore.ui.menu.data.MenuLoader;
 import su.nightexpress.nightcore.ui.menu.type.NormalMenu;
+import su.nightexpress.nightcore.ui.menu.item.MenuItem;
 import su.nightexpress.nightcore.util.bukkit.NightItem;
 import su.nightexpress.quests.QuestsPlugin;
 import su.nightexpress.quests.config.Config;
@@ -120,6 +121,15 @@ public class MainMenu extends NormalMenu<QuestsPlugin> implements ConfigBased {
                 })
                 .build());
         }
+    }
+
+    @Override
+    protected void onItemPrepare(@NotNull MenuViewer viewer, @NotNull MenuItem menuItem, @NotNull NightItem item) {
+        super.onItemPrepare(viewer, menuItem, item);
+
+        Player player = viewer.getPlayer();
+        item.replacement(replacer -> replacer.replace("%player%", player.getName()));
+        item.setSkullOwner(player);
     }
 
     @Override

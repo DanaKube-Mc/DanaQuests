@@ -100,6 +100,15 @@ public class ProgressionMenu extends LinkedMenu<QuestsPlugin, Milestone> impleme
     }
 
     @Override
+    protected void onItemPrepare(@NotNull MenuViewer viewer, @NotNull MenuItem menuItem, @NotNull NightItem item) {
+        super.onItemPrepare(viewer, menuItem, item);
+
+        Player player = viewer.getPlayer();
+        item.replacement(replacer -> replacer.replace("%player%", player.getName()));
+        item.setSkullOwner(player);
+    }
+
+    @Override
     protected void onReady(@NotNull MenuViewer viewer, @NotNull Inventory inventory) {
 
     }

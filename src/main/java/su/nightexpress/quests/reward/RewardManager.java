@@ -40,7 +40,6 @@ public class RewardManager extends AbstractManager<QuestsPlugin> {
             Config.DIR_DAILY,
             Config.DIR_BATTLEPASS,
             Config.DIR_COMMUNITY,
-            Config.DIR_LORE,
             Config.DIR_MILESTONES,
             Config.DIR_ISLAND,
             Config.DIR_PERSONAL

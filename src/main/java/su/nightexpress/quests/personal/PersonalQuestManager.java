@@ -15,9 +15,9 @@ import su.nightexpress.quests.personal.data.PersonalQuestData;
 import su.nightexpress.quests.personal.definition.RpgCategory;
 import su.nightexpress.quests.personal.listener.PersonalQuestListener;
 import su.nightexpress.quests.personal.menu.PersonalCategoriesMenu;
-import su.nightexpress.quests.personal.menu.PersonalProgressionMenu;
 import su.nightexpress.quests.personal.menu.PersonalQuestMenu;
 import su.nightexpress.quests.user.QuestUser;
+import su.nightexpress.quests.util.MenuUtils;
 
 import java.io.File;
 import java.util.*;
@@ -29,7 +29,6 @@ public class PersonalQuestManager extends AbstractManager<QuestsPlugin> {
 
     private PersonalQuestMenu personalMenu;
     private PersonalCategoriesMenu categoriesMenu;
-    private PersonalProgressionMenu progressionMenu;
 
     public PersonalQuestManager(@NotNull QuestsPlugin plugin) {
         super(plugin);
@@ -44,7 +43,6 @@ public class PersonalQuestManager extends AbstractManager<QuestsPlugin> {
 
         this.personalMenu = this.addMenu(new PersonalQuestMenu(this.plugin, this), Config.DIR_MENU_PERSONAL, "personal.yml");
         this.categoriesMenu = this.addMenu(new PersonalCategoriesMenu(this.plugin, this), Config.DIR_MENU_PERSONAL, "personal_categories.yml");
-        this.progressionMenu = this.addMenu(new PersonalProgressionMenu(this.plugin, this), Config.DIR_MENU_PERSONAL, "personal_progression.yml");
 
         Bukkit.getPluginManager().registerEvents(new PersonalQuestListener(this.plugin, this), this.plugin);
     }
@@ -54,7 +52,6 @@ public class PersonalQuestManager extends AbstractManager<QuestsPlugin> {
         this.categories.clear();
         this.personalMenu = null;
         this.categoriesMenu = null;
-        this.progressionMenu = null;
     }
 
     public void loadCategories() {
@@ -181,7 +178,28 @@ public class PersonalQuestManager extends AbstractManager<QuestsPlugin> {
         user.getPersonalQuestData().put(category.getId(), newData);
         this.plugin.getUserManager().save(user);
 
-        player.sendMessage("§aQuête personnelle acceptée : §eTuer/Casser " + requiredAmount + " " + objectiveId);
+        Lang.PERSONAL_QUEST_ACCEPTED.message().send(player, replacer -> replacer
+            .replace("%amount%", String.valueOf(requiredAmount))
+            .replace("%objective%", objectiveId)
+        );
+        return true;
+    }
+
+    public boolean cancelQuest(@NotNull Player player, @NotNull RpgCategory category) {
+        QuestUser user = this.plugin.getUserManager().getOrFetch(player);
+        PersonalQuestData currentData = user.getPersonalQuestData().get(category.getId());
+        if (currentData == null || currentData.getObjectiveId() == null) {
+            return false;
+        }
+
+        currentData.setObjectiveId(null);
+        currentData.setProgress(0);
+        this.plugin.getUserManager().save(user);
+
+        Lang.PERSONAL_QUEST_CANCELLED.message().send(player);
+        try {
+            player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 0.5f, 1.0f);
+        } catch (Exception ignored) {}
         return true;
     }
 
@@ -227,7 +245,9 @@ public class PersonalQuestManager extends AbstractManager<QuestsPlugin> {
         completions++;
         int completionsToLevelUp = category.getCompletionsToLevelUp();
 
-        player.sendMessage("§aQuête complétée ! Vous avez gagné §e" + money + " $");
+        Lang.PERSONAL_QUEST_COMPLETED.message().send(player, replacer -> replacer
+            .replace("%money%", MenuUtils.formatNumber(money))
+        );
 
         if (completions >= completionsToLevelUp) {
             int newLevel = level + 1;
@@ -265,12 +285,6 @@ public class PersonalQuestManager extends AbstractManager<QuestsPlugin> {
     public void openCategoriesMenu(@NotNull Player player, @NotNull RpgCategory category) {
         if (this.categoriesMenu != null) {
             this.categoriesMenu.open(player, category);
-        }
-    }
-
-    public void openProgressionMenu(@NotNull Player player, @NotNull RpgCategory category) {
-        if (this.progressionMenu != null) {
-            this.progressionMenu.open(player, category);
         }
     }
 }
