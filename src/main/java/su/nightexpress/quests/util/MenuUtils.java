@@ -1,6 +1,7 @@
 package su.nightexpress.quests.util;
 
 import org.jetbrains.annotations.NotNull;
+import su.nightexpress.nightcore.config.FileConfig;
 import su.nightexpress.nightcore.util.Lists;
 import su.nightexpress.nightcore.util.NumberUtil;
 import su.nightexpress.nightcore.util.text.night.NightMessage;
@@ -185,5 +186,47 @@ public class MenuUtils {
             sb.append(line).append("\n");
         });
         return sb.toString().trim();
+    }
+
+    public static int[] parseSlots(String slotsStr) {
+        if (slotsStr == null || slotsStr.trim().isEmpty()) {
+            return new int[0];
+        }
+        try {
+            List<Integer> slots = new ArrayList<>();
+            String[] split = slotsStr.split(",");
+            for (String s : split) {
+                s = s.trim();
+                if (s.contains("-")) {
+                    String[] range = s.split("-");
+                    int start = Integer.parseInt(range[0].trim());
+                    int end = Integer.parseInt(range[1].trim());
+                    for (int i = start; i <= end; i++) {
+                        slots.add(i);
+                    }
+                } else {
+                    slots.add(Integer.parseInt(s));
+                }
+            }
+            return slots.stream().mapToInt(Integer::intValue).toArray();
+        } catch (Exception e) {
+            return new int[0];
+        }
+    }
+
+    @NotNull
+    public static Map<Integer, int[]> loadSlotsByCount(@NotNull FileConfig config, @NotNull String path) {
+        Map<Integer, int[]> map = new HashMap<>();
+        String sectionPath = path.endsWith(".SlotsByCount") ? path : path + ".SlotsByCount";
+        if (config.contains(sectionPath)) {
+            for (String countKey : config.getSection(sectionPath)) {
+                try {
+                    int count = Integer.parseInt(countKey);
+                    String slotsStr = config.getString(sectionPath + "." + countKey, "");
+                    map.put(count, parseSlots(slotsStr));
+                } catch (NumberFormatException ignored) {}
+            }
+        }
+        return map;
     }
 }

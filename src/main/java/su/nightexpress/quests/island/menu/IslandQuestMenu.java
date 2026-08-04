@@ -26,7 +26,9 @@ import su.nightexpress.quests.util.MenuUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class IslandQuestMenu extends NormalMenu<QuestsPlugin> implements ConfigBased {
@@ -34,7 +36,7 @@ public class IslandQuestMenu extends NormalMenu<QuestsPlugin> implements ConfigB
     private final IslandManager manager;
 
     private String menuTitle = "Quêtes d'Île";
-    private int[] requirementSlots = new int[]{22};
+    private Map<Integer, int[]> requirementSlotsByCount = new HashMap<>();
     private NightItem requirementItemTemplate;
     private NightItem levelInfoItemTemplate;
     private int levelInfoSlot = 4;
@@ -104,6 +106,7 @@ public class IslandQuestMenu extends NormalMenu<QuestsPlugin> implements ConfigB
         }
 
         List<IslandQuestRequirement> requirements = activeQuest.getRequirements();
+        int[] requirementSlots = this.requirementSlotsByCount.getOrDefault(requirements.size(), new int[0]);
         for (int i = 0; i < requirements.size() && i < requirementSlots.length; i++) {
             IslandQuestRequirement req = requirements.get(i);
             int slot = requirementSlots[i];
@@ -180,7 +183,7 @@ public class IslandQuestMenu extends NormalMenu<QuestsPlugin> implements ConfigB
                 String path = "Decorations." + decId;
                 String materialStr = config.getString(path + ".material", "AIR");
                 String slotsStr = config.getString(path + ".slots", "");
-                int[] slots = parseSlots(slotsStr);
+                int[] slots = MenuUtils.parseSlots(slotsStr);
                 if (slots.length > 0) {
                     try {
                         Material mat = Material.valueOf(materialStr.toUpperCase());
@@ -195,8 +198,7 @@ public class IslandQuestMenu extends NormalMenu<QuestsPlugin> implements ConfigB
             }
         }
 
-        String reqSlotsStr = config.getString("Requirement_Slots", "20,21,22,23,24");
-        this.requirementSlots = parseSlots(reqSlotsStr);
+        this.requirementSlotsByCount = MenuUtils.loadSlotsByCount(config, "Requirement_Slots");
 
         this.requirementItemTemplate = ConfigValue.create("Requirement_Item.Item", NightItem.fromType(Material.CHEST)).read(config);
         if (config.contains("Requirement_Item") && !config.contains("Requirement_Item.Item")) {
@@ -218,32 +220,6 @@ public class IslandQuestMenu extends NormalMenu<QuestsPlugin> implements ConfigB
         } else {
             this.resourceGroupInfoItemTemplate = null;
             this.resourceGroupInfoSlot = -1;
-        }
-    }
-
-    private int[] parseSlots(String slotsStr) {
-        if (slotsStr == null || slotsStr.trim().isEmpty()) {
-            return new int[0];
-        }
-        try {
-            List<Integer> slots = new ArrayList<>();
-            String[] split = slotsStr.split(",");
-            for (String s : split) {
-                s = s.trim();
-                if (s.contains("-")) {
-                    String[] range = s.split("-");
-                    int start = Integer.parseInt(range[0].trim());
-                    int end = Integer.parseInt(range[1].trim());
-                    for (int i = start; i <= end; i++) {
-                        slots.add(i);
-                    }
-                } else {
-                    slots.add(Integer.parseInt(s));
-                }
-            }
-            return slots.stream().mapToInt(Integer::intValue).toArray();
-        } catch (Exception e) {
-            return new int[0];
         }
     }
 }

@@ -115,7 +115,16 @@ public class IslandDefaults {
             config.set("Decorations.gray_glass.material", "GRAY_STAINED_GLASS_PANE");
             config.set("Decorations.gray_glass.slots", "9,10,11,12,13,14,15,16,17,18,19,25,26,27,28,29,30,31,32,33,34,35");
 
-            config.set("Requirement_Slots", "20,21,22,23,24");
+            config.set("Requirement_Slots.SlotsByCount.1", "22");
+            config.set("Requirement_Slots.SlotsByCount.2", "21,23");
+            config.set("Requirement_Slots.SlotsByCount.3", "21,22,23");
+            config.set("Requirement_Slots.SlotsByCount.4", "21,22,24,25");
+            config.set("Requirement_Slots.SlotsByCount.5", "20,21,22,23,24");
+            config.set("Requirement_Slots.SlotsByCount.6", "20,21,22,23,24,31");
+            config.set("Requirement_Slots.SlotsByCount.7", "20,21,22,23,24,30,32");
+            config.set("Requirement_Slots.SlotsByCount.8", "20,21,22,23,24,30,31,32");
+            config.set("Requirement_Slots.SlotsByCount.9", "20,21,22,23,24,29,30,32,33");
+            config.set("Requirement_Slots.SlotsByCount.10", "20,21,22,23,24,29,30,31,32,33");
 
             config.set("Requirement_Item.Item.Material", "CHEST");
             config.set("Requirement_Item.Item.Display_Name", "&d%requirement_name%");
@@ -162,20 +171,22 @@ public class IslandDefaults {
             config.set("Settings.Title", "Poids des Ressources");
             config.set("Settings.Size", 45);
 
-            config.set("Group_Slots", "10,11,12,13,14,15,16,19,20,21,22,23,24,25");
+            config.set("Group_Slots.SlotsByCount.1", "22");
+            config.set("Group_Slots.SlotsByCount.2", "21,23");
+            config.set("Group_Slots.SlotsByCount.3", "21,22,23");
+            config.set("Group_Slots.SlotsByCount.4", "21,22,24,25");
+            config.set("Group_Slots.SlotsByCount.5", "20,21,22,23,24");
+            config.set("Group_Slots.SlotsByCount.6", "20,21,22,23,24,31");
+            config.set("Group_Slots.SlotsByCount.7", "20,21,22,23,24,30,32");
+            config.set("Group_Slots.SlotsByCount.8", "20,21,22,23,24,30,31,32");
+            config.set("Group_Slots.SlotsByCount.9", "20,21,22,23,24,29,30,32,33");
+            config.set("Group_Slots.SlotsByCount.10", "20,21,22,23,24,29,30,31,32,33");
 
             config.set("Group_Item.Item.Material", "GOLD_NUGGET");
             config.set("Group_Item.Item.Display_Name", "&eGroupe: &f%group_name%");
             config.set("Group_Item.Item.Lore", Arrays.asList(
                 "&7Valeur des matériaux:",
                 "%weight_lore%"
-            ));
-
-            config.set("Return_Item.slot", 40);
-            config.set("Return_Item.Item.Material", "ARROW");
-            config.set("Return_Item.Item.Display_Name", "&cRetour");
-            config.set("Return_Item.Item.Lore", Arrays.asList(
-                "&7Cliquez pour revenir au menu des quêtes d'île."
             ));
 
             config.save();
