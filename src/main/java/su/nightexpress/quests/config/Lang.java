@@ -74,6 +74,18 @@ public class Lang implements LangContainer {
         RED.wrap("Vous n'avez pas de quête active pour cette catégorie.")
     );
 
+    public static final MessageLocale PERSONAL_QUEST_ACCEPTED = LangEntry.builder("personal_quest_accepted").chatMessage(
+        GREEN.wrap("Quête personnelle acceptée : Objectif %amount% %objective% !")
+    );
+
+    public static final MessageLocale PERSONAL_QUEST_CANCELLED = LangEntry.builder("personal_quest_cancelled").chatMessage(
+        RED.wrap("Quête personnelle abandonnée.")
+    );
+
+    public static final MessageLocale PERSONAL_QUEST_COMPLETED = LangEntry.builder("personal_quest_completed").chatMessage(
+        GREEN.wrap("Quête complétée ! Vous avez gagné %money% $ !")
+    );
+
     public static final TextLocale COMMAND_COMMUNITY_NAME = LangEntry.builder("Command.Community.Name").text("community");
     public static final TextLocale COMMAND_COMMUNITY_DESC = LangEntry.builder("Command.Community.Desc").text("Ouvre le menu des quêtes communautaires.");
 

@@ -20,20 +20,23 @@ import su.nightexpress.quests.personal.PersonalQuestManager;
 import su.nightexpress.quests.personal.data.PersonalQuestData;
 import su.nightexpress.quests.personal.definition.RpgCategory;
 import su.nightexpress.quests.user.QuestUser;
+import su.nightexpress.quests.util.MenuUtils;
 
 import java.util.*;
 
 public class PersonalQuestMenu extends NormalMenu<QuestsPlugin> implements ConfigBased {
 
     private final PersonalQuestManager manager;
-    private final TreeMap<Integer, int[]> slotsByCategoryCount = new TreeMap<>();
+    private Map<Integer, int[]> slotsByCategoryCount = new HashMap<>();
 
-    private String menuTitle = "Quêtes RPG";
-    private String categoryLoreSuffixActive = "\n&6Quête active: &e%objective%\n&7Progression: &e%progress%/%required%\n&7Gains: &a%money% $\n&eClic Gauche pour voir la progression.";
-    private String categoryLoreSuffixInactive = "\n&aAucune quête active.\n&eClic Gauche pour accepter une quête.";
+    private String menuTitle = "Quêtes Personnelles";
+    private String questItemDisplayName = "&d%quest_name% %level% [%completions%/%required_completions%]";
+    private List<String> questItemLore = Arrays.asList("%description%", "", "%status%", "&aClic Droit pour voir les objectifs.");
+    private String categoryLoreSuffixActive = "\n&6Quête active: &e%objective%\n&7Progression: &e%progress%/%required%\n&7Récompense: &a%money% $\n\n&eClic Gauche pour quitter la quête.";
+    private String categoryLoreSuffixInactive = "\n&aAucune quête active.\n&eClic Gauche pour accepter la quête.";
 
     public PersonalQuestMenu(@NotNull QuestsPlugin plugin, @NotNull PersonalQuestManager manager) {
-        super(plugin, MenuType.GENERIC_9X5, "Quêtes RPG");
+        super(plugin, MenuType.GENERIC_9X5, "Quêtes Personnelles");
         this.manager = manager;
         this.setAutoRefreshInterval(1);
     }
@@ -45,7 +48,7 @@ public class PersonalQuestMenu extends NormalMenu<QuestsPlugin> implements Confi
 
         List<RpgCategory> categories = new ArrayList<>(this.manager.getCategories().values());
         int count = categories.size();
-        int[] slots = Optional.ofNullable(this.slotsByCategoryCount.ceilingEntry(count)).map(Map.Entry::getValue).orElse(new int[0]);
+        int[] slots = this.slotsByCategoryCount.getOrDefault(count, new int[0]);
 
         for (int i = 0; i < slots.length && i < categories.size(); i++) {
             int slot = slots[i];
@@ -63,41 +66,50 @@ public class PersonalQuestMenu extends NormalMenu<QuestsPlugin> implements Confi
                 mat = Material.BOOK;
             }
 
-            String finalTitle = category.getDisplayName()
+            String finalTitle = questItemDisplayName
+                .replace("%quest_name%", category.getDisplayName())
+                .replace("%category_name%", category.getDisplayName())
+                .replace("%name%", category.getDisplayName())
                 .replace("%level%", String.valueOf(level))
                 .replace("%completions%", String.valueOf(completions))
                 .replace("%required_completions%", String.valueOf(completionsToLevelUp));
 
-            List<String> finalLore = new ArrayList<>();
-            for (String line : category.getIconLore()) {
-                finalLore.add(line
-                    .replace("%level%", String.valueOf(level))
-                    .replace("%completions%", String.valueOf(completions))
-                    .replace("%required_completions%", String.valueOf(completionsToLevelUp))
-                );
-            }
-
-            int acceptedToday = this.manager.getQuestsAcceptedToday(user);
-            int dailyLimit = this.manager.getDailyLimit(player);
-
-            finalLore.add("");
-            finalLore.add("&7Limite journalière: &e" + acceptedToday + "/" + dailyLimit);
-
             boolean hasActive = activeQuest != null && activeQuest.hasActiveQuest();
 
-            if (hasActive) {
-                String objectiveName = activeQuest.getObjectiveId();
-                if (objectiveName == null) objectiveName = "";
-                String suffix = categoryLoreSuffixActive
-                    .replace("%objective%", objectiveName)
-                    .replace("%progress%", String.valueOf(activeQuest.getProgress()))
-                    .replace("%required%", String.valueOf(activeQuest.getRequiredAmount()))
-                    .replace("%money%", String.valueOf(activeQuest.getScaledMoney()));
-                finalLore.addAll(Arrays.asList(suffix.split("\n")));
-            } else {
-                finalLore.addAll(Arrays.asList(categoryLoreSuffixInactive.split("\n")));
+            List<String> finalLore = new ArrayList<>();
+            for (String line : this.questItemLore) {
+                if (line.equalsIgnoreCase("%description%")) {
+                    for (String descLine : category.getIconLore()) {
+                        finalLore.add(descLine
+                            .replace("%level%", String.valueOf(level))
+                            .replace("%completions%", String.valueOf(completions))
+                            .replace("%required_completions%", String.valueOf(completionsToLevelUp))
+                        );
+                    }
+                } else if (line.equalsIgnoreCase("%status%")) {
+                    if (hasActive) {
+                        String objectiveName = activeQuest.getObjectiveId();
+                        if (objectiveName == null) objectiveName = "";
+                        String suffix = categoryLoreSuffixActive
+                            .replace("%objective%", objectiveName)
+                            .replace("%progress%", String.valueOf(activeQuest.getProgress()))
+                            .replace("%required%", String.valueOf(activeQuest.getRequiredAmount()))
+                            .replace("%money%", String.valueOf(activeQuest.getScaledMoney()));
+                        finalLore.addAll(Arrays.asList(suffix.split("\n")));
+                    } else {
+                        finalLore.addAll(Arrays.asList(categoryLoreSuffixInactive.split("\n")));
+                    }
+                } else {
+                    finalLore.add(line
+                        .replace("%quest_name%", category.getDisplayName())
+                        .replace("%category_name%", category.getDisplayName())
+                        .replace("%name%", category.getDisplayName())
+                        .replace("%level%", String.valueOf(level))
+                        .replace("%completions%", String.valueOf(completions))
+                        .replace("%required_completions%", String.valueOf(completionsToLevelUp))
+                    );
+                }
             }
-            finalLore.add("&7Clic Droit pour voir les objectifs.");
 
             NightItem nightItem = NightItem.fromType(mat)
                 .setDisplayName(finalTitle)
@@ -119,7 +131,9 @@ public class PersonalQuestMenu extends NormalMenu<QuestsPlugin> implements Confi
                                 this.runNextTick(() -> this.flush(viewer1));
                             }
                         } else {
-                            this.runNextTick(() -> this.manager.openProgressionMenu(player, category));
+                            if (this.manager.cancelQuest(player, category)) {
+                                this.runNextTick(() -> this.flush(viewer1));
+                            }
                         }
                     } else if (event.isRightClick()) {
                         this.runNextTick(() -> this.manager.openCategoriesMenu(player, category));
@@ -144,56 +158,33 @@ public class PersonalQuestMenu extends NormalMenu<QuestsPlugin> implements Confi
         super.onItemPrepare(viewer, menuItem, item);
 
         Player player = viewer.getPlayer();
-        item.replacement(replacer -> replacer.replace("%player%", player.getName()));
+        QuestUser user = this.plugin.getUserManager().getOrFetch(player);
+        int acceptedToday = this.manager.getQuestsAcceptedToday(user);
+        int dailyLimit = this.manager.getDailyLimit(player);
+
+        item.replacement(replacer -> replacer
+            .replace("%player%", player.getName())
+            .replace("%daily_progress%", String.valueOf(acceptedToday))
+            .replace("%daily_count%", String.valueOf(acceptedToday))
+            .replace("%accepted_today%", String.valueOf(acceptedToday))
+            .replace("%daily_limit%", String.valueOf(dailyLimit))
+        );
         item.setSkullOwner(player);
     }
 
     @Override
     public void loadConfiguration(@NotNull FileConfig config, @NotNull MenuLoader loader) {
-        this.menuTitle = ConfigValue.create("Settings.Title", "Quêtes RPG").read(config);
+        this.menuTitle = ConfigValue.create("Settings.Title", "Quêtes Personnelles").read(config);
         this.setTitle(menuTitle);
+
+        this.questItemDisplayName = ConfigValue.create("Quest.Item.Display_Name", "&d%quest_name% %level% [%completions%/%required_completions%]").read(config);
+        this.questItemLore = ConfigValue.create("Quest.Item.Lore", Arrays.asList("%description%", "", "%status%", "&aClic Droit pour voir les objectifs.")).read(config);
 
         this.categoryLoreSuffixActive = ConfigValue.create("status.active.suffix", categoryLoreSuffixActive).read(config);
         this.categoryLoreSuffixInactive = ConfigValue.create("status.inactive.suffix", categoryLoreSuffixInactive).read(config);
 
-        this.slotsByCategoryCount.clear();
-        for (int count = 0; count < 10; count++) {
-            int amount = count + 1;
-            int[] defSlots = getDefaultSlots(amount);
-            int[] skillSlots = ConfigValue.create("Quest.SlotsByCount." + amount, defSlots).read(config);
-            this.slotsByCategoryCount.put(amount, skillSlots);
-        }
+        this.slotsByCategoryCount = MenuUtils.loadSlotsByCount(config, "Quest");
 
         loader.addDefaultItem(MenuItem.buildReturn(this, 40, this::handleReturn));
-
-        loader.addDefaultItem(NightItem.fromType(Material.BLACK_STAINED_GLASS_PANE)
-            .setHideTooltip(true)
-            .toMenuItem()
-            .setPriority(-1)
-            .setSlots(0, 1, 2, 3, 4, 5, 6, 7, 8, 36, 37, 38, 39, 41, 42, 43, 44)
-        );
-
-        loader.addDefaultItem(NightItem.fromType(Material.GRAY_STAINED_GLASS_PANE)
-            .setHideTooltip(true)
-            .toMenuItem()
-            .setPriority(-1)
-            .setSlots(java.util.stream.IntStream.range(9, 36).toArray())
-        );
-    }
-
-    private static int[] getDefaultSlots(int count) {
-        return switch (count) {
-            case 1 -> new int[]{22};
-            case 2 -> new int[]{21, 23};
-            case 3 -> new int[]{21, 22, 23};
-            case 4 -> new int[]{21, 22, 24, 25};
-            case 5 -> new int[]{20, 21, 22, 23, 24};
-            case 6 -> new int[]{20, 21, 22, 23, 24, 31};
-            case 7 -> new int[]{20, 21, 22, 23, 24, 30, 32};
-            case 8 -> new int[]{20, 21, 22, 23, 24, 30, 31, 32};
-            case 9 -> new int[]{20, 21, 22, 23, 24, 29, 30, 32, 33};
-            case 10 -> new int[]{20, 21, 22, 23, 24, 29, 30, 31, 32, 33};
-            default -> new int[]{};
-        };
     }
 }
