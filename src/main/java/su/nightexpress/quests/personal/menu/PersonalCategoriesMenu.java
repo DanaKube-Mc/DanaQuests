@@ -25,6 +25,7 @@ import java.util.*;
 public class PersonalCategoriesMenu extends LinkedMenu<QuestsPlugin, RpgCategory> implements ConfigBased {
 
     private final PersonalQuestManager manager;
+    private int[] defaultSlots = new int[0];
     private Map<Integer, int[]> slotsByObjectiveCount = new HashMap<>();
 
     private String menuTitle = "Objectifs: %category_name%";
@@ -54,7 +55,10 @@ public class PersonalCategoriesMenu extends LinkedMenu<QuestsPlugin, RpgCategory
 
         List<Map.Entry<String, Integer>> entries = new ArrayList<>(category.getObjectives().entrySet());
         int count = entries.size();
-        int[] slots = this.slotsByObjectiveCount.getOrDefault(count, new int[]{20, 21, 22, 23, 24});
+        int[] slots = this.slotsByObjectiveCount.get(count);
+        if (slots == null || slots.length == 0) {
+            slots = this.defaultSlots.length > 0 ? this.defaultSlots : new int[]{20, 21, 22, 23, 24};
+        }
 
         for (int i = 0; i < slots.length && i < entries.size(); i++) {
             int slot = slots[i];
@@ -143,6 +147,7 @@ public class PersonalCategoriesMenu extends LinkedMenu<QuestsPlugin, RpgCategory
         this.itemDisplayName = ConfigValue.create("Quest.Item.Display_Name", "&d%material_name%").read(config);
         this.itemLore = ConfigValue.create("Quest.Item.Lore", Collections.singletonList("Quantité requise: %material_quantite%")).read(config);
 
+        this.defaultSlots = MenuUtils.parseSlots(config.getString("Quest.Slots", ""));
         this.slotsByObjectiveCount = MenuUtils.loadSlotsByCount(config, "Quest");
 
         loader.addDefaultItem(MenuItem.buildReturn(this, 40, (viewer1, event) -> {
