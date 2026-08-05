@@ -32,6 +32,7 @@
   * 🧪 **Consommation** (`CONSUME_ITEM`) : Manger des aliments ou consommer des potions.
   * 🤝 **Commerce PNJ** (`TRADE_WITH_VILLAGER`) : Réaliser des échanges avec des marchands (`PlayerTradeEvent`).
   * 🍯 **Récolte** (`HARVEST_ITEM`) : Récolter du miel, composter pour de la poudre d'os ou cueillir des baies.
+  * 💻 **Commande** (`EXECUTE_COMMAND`) : Exécuter une commande joueur (ex: `/spawn`, `/danatool`).
 
 ### 🏝️ 2. Quêtes d'Île Coopératives (SuperiorSkyblock2)
 * 🏝️ **Progression Partagée** : Liaison directe avec l'API **SuperiorSkyblock2** (SSB2) ; la progression est sauvegardée au niveau de l'île (`excellentquests_islands`).
