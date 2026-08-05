@@ -3,9 +3,19 @@
 ![Minecraft Paper 1.21](https://img.shields.io/badge/Minecraft-Paper%201.21.x-brightgreen?style=for-the-badge&logo=minecraft)
 ![Java 21](https://img.shields.io/badge/Java-21-orange?style=for-the-badge&logo=openjdk)
 ![Build Maven](https://img.shields.io/badge/Build-Maven-blue?style=for-the-badge&logo=apachemaven)
+![Version 5.0.2](https://img.shields.io/badge/Version-5.0.2-blue?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-GPL--3.0-lightgrey?style=for-the-badge)
 
 **DanaQuests** est un plugin de quêtes Minecraft complet, moderne et modulaire développé pour l'écosystème **DanaKube** (basé sur un fork d'ExcellentQuests). Il réinvente l'expérience de jeu en introduisant 4 grands systèmes de quêtes complémentaires (Lore narratif, Îles coopératives, RPG personnel et Événements communautaires) ainsi qu'un moteur de suivi unifié multi-canal.
+
+---
+
+## 🚀 Nouveautés & Optimisations (v5.0.2)
+
+* 🔄 **Unification du TaskManager** : Traitement centralisé de tous les objectifs de quêtes (Lore, Personnelles, Daily) directement via `TaskManager#progressQuests()`.
+* 🧩 **Matching Intelligents & Alias d'Items** : Résolution automatique des écarts Spigot entre noms d'items et de blocs (ex: `carrot` $\leftrightarrow$ `carrots`, `potato` $\leftrightarrow$ `potatoes`, `beetroot` $\leftrightarrow$ `beetroots`).
+* 🍱 **Positionnement Dynamique (`SlotsByCount`)** : Repositionnement automatique des icônes dans les menus de quêtes en fonction du nombre d'éléments à afficher.
+* 📦 **Mobs Empilés & Groupes Génériques** : Prise en charge des entités empilées (*stacked mobs*) et des groupes de ressources (`resource_groups`).
 
 ---
 
@@ -22,6 +32,7 @@
   * 🧪 **Consommation** (`CONSUME_ITEM`) : Manger des aliments ou consommer des potions.
   * 🤝 **Commerce PNJ** (`TRADE_WITH_VILLAGER`) : Réaliser des échanges avec des marchands (`PlayerTradeEvent`).
   * 🍯 **Récolte** (`HARVEST_ITEM`) : Récolter du miel, composter pour de la poudre d'os ou cueillir des baies.
+  * 💻 **Commande** (`EXECUTE_COMMAND`) : Exécuter une commande joueur (ex: `/spawn`, `/danatool`).
 
 ### 🏝️ 2. Quêtes d'Île Coopératives (SuperiorSkyblock2)
 * 🏝️ **Progression Partagée** : Liaison directe avec l'API **SuperiorSkyblock2** (SSB2) ; la progression est sauvegardée au niveau de l'île (`excellentquests_islands`).

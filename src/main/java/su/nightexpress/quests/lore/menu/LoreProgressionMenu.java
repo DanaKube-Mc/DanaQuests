@@ -31,6 +31,7 @@ public class LoreProgressionMenu extends LinkedMenu<QuestsPlugin, LoreQuestCateg
 
     private final LoreManager manager;
     private Map<Integer, int[]> slotsByQuestCount = new HashMap<>();
+    private int[] generalSlots = new int[0];
 
     private String questItemDisplayName = "%status_name%";
     private List<String> questItemLore = Collections.singletonList("%status_lore%");
@@ -72,7 +73,10 @@ public class LoreProgressionMenu extends LinkedMenu<QuestsPlugin, LoreQuestCateg
 
         List<LoreQuest> quests = category != null ? category.getQuests() : Collections.emptyList();
         int count = quests.size();
-        int[] slots = this.slotsByQuestCount.getOrDefault(count, new int[0]);
+        int[] slots = this.slotsByQuestCount.getOrDefault(count, this.generalSlots);
+        if (slots.length == 0) {
+            slots = this.generalSlots;
+        }
 
         return MenuFiller.builder(this)
             .setSlots(slots)
@@ -93,19 +97,19 @@ public class LoreProgressionMenu extends LinkedMenu<QuestsPlugin, LoreQuestCateg
                     cmd = finishedCustomModelData;
                     namePattern = finishedName;
                     lorePattern = finishedLore;
-                    statusTag = "&a[Complétée]";
+                    statusTag = "[Complétée]";
                 } else if (isActive) {
                     materialStr = activeMaterialStr;
                     cmd = activeCustomModelData;
                     namePattern = activeName;
                     lorePattern = activeLore;
-                    statusTag = "&e[En cours]";
+                    statusTag = "[En cours]";
                 } else {
                     materialStr = lockedMaterialStr;
                     cmd = lockedCustomModelData;
                     namePattern = lockedName;
                     lorePattern = lockedLore;
-                    statusTag = "&c[Verrouillée]";
+                    statusTag = "[Verrouillée]";
                 }
 
                 Material material = null;
@@ -219,6 +223,7 @@ public class LoreProgressionMenu extends LinkedMenu<QuestsPlugin, LoreQuestCateg
         this.questItemLore = ConfigValue.create("Quest.Item.Lore", Collections.singletonList("%status_lore%")).read(config);
 
         this.slotsByQuestCount = MenuUtils.loadSlotsByCount(config, "Quest");
+        this.generalSlots = MenuUtils.parseSlots(config.getString("Quest.Slots", ""));
 
         this.lockedMaterialStr = ConfigValue.create("status.locked.material", "RED_STAINED_GLASS_PANE").read(config);
         this.lockedCustomModelData = ConfigValue.create("status.locked.custom_model_data", 0).read(config);

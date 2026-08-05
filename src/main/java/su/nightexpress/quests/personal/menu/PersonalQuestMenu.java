@@ -27,6 +27,7 @@ import java.util.*;
 public class PersonalQuestMenu extends NormalMenu<QuestsPlugin> implements ConfigBased {
 
     private final PersonalQuestManager manager;
+    private int[] defaultSlots = new int[0];
     private Map<Integer, int[]> slotsByCategoryCount = new HashMap<>();
 
     private String menuTitle = "Quêtes Personnelles";
@@ -48,7 +49,10 @@ public class PersonalQuestMenu extends NormalMenu<QuestsPlugin> implements Confi
 
         List<RpgCategory> categories = new ArrayList<>(this.manager.getCategories().values());
         int count = categories.size();
-        int[] slots = this.slotsByCategoryCount.getOrDefault(count, new int[0]);
+        int[] slots = this.slotsByCategoryCount.get(count);
+        if (slots == null || slots.length == 0) {
+            slots = this.defaultSlots.length > 0 ? this.defaultSlots : new int[]{10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34};
+        }
 
         for (int i = 0; i < slots.length && i < categories.size(); i++) {
             int slot = slots[i];
@@ -183,6 +187,7 @@ public class PersonalQuestMenu extends NormalMenu<QuestsPlugin> implements Confi
         this.categoryLoreSuffixActive = ConfigValue.create("status.active.suffix", categoryLoreSuffixActive).read(config);
         this.categoryLoreSuffixInactive = ConfigValue.create("status.inactive.suffix", categoryLoreSuffixInactive).read(config);
 
+        this.defaultSlots = MenuUtils.parseSlots(config.getString("Quest.Slots", ""));
         this.slotsByCategoryCount = MenuUtils.loadSlotsByCount(config, "Quest");
 
         loader.addDefaultItem(MenuItem.buildReturn(this, 40, this::handleReturn));

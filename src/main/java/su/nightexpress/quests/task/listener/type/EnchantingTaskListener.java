@@ -10,6 +10,7 @@ import su.nightexpress.quests.QuestsPlugin;
 import su.nightexpress.quests.task.adapter.AdapterFamily;
 import su.nightexpress.quests.task.TaskManager;
 import su.nightexpress.quests.task.TaskType;
+import su.nightexpress.quests.task.TaskTypeId;
 import su.nightexpress.quests.task.listener.TaskListener;
 
 public class EnchantingTaskListener extends TaskListener<Enchantment, AdapterFamily<Enchantment>> {
@@ -26,5 +27,11 @@ public class EnchantingTaskListener extends TaskListener<Enchantment, AdapterFam
         event.getEnchantsToAdd().forEach((enchantment, level) -> {
             this.progressQuests(player, enchantment);
         });
+
+        org.bukkit.inventory.ItemStack item = event.getItem();
+        if (item != null && !item.getType().isAir()) {
+            String itemName = item.getType().name();
+            this.plugin.personalQuestManager().ifPresent(pm -> pm.handleProgress(player, TaskTypeId.ENCHANTING, itemName, 1));
+        }
     }
 }

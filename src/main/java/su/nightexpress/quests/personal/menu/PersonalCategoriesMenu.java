@@ -25,6 +25,7 @@ import java.util.*;
 public class PersonalCategoriesMenu extends LinkedMenu<QuestsPlugin, RpgCategory> implements ConfigBased {
 
     private final PersonalQuestManager manager;
+    private int[] defaultSlots = new int[0];
     private Map<Integer, int[]> slotsByObjectiveCount = new HashMap<>();
 
     private String menuTitle = "Objectifs: %category_name%";
@@ -34,7 +35,6 @@ public class PersonalCategoriesMenu extends LinkedMenu<QuestsPlugin, RpgCategory
     public PersonalCategoriesMenu(@NotNull QuestsPlugin plugin, @NotNull PersonalQuestManager manager) {
         super(plugin, MenuType.GENERIC_9X5, "Objectifs: %category_name%");
         this.manager = manager;
-        this.setAutoRefreshInterval(1);
     }
 
     @Override
@@ -55,7 +55,10 @@ public class PersonalCategoriesMenu extends LinkedMenu<QuestsPlugin, RpgCategory
 
         List<Map.Entry<String, Integer>> entries = new ArrayList<>(category.getObjectives().entrySet());
         int count = entries.size();
-        int[] slots = this.slotsByObjectiveCount.getOrDefault(count, new int[]{20, 21, 22, 23, 24});
+        int[] slots = this.slotsByObjectiveCount.get(count);
+        if (slots == null || slots.length == 0) {
+            slots = this.defaultSlots.length > 0 ? this.defaultSlots : new int[]{20, 21, 22, 23, 24};
+        }
 
         for (int i = 0; i < slots.length && i < entries.size(); i++) {
             int slot = slots[i];
@@ -107,15 +110,49 @@ public class PersonalCategoriesMenu extends LinkedMenu<QuestsPlugin, RpgCategory
     }
 
     private Material getObjectiveMaterial(String objectiveId) {
+        String upper = objectiveId.toUpperCase();
+
+        if (upper.equals("CARROTS")) return Material.CARROT;
+        if (upper.equals("POTATOES")) return Material.POTATO;
+        if (upper.equals("BEETROOTS")) return Material.BEETROOT;
+        if (upper.equals("NETHER_WARTS") || upper.equals("NETHER_WART")) return Material.NETHER_WART;
+        if (upper.equals("BROWN_MUSHROOM_BLOCK")) return Material.BROWN_MUSHROOM;
+        if (upper.equals("RED_MUSHROOM_BLOCK")) return Material.RED_MUSHROOM;
+        if (upper.equals("MOOSHROOM") || upper.equals("MUSHROOM_COW")) return Material.MOOSHROOM_SPAWN_EGG;
+
+        if (upper.equals("BLOCKS") || upper.equals("BLOCK") || upper.equals("ANY") || upper.equals("ANY_BLOCK") || upper.equals("ALL") || upper.equals("BUILDING_BLOCKS")) return Material.BRICK;
+        if (upper.equals("MOBS") || upper.equals("MOB") || upper.equals("ANY_MOB") || upper.equals("MONSTER") || upper.equals("MONSTERS")) return Material.ZOMBIE_HEAD;
+        if (upper.equals("FISH") || upper.equals("FISHES") || upper.equals("ANY_FISH")) return Material.COD;
+        if (upper.equals("ITEMS") || upper.equals("ITEM") || upper.equals("ANY_ITEM")) return Material.CRAFTING_TABLE;
+
+        if (upper.equals("PLANKS") || upper.equals("PLANK")) return Material.OAK_PLANKS;
+        if (upper.equals("STAIRS") || upper.equals("STAIR")) return Material.OAK_STAIRS;
+        if (upper.equals("SLAB") || upper.equals("SLABS")) return Material.OAK_SLAB;
+        if (upper.equals("LOG") || upper.equals("LOGS") || upper.equals("WOOD")) return Material.OAK_LOG;
+        if (upper.equals("TOOL") || upper.equals("TOOLS")) return Material.IRON_PICKAXE;
+        if (upper.equals("ARMOR") || upper.equals("ARMOUR")) return Material.IRON_CHESTPLATE;
+        if (upper.equals("WOOL")) return Material.WHITE_WOOL;
+        if (upper.equals("BED") || upper.equals("BEDS")) return Material.RED_BED;
+        if (upper.equals("GLASS")) return Material.GLASS;
+        if (upper.equals("GLASS_PANE") || upper.equals("GLASS_PANES")) return Material.GLASS_PANE;
+        if (upper.equals("TERRACOTTA")) return Material.TERRACOTTA;
+        if (upper.equals("CONCRETE")) return Material.WHITE_CONCRETE;
+        if (upper.equals("CANDLE") || upper.equals("CANDLES")) return Material.CANDLE;
+        if (upper.equals("SHULKER_BOX") || upper.equals("SHULKER_BOXES")) return Material.SHULKER_BOX;
+
         try {
-            return Material.valueOf(objectiveId.toUpperCase());
-        } catch (Exception ignored) {
-            try {
-                return Material.valueOf(objectiveId.toUpperCase() + "_SPAWN_EGG");
-            } catch (Exception ignored2) {
-                return Material.PAPER;
+            Material mat = Material.valueOf(upper);
+            if (mat.isItem() && !mat.isAir()) {
+                return mat;
             }
-        }
+        } catch (Exception ignored) {}
+
+        try {
+            Material egg = Material.valueOf(upper + "_SPAWN_EGG");
+            if (egg.isItem()) return egg;
+        } catch (Exception ignored2) {}
+
+        return Material.ENCHANTED_BOOK;
     }
 
     @Override
@@ -139,6 +176,7 @@ public class PersonalCategoriesMenu extends LinkedMenu<QuestsPlugin, RpgCategory
         this.itemDisplayName = ConfigValue.create("Quest.Item.Display_Name", "&d%material_name%").read(config);
         this.itemLore = ConfigValue.create("Quest.Item.Lore", Collections.singletonList("Quantité requise: %material_quantite%")).read(config);
 
+        this.defaultSlots = MenuUtils.parseSlots(config.getString("Quest.Slots", ""));
         this.slotsByObjectiveCount = MenuUtils.loadSlotsByCount(config, "Quest");
 
         loader.addDefaultItem(MenuItem.buildReturn(this, 40, (viewer1, event) -> {
