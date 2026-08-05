@@ -118,6 +118,23 @@ public class PersonalCategoriesMenu extends LinkedMenu<QuestsPlugin, RpgCategory
             if (upper.equals("POTATOES")) return Material.POTATO;
             if (upper.equals("BEETROOTS")) return Material.BEETROOT;
 
+            if (upper.equals("BLOCKS") || upper.equals("BLOCK") || upper.equals("ANY") || upper.equals("ANY_BLOCK") || upper.equals("ALL") || upper.equals("BUILDING_BLOCKS")) return Material.BRICK;
+
+            if (upper.equals("PLANKS") || upper.equals("PLANK")) return Material.OAK_PLANKS;
+            if (upper.equals("STAIRS") || upper.equals("STAIR")) return Material.OAK_STAIRS;
+            if (upper.equals("SLAB") || upper.equals("SLABS")) return Material.OAK_SLAB;
+            if (upper.equals("LOG") || upper.equals("LOGS") || upper.equals("WOOD")) return Material.OAK_LOG;
+            if (upper.equals("TOOL") || upper.equals("TOOLS")) return Material.IRON_PICKAXE;
+            if (upper.equals("ARMOR") || upper.equals("ARMOUR")) return Material.IRON_CHESTPLATE;
+            if (upper.equals("WOOL")) return Material.WHITE_WOOL;
+            if (upper.equals("BED") || upper.equals("BEDS")) return Material.RED_BED;
+            if (upper.equals("GLASS")) return Material.GLASS;
+            if (upper.equals("GLASS_PANE") || upper.equals("GLASS_PANES")) return Material.GLASS_PANE;
+            if (upper.equals("TERRACOTTA")) return Material.TERRACOTTA;
+            if (upper.equals("CONCRETE")) return Material.WHITE_CONCRETE;
+            if (upper.equals("CANDLE") || upper.equals("CANDLES")) return Material.CANDLE;
+            if (upper.equals("SHULKER_BOX") || upper.equals("SHULKER_BOXES")) return Material.SHULKER_BOX;
+
             try {
                 return Material.valueOf(upper + "_SPAWN_EGG");
             } catch (Exception ignored2) {
