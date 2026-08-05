@@ -253,10 +253,14 @@ public class PersonalQuestManager extends AbstractManager<QuestsPlugin> {
         String cleanEvent = eventObjective.replace("minecraft:", "").toLowerCase();
         if (cleanQuest.equals(cleanEvent)) return true;
 
-        // Aliases pour les cultures (Singulier vs Pluriel entre items et blocs Spigot)
+        // Aliases pour les cultures et mobs (Singulier vs Pluriel / Blocs Spigot)
         if ((cleanQuest.equals("carrot") && cleanEvent.equals("carrots")) || (cleanQuest.equals("carrots") && cleanEvent.equals("carrot"))) return true;
         if ((cleanQuest.equals("potato") && cleanEvent.equals("potatoes")) || (cleanQuest.equals("potatoes") && cleanEvent.equals("potato"))) return true;
         if ((cleanQuest.equals("beetroot") && cleanEvent.equals("beetroots")) || (cleanQuest.equals("beetroots") && cleanEvent.equals("beetroot"))) return true;
+        if ((cleanQuest.equals("nether_warts") && cleanEvent.equals("nether_wart")) || (cleanQuest.equals("nether_wart") && cleanEvent.equals("nether_warts"))) return true;
+        if (cleanQuest.contains("brown_mushroom") && cleanEvent.contains("brown_mushroom")) return true;
+        if (cleanQuest.contains("red_mushroom") && cleanEvent.contains("red_mushroom")) return true;
+        if ((cleanQuest.equals("mooshroom") && cleanEvent.equals("mushroom_cow")) || (cleanQuest.equals("mushroom_cow") && cleanEvent.equals("mooshroom"))) return true;
 
         // Groupes d'objectifs génériques (PLANKS, STAIRS, SLABS, LOGS, TOOLS, ARMOR, WOOL, BEDS, GLASS, TERRACOTTA, CONCRETE, CANDLES, SHULKER_BOXES)
         if (isGroupObjectiveMatch(cleanQuest, cleanEvent)) return true;
