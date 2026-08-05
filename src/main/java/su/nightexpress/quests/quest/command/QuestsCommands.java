@@ -287,6 +287,7 @@ public class QuestsCommands {
 
             if (QuestTrackerManager.getInstance() != null) {
                 QuestTrackerManager.getInstance().cleanup(player);
+                QuestTrackerManager.getInstance().refreshPlayerTrackers(player);
             }
         });
         return true;

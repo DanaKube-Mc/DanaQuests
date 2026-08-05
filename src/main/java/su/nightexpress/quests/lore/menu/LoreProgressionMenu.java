@@ -97,19 +97,19 @@ public class LoreProgressionMenu extends LinkedMenu<QuestsPlugin, LoreQuestCateg
                     cmd = finishedCustomModelData;
                     namePattern = finishedName;
                     lorePattern = finishedLore;
-                    statusTag = "&a[Complétée]";
+                    statusTag = "[Complétée]";
                 } else if (isActive) {
                     materialStr = activeMaterialStr;
                     cmd = activeCustomModelData;
                     namePattern = activeName;
                     lorePattern = activeLore;
-                    statusTag = "&e[En cours]";
+                    statusTag = "[En cours]";
                 } else {
                     materialStr = lockedMaterialStr;
                     cmd = lockedCustomModelData;
                     namePattern = lockedName;
                     lorePattern = lockedLore;
-                    statusTag = "&c[Verrouillée]";
+                    statusTag = "[Verrouillée]";
                 }
 
                 Material material = null;

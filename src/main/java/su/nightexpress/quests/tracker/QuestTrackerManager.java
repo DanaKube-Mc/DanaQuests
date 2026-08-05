@@ -7,12 +7,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.quests.QuestsPlugin;
 import su.nightexpress.quests.config.Config;
+import su.nightexpress.quests.lore.data.LoreQuestData;
+import su.nightexpress.quests.lore.definition.LoreObjective;
 import su.nightexpress.quests.lore.definition.LoreQuest;
 import su.nightexpress.quests.lore.definition.LoreQuestCategory;
 import su.nightexpress.quests.quest.data.QuestData;
@@ -151,8 +154,60 @@ public class QuestTrackerManager implements Listener {
     }
 
     @EventHandler
+    public void onJoin(PlayerJoinEvent event) {
+        Bukkit.getScheduler().runTaskLater(plugin, () -> refreshPlayerTrackers(event.getPlayer()), 20L);
+    }
+
+    @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         removeTracker(event.getPlayer().getUniqueId());
+    }
+
+    public synchronized void refreshPlayerTrackers(@NotNull Player player) {
+        if (!Config.TRACKER_ENABLED.get() || !player.isOnline()) {
+            return;
+        }
+
+        QuestUser user = plugin.getUserManager().getOrFetch(player);
+        String modeStr = user.getTrackerMode();
+        if ("NONE".equalsIgnoreCase(modeStr) || "CHAT".equalsIgnoreCase(modeStr)) {
+            removeTracker(player.getUniqueId());
+            return;
+        }
+
+        PlayerTracker tracker = trackers.computeIfAbsent(player.getUniqueId(), uuid -> new PlayerTracker(player));
+
+        if (plugin.getLoreManager() != null) {
+            for (LoreQuestCategory category : plugin.getLoreManager().getCategories().values()) {
+                if (user.isCategoryTrackerDisabled(category.getId())) continue;
+                if (plugin.getLoreManager().isCategoryUnlocked(user, category) && !plugin.getLoreManager().isCategoryCompleted(user, category)) {
+                    LoreQuest activeQuest = plugin.getLoreManager().getActiveQuest(user, category);
+                    if (activeQuest != null) {
+                        int totalProgress = 0;
+                        int totalRequired = 0;
+                        LoreQuestData questProgress = user.getLoreQuestsProgress().get(activeQuest.getId());
+                        if (questProgress != null) {
+                            for (LoreObjective obj : activeQuest.getObjectives()) {
+                                totalProgress += questProgress.getProgress(obj.getId());
+                                totalRequired += obj.getRequired();
+                            }
+                        } else {
+                            totalRequired = activeQuest.getObjectives().stream().mapToInt(LoreObjective::getRequired).sum();
+                        }
+                        tracker.addLoreProgress(activeQuest.getId(), activeQuest.getName(), category.getId(), totalProgress, totalRequired, modeStr);
+                    }
+                }
+            }
+        }
+
+        for (QuestData qData : user.getQuestDatas()) {
+            if (qData.isActive() && !qData.isCompleted() && !qData.isExpired()) {
+                Quest q = plugin.questManager().map(qm -> qm.getQuestById(qData.getQuestId())).orElse(null);
+                if (q != null) {
+                    tracker.addProgress(q, qData, modeStr);
+                }
+            }
+        }
     }
 
     private synchronized void removeTracker(UUID uuid) {
@@ -337,14 +392,14 @@ public class QuestTrackerManager implements Listener {
         private void resetCleanupTimer() {
             if (cleanupTask != null) {
                 cleanupTask.cancel();
+                cleanupTask = null;
             }
 
-            int duration;
-            if ("ACTION_BAR".equalsIgnoreCase(mode)) {
-                duration = Config.TRACKER_ACTIONBAR_DISPLAY_DURATION.get();
-            } else {
-                duration = Config.TRACKER_BOSSBAR_DISPLAY_DURATION.get();
+            if ("BOSS_BAR".equalsIgnoreCase(mode) || "ACTION_BAR".equalsIgnoreCase(mode)) {
+                return;
             }
+
+            int duration = Config.TRACKER_BOSSBAR_DISPLAY_DURATION.get();
             if (duration <= 0) duration = 5;
 
             cleanupTask = new BukkitRunnable() {
