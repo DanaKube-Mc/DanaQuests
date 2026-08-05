@@ -197,12 +197,12 @@ public class PersonalQuestManager extends AbstractManager<QuestsPlugin> {
     public synchronized void handleProgress(@NotNull Player player, @NotNull String categoryType, @NotNull String objectiveId, int amount) {
         QuestUser user = this.plugin.getUserManager().getOrFetch(player);
         for (RpgCategory category : this.categories.values()) {
-            if (!isTypeMatch(category.getType(), categoryType)) {
+            PersonalQuestData activeQuest = user.getPersonalQuestData().get(category.getId());
+            if (activeQuest == null || activeQuest.getObjectiveId() == null) {
                 continue;
             }
 
-            PersonalQuestData activeQuest = user.getPersonalQuestData().get(category.getId());
-            if (activeQuest == null || activeQuest.getObjectiveId() == null) {
+            if (!isTypeMatch(category.getType(), categoryType, activeQuest.getObjectiveId())) {
                 continue;
             }
 
@@ -219,7 +219,7 @@ public class PersonalQuestManager extends AbstractManager<QuestsPlugin> {
         }
     }
 
-    private boolean isTypeMatch(@NotNull String categoryType, @NotNull String taskTypeId) {
+    private boolean isTypeMatch(@NotNull String categoryType, @NotNull String taskTypeId, @NotNull String objectiveId) {
         if (categoryType.equalsIgnoreCase(taskTypeId)) return true;
         String normCat = categoryType.replace("_", "").toLowerCase();
         String normTask = taskTypeId.replace("_", "").toLowerCase();
@@ -229,7 +229,22 @@ public class PersonalQuestManager extends AbstractManager<QuestsPlugin> {
             (normCat.contains("fertiliz") && normTask.contains("fertiliz"))) {
             return true;
         }
+
+        // Récolte agricole : HARVEST_ITEM ou HARVEST <-> BREAK_BLOCK pour les cultures
+        if ((normCat.contains("harvest") || normCat.contains("farm")) && (normTask.contains("break") || normTask.contains("harvest"))) {
+            String cleanObj = objectiveId.replace("minecraft:", "").toLowerCase();
+            if (isCropObjective(cleanObj)) {
+                return true;
+            }
+        }
         return false;
+    }
+
+    private boolean isCropObjective(@NotNull String obj) {
+        return obj.contains("wheat") || obj.contains("carrot") || obj.contains("potato") ||
+               obj.contains("beetroot") || obj.contains("sugar_cane") || obj.contains("melon") ||
+               obj.contains("pumpkin") || obj.contains("nether_wart") || obj.contains("cocoa") ||
+               obj.contains("berry") || obj.contains("cactus") || obj.contains("bamboo");
     }
 
     private boolean isObjectiveMatch(@NotNull String questObjective, @NotNull String eventObjective) {

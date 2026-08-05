@@ -117,7 +117,7 @@ public class PersonalCategoriesMenu extends LinkedMenu<QuestsPlugin, RpgCategory
             try {
                 return Material.valueOf(upper + "_SPAWN_EGG");
             } catch (Exception ignored2) {
-                return Material.PAPER;
+                return Material.ENCHANTED_BOOK;
             }
         }
     }

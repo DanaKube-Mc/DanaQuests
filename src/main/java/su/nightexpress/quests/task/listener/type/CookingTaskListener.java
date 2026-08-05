@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockCookEvent;
+import org.bukkit.event.inventory.FurnaceExtractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.quests.QuestsPlugin;
@@ -36,10 +37,23 @@ public class CookingTaskListener extends TaskListener<ItemStack, AdapterFamily<I
 
         if (!this.manager.canDoTasks(player)) return;
 
+        ItemStack result = event.getResult();
         ItemStack ingredient = event.getSource();
         WorkstationMode mode = this.manager.getWorkstationMode(tile);
         if (mode == WorkstationMode.AUTO && !Config.ANTI_ABUSE_COUNT_AUTO_COOKING.get()) return;
 
-        this.progressQuests(player, ingredient);
+        this.progressQuests(player, result);
+        if (!result.getType().equals(ingredient.getType())) {
+            this.progressQuests(player, ingredient);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onFurnaceExtract(FurnaceExtractEvent event) {
+        Player player = event.getPlayer();
+        if (!this.manager.canDoTasks(player)) return;
+
+        ItemStack result = new ItemStack(event.getItemType(), event.getItemAmount());
+        this.progressQuests(player, result, event.getItemAmount());
     }
 }
