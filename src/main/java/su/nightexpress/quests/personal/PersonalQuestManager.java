@@ -13,7 +13,6 @@ import su.nightexpress.quests.config.Lang;
 import su.nightexpress.quests.config.Perms;
 import su.nightexpress.quests.personal.data.PersonalQuestData;
 import su.nightexpress.quests.personal.definition.RpgCategory;
-import su.nightexpress.quests.personal.listener.PersonalQuestListener;
 import su.nightexpress.quests.personal.menu.PersonalCategoriesMenu;
 import su.nightexpress.quests.personal.menu.PersonalQuestMenu;
 import su.nightexpress.quests.user.QuestUser;
@@ -43,8 +42,6 @@ public class PersonalQuestManager extends AbstractManager<QuestsPlugin> {
 
         this.personalMenu = this.addMenu(new PersonalQuestMenu(this.plugin, this), Config.DIR_MENU_PERSONAL, "personal.yml");
         this.categoriesMenu = this.addMenu(new PersonalCategoriesMenu(this.plugin, this), Config.DIR_MENU_PERSONAL, "personal_categories.yml");
-
-        Bukkit.getPluginManager().registerEvents(new PersonalQuestListener(this.plugin, this), this.plugin);
     }
 
     @Override
@@ -108,13 +105,7 @@ public class PersonalQuestManager extends AbstractManager<QuestsPlugin> {
     }
 
     public int getDailyLimit(@NotNull Player player) {
-        if (player.hasPermission(Perms.PERSONAL_LIMIT_ADMIN)) {
-            return Config.PERSONAL_QUESTS_DAILY_LIMITS_ADMIN.get();
-        } else if (player.hasPermission(Perms.PERSONAL_LIMIT_VIP)) {
-            return Config.PERSONAL_QUESTS_DAILY_LIMITS_VIP.get();
-        } else {
-            return Config.PERSONAL_QUESTS_DAILY_LIMITS_DEFAULT.get();
-        }
+        return Config.PERSONAL_QUESTS_DAILY_LIMITS.get().getGreatest(player).intValue();
     }
 
     public int getQuestsAcceptedToday(@NotNull QuestUser user) {
@@ -206,7 +197,7 @@ public class PersonalQuestManager extends AbstractManager<QuestsPlugin> {
     public synchronized void handleProgress(@NotNull Player player, @NotNull String categoryType, @NotNull String objectiveId, int amount) {
         QuestUser user = this.plugin.getUserManager().getOrFetch(player);
         for (RpgCategory category : this.categories.values()) {
-            if (!category.getType().equalsIgnoreCase(categoryType)) {
+            if (!isTypeMatch(category.getType(), categoryType)) {
                 continue;
             }
 
@@ -215,7 +206,7 @@ public class PersonalQuestManager extends AbstractManager<QuestsPlugin> {
                 continue;
             }
 
-            if (activeQuest.getObjectiveId().equalsIgnoreCase(objectiveId)) {
+            if (isObjectiveMatch(activeQuest.getObjectiveId(), objectiveId)) {
                 int newProgress = activeQuest.getProgress() + amount;
                 if (newProgress >= activeQuest.getRequiredAmount()) {
                     activeQuest.setProgress(activeQuest.getRequiredAmount());
@@ -226,6 +217,33 @@ public class PersonalQuestManager extends AbstractManager<QuestsPlugin> {
                 }
             }
         }
+    }
+
+    private boolean isTypeMatch(@NotNull String categoryType, @NotNull String taskTypeId) {
+        if (categoryType.equalsIgnoreCase(taskTypeId)) return true;
+        String normCat = categoryType.replace("_", "").toLowerCase();
+        String normTask = taskTypeId.replace("_", "").toLowerCase();
+        if (normCat.equals(normTask)) return true;
+        
+        if ((normCat.contains("enchant") && normTask.contains("enchant")) ||
+            (normCat.contains("fertiliz") && normTask.contains("fertiliz"))) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isObjectiveMatch(@NotNull String questObjective, @NotNull String eventObjective) {
+        if (questObjective.equalsIgnoreCase(eventObjective)) return true;
+        String cleanQuest = questObjective.replace("minecraft:", "").toLowerCase();
+        String cleanEvent = eventObjective.replace("minecraft:", "").toLowerCase();
+        if (cleanQuest.equals(cleanEvent)) return true;
+
+        // Aliases pour les cultures (Singulier vs Pluriel entre items et blocs Spigot)
+        if ((cleanQuest.equals("carrot") && cleanEvent.equals("carrots")) || (cleanQuest.equals("carrots") && cleanEvent.equals("carrot"))) return true;
+        if ((cleanQuest.equals("potato") && cleanEvent.equals("potatoes")) || (cleanQuest.equals("potatoes") && cleanEvent.equals("potato"))) return true;
+        if ((cleanQuest.equals("beetroot") && cleanEvent.equals("beetroots")) || (cleanQuest.equals("beetroots") && cleanEvent.equals("beetroot"))) return true;
+
+        return false;
     }
 
     private void completeQuest(@NotNull Player player, @NotNull QuestUser user, @NotNull RpgCategory category, @NotNull PersonalQuestData questData) {

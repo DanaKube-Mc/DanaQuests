@@ -201,19 +201,13 @@ public class Config {
         "Sound played when RPG category levels up."
     );
 
-    public static final ConfigValue<Integer> PERSONAL_QUESTS_DAILY_LIMITS_DEFAULT = ConfigValue.create("personal-quests.daily-limits.default",
-        3,
-        "Daily limit of personal quests for default players."
-    );
-
-    public static final ConfigValue<Integer> PERSONAL_QUESTS_DAILY_LIMITS_VIP = ConfigValue.create("personal-quests.daily-limits.vip",
-        5,
-        "Daily limit of personal quests for VIP players."
-    );
-
-    public static final ConfigValue<Integer> PERSONAL_QUESTS_DAILY_LIMITS_ADMIN = ConfigValue.create("personal-quests.daily-limits.admin",
-        999,
-        "Daily limit of personal quests for Admin players."
+    public static final ConfigValue<RankTable> PERSONAL_QUESTS_DAILY_LIMITS = ConfigValue.create("personal-quests.daily-limits",
+        RankTable::read,
+        RankTable.builder(RankTable.Mode.RANK, 3)
+            .addRankValue("vip", 5)
+            .addRankValue("admin", 999)
+            .build(),
+        "Daily limits of personal quests for players based on their rank or permissions."
     );
 
     public static final ConfigValue<String> PERSONAL_QUESTS_MONEY_COMMAND = ConfigValue.create("personal-quests.money-command",

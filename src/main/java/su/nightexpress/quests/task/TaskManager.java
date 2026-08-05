@@ -124,6 +124,7 @@ public class TaskManager extends AbstractManager<QuestsPlugin> {
         if (this.plugin.getLoreManager() != null) {
             this.plugin.getLoreManager().progressLoreQuests(player, taskType.getId(), fullName, amount);
         }
+        this.plugin.personalQuestManager().ifPresent(personalManager -> personalManager.handleProgress(player, taskType.getId(), fullName, amount));
     }
 
     public boolean isArtificalSpawn(@NotNull SpawnReason reason) {

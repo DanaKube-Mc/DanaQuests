@@ -34,7 +34,6 @@ public class PersonalCategoriesMenu extends LinkedMenu<QuestsPlugin, RpgCategory
     public PersonalCategoriesMenu(@NotNull QuestsPlugin plugin, @NotNull PersonalQuestManager manager) {
         super(plugin, MenuType.GENERIC_9X5, "Objectifs: %category_name%");
         this.manager = manager;
-        this.setAutoRefreshInterval(1);
     }
 
     @Override
@@ -107,11 +106,16 @@ public class PersonalCategoriesMenu extends LinkedMenu<QuestsPlugin, RpgCategory
     }
 
     private Material getObjectiveMaterial(String objectiveId) {
+        String upper = objectiveId.toUpperCase();
         try {
-            return Material.valueOf(objectiveId.toUpperCase());
+            return Material.valueOf(upper);
         } catch (Exception ignored) {
+            if (upper.equals("CARROTS")) return Material.CARROT;
+            if (upper.equals("POTATOES")) return Material.POTATO;
+            if (upper.equals("BEETROOTS")) return Material.BEETROOT;
+
             try {
-                return Material.valueOf(objectiveId.toUpperCase() + "_SPAWN_EGG");
+                return Material.valueOf(upper + "_SPAWN_EGG");
             } catch (Exception ignored2) {
                 return Material.PAPER;
             }
