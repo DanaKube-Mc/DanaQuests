@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -14,10 +15,15 @@ import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.quests.QuestsPlugin;
 import su.nightexpress.quests.config.Config;
+import su.nightexpress.quests.island.data.IslandQuestProgress;
+import su.nightexpress.quests.island.definition.IslandQuest;
+import su.nightexpress.quests.island.definition.IslandQuestRequirement;
 import su.nightexpress.quests.lore.data.LoreQuestData;
 import su.nightexpress.quests.lore.definition.LoreObjective;
 import su.nightexpress.quests.lore.definition.LoreQuest;
 import su.nightexpress.quests.lore.definition.LoreQuestCategory;
+import su.nightexpress.quests.personal.data.PersonalQuestData;
+import su.nightexpress.quests.personal.definition.RpgCategory;
 import su.nightexpress.quests.quest.data.QuestData;
 import su.nightexpress.quests.quest.definition.Quest;
 import su.nightexpress.quests.user.QuestUser;
@@ -90,17 +96,17 @@ public class QuestTrackerManager implements Listener {
 
         if ("CHAT".equalsIgnoreCase(modeStr)) {
             String formatPattern = Config.TRACKER_FORMATS_CHAT_LORE.get();
-            String titleText = formatPattern
-                    .replace("%quest%", quest.getName())
-                    .replace("%progress%", String.valueOf(progress))
-                    .replace("%required%", String.valueOf(required));
+            String firstDesc = quest.getDescription().isEmpty() ? "" : quest.getDescription().get(0);
+            TrackedQuest temp = new TrackedQuest(quest.getId(), quest.getName(), progress, required, 0.0, "lore", category.getId(), firstDesc, "", 0, "");
+            String titleText = formatText(formatPattern, temp);
 
             player.sendMessage(MiniMessage.miniMessage().deserialize(titleText));
             return;
         }
 
         PlayerTracker tracker = trackers.computeIfAbsent(player.getUniqueId(), uuid -> new PlayerTracker(player));
-        tracker.addLoreProgress(quest.getId(), quest.getName(), category.getId(), progress, required, modeStr);
+        String firstDesc = quest.getDescription().isEmpty() ? "" : quest.getDescription().get(0);
+        tracker.addLoreProgress(quest.getId(), quest.getName(), category.getId(), progress, required, modeStr, firstDesc, "", 0, "");
     }
 
     private synchronized void handleCleanupCategory(@NotNull Player player, @NotNull String categoryId) {
@@ -138,12 +144,8 @@ public class QuestTrackerManager implements Listener {
                 formatPattern = Config.TRACKER_FORMATS_CHAT_PERSONAL.get();
             }
 
-            String progressStr = String.valueOf(questData.countTotalProgress());
-            String requiredStr = String.valueOf(questData.countTotalRequirement());
-            String titleText = formatPattern
-                    .replace("%quest%", quest.getName())
-                    .replace("%progress%", progressStr)
-                    .replace("%required%", requiredStr);
+            TrackedQuest temp = new TrackedQuest(quest.getId(), quest.getName(), questData.countTotalProgress(), questData.countTotalRequirement(), questData.getProgressValue(), type, null, "", "", 0, "");
+            String titleText = formatText(formatPattern, temp);
 
             player.sendMessage(MiniMessage.miniMessage().deserialize(titleText));
             return;
@@ -156,6 +158,11 @@ public class QuestTrackerManager implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Bukkit.getScheduler().runTaskLater(plugin, () -> refreshPlayerTrackers(event.getPlayer()), 20L);
+    }
+
+    @EventHandler
+    public void onWorldChange(PlayerChangedWorldEvent event) {
+        refreshPlayerTrackers(event.getPlayer());
     }
 
     @EventHandler
@@ -177,7 +184,12 @@ public class QuestTrackerManager implements Listener {
 
         PlayerTracker tracker = trackers.computeIfAbsent(player.getUniqueId(), uuid -> new PlayerTracker(player));
 
-        if (plugin.getLoreManager() != null) {
+        String worldName = player.getWorld().getName();
+        boolean allowLore = !Config.TRACKER_DISABLED_WORLDS_LORE.get().contains(worldName);
+        boolean allowPersonal = !Config.TRACKER_DISABLED_WORLDS_PERSONAL.get().contains(worldName);
+        boolean allowIsland = Config.TRACKER_INCLUDE_ISLAND_QUESTS.get() && !Config.TRACKER_DISABLED_WORLDS_ISLAND.get().contains(worldName);
+
+        if (allowLore && plugin.getLoreManager() != null) {
             for (LoreQuestCategory category : plugin.getLoreManager().getCategories().values()) {
                 if (user.isCategoryTrackerDisabled(category.getId())) continue;
                 if (plugin.getLoreManager().isCategoryUnlocked(user, category) && !plugin.getLoreManager().isCategoryCompleted(user, category)) {
@@ -194,7 +206,13 @@ public class QuestTrackerManager implements Listener {
                         } else {
                             totalRequired = activeQuest.getObjectives().stream().mapToInt(LoreObjective::getRequired).sum();
                         }
-                        tracker.addLoreProgress(activeQuest.getId(), activeQuest.getName(), category.getId(), totalProgress, totalRequired, modeStr);
+                        String firstDesc = "";
+                        if (!activeQuest.getDescription().isEmpty()) {
+                            firstDesc = activeQuest.getDescription().get(0);
+                        } else if (!activeQuest.getObjectives().isEmpty()) {
+                            firstDesc = activeQuest.getObjectives().get(0).getDescription();
+                        }
+                        tracker.addLoreProgress(activeQuest.getId(), activeQuest.getName(), category.getId(), totalProgress, totalRequired, modeStr, firstDesc, "", 0, "");
                     }
                 }
             }
@@ -207,6 +225,45 @@ public class QuestTrackerManager implements Listener {
                     tracker.addProgress(q, qData, modeStr);
                 }
             }
+        }
+
+        if (allowPersonal) {
+            plugin.personalQuestManager().ifPresent(pqm -> {
+                for (RpgCategory cat : pqm.getCategories().values()) {
+                    PersonalQuestData pData = user.getPersonalQuestData().get(cat.getId());
+                    if (pData != null && pData.hasActiveQuest()) {
+                        String titleName = cat.getDisplayName();
+                        int lvl = user.getRPGLevel(cat.getId());
+                        String obj = pData.getObjectiveId() != null ? pData.getObjectiveId() : "";
+                        tracker.addLoreProgress("personal_" + cat.getId(), titleName, cat.getId(), pData.getProgress(), pData.getRequiredAmount(), modeStr, "", "", lvl, obj);
+                    }
+                }
+            });
+        }
+
+        if (allowIsland) {
+            plugin.islandManager().ifPresent(im -> {
+                UUID islandUuid = im.getPlayerIsland(player);
+                if (islandUuid != null) {
+                    IslandQuest activeQuest = im.getActiveQuest(islandUuid);
+                    if (activeQuest != null) {
+                        IslandQuestProgress iProgress = im.getProgress(islandUuid, activeQuest.getId());
+                        int req = activeQuest.getRequirements().stream().mapToInt(IslandQuestRequirement::getTargetAmount).sum();
+                        int cur = iProgress.getProgress().values().stream().mapToInt(Integer::intValue).sum();
+
+                        String reqName = activeQuest.getName();
+                        for (IslandQuestRequirement reqObj : activeQuest.getRequirements()) {
+                            int reqCur = iProgress.getRequirementProgress(reqObj.getId());
+                            if (reqCur < reqObj.getTargetAmount()) {
+                                reqName = reqObj.getName();
+                                break;
+                            }
+                        }
+
+                        tracker.addLoreProgress("island_" + activeQuest.getId(), activeQuest.getName(), "island", cur, req, modeStr, "", reqName, 0, "");
+                    }
+                }
+            });
         }
     }
 
@@ -254,7 +311,11 @@ public class QuestTrackerManager implements Listener {
                 questData.countTotalRequirement(),
                 questData.getProgressValue(),
                 type,
-                null
+                null,
+                "",
+                "",
+                0,
+                ""
             ));
 
             updateDisplay();
@@ -266,8 +327,18 @@ public class QuestTrackerManager implements Listener {
         }
 
         public void addLoreProgress(String questId, String questName, String categoryId, int progress, int required, String mode) {
+            addLoreProgress(questId, questName, categoryId, progress, required, mode, "", "", 0, "");
+        }
+
+        public void addLoreProgress(String questId, String questName, String categoryId, int progress, int required, String mode,
+                                    String description, String requirementName, int level, String objective) {
             this.mode = mode;
             String type = "lore";
+            if (questId.startsWith("personal_")) {
+                type = "personal";
+            } else if (questId.startsWith("island_")) {
+                type = "island";
+            }
 
             double progressVal = required > 0 ? (double) progress / required : 0.0;
             activeQuests.put(questId, new TrackedQuest(
@@ -277,7 +348,11 @@ public class QuestTrackerManager implements Listener {
                 required,
                 progressVal,
                 type,
-                categoryId
+                categoryId,
+                description,
+                requirementName,
+                level,
+                objective
             ));
 
             updateDisplay();
@@ -321,12 +396,7 @@ public class QuestTrackerManager implements Listener {
                     formatPattern = Config.TRACKER_FORMATS_BOSSBAR_PERSONAL.get();
                 }
 
-                String progressStr = String.valueOf(tracked.progress);
-                String requiredStr = String.valueOf(tracked.required);
-                String titleText = formatPattern
-                        .replace("%quest%", tracked.name)
-                        .replace("%progress%", progressStr)
-                        .replace("%required%", requiredStr);
+                String titleText = formatText(formatPattern, tracked);
 
                 Component titleComponent = MiniMessage.miniMessage().deserialize(titleText);
                 float progress = (float) tracked.progressValue;
@@ -457,12 +527,7 @@ public class QuestTrackerManager implements Listener {
                             formatPattern = Config.TRACKER_FORMATS_ACTIONBAR_PERSONAL.get();
                         }
 
-                        String progressStr = String.valueOf(tracked.progress);
-                        String requiredStr = String.valueOf(tracked.required);
-                        String titleText = formatPattern
-                                .replace("%quest%", tracked.name)
-                                .replace("%progress%", progressStr)
-                                .replace("%required%", requiredStr);
+                        String titleText = formatText(formatPattern, tracked);
 
                         Component actionBarComponent = MiniMessage.miniMessage().deserialize(titleText);
                         player.sendActionBar(actionBarComponent);
@@ -490,6 +555,24 @@ public class QuestTrackerManager implements Listener {
         }
     }
 
+    private static String formatText(String formatPattern, TrackedQuest tracked) {
+        if (formatPattern == null) return "";
+        String desc = tracked.description != null ? tracked.description : "";
+        String reqName = tracked.requirementName != null ? tracked.requirementName : "";
+        String obj = tracked.objective != null ? tracked.objective : "";
+
+        return formatPattern
+                .replace("%quest_name%", tracked.name)
+                .replace("%quest%", tracked.name)
+                .replace("%description%", desc)
+                .replace("%requirement_name%", reqName)
+                .replace("%level%", String.valueOf(tracked.level))
+                .replace("%objective%", obj)
+                .replace("%progress%", String.valueOf(tracked.progress))
+                .replace("%required%", String.valueOf(tracked.required))
+                .replace("%target%", String.valueOf(tracked.required));
+    }
+
     private static class TrackedQuest {
         final String id;
         final String name;
@@ -498,8 +581,13 @@ public class QuestTrackerManager implements Listener {
         final double progressValue;
         final String type;
         final String categoryId;
+        final String description;
+        final String requirementName;
+        final int level;
+        final String objective;
 
-        TrackedQuest(String id, String name, int progress, int required, double progressValue, String type, String categoryId) {
+        TrackedQuest(String id, String name, int progress, int required, double progressValue, String type, String categoryId,
+                     String description, String requirementName, int level, String objective) {
             this.id = id;
             this.name = name;
             this.progress = progress;
@@ -507,6 +595,10 @@ public class QuestTrackerManager implements Listener {
             this.progressValue = progressValue;
             this.type = type;
             this.categoryId = categoryId;
+            this.description = description;
+            this.requirementName = requirementName;
+            this.level = level;
+            this.objective = objective;
         }
     }
 }
