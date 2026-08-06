@@ -12,20 +12,33 @@ import su.nightexpress.nightcore.db.sql.query.type.ValuedQuery;
 import su.nightexpress.nightcore.db.sql.util.WhereOperator;
 import su.nightexpress.nightcore.util.Lists;
 import su.nightexpress.quests.QuestsPlugin;
+
+import java.lang.reflect.Type;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.Function;
+
+import com.google.common.reflect.TypeToken;
+
 import su.nightexpress.quests.battlepass.definition.BattlePassSeason;
 import su.nightexpress.quests.data.serialize.MilestoneDataSerializer;
 import su.nightexpress.quests.data.serialize.QuestCounterSerializer;
 import su.nightexpress.quests.data.serialize.QuestDataSerializer;
+import su.nightexpress.quests.island.data.IslandQuestProgress;
 import su.nightexpress.quests.data.serialize.BattlePassDataSerializer;
 import su.nightexpress.quests.quest.data.QuestCounter;
 import su.nightexpress.quests.milestone.data.MilestoneData;
 import su.nightexpress.quests.quest.data.QuestData;
 import su.nightexpress.quests.battlepass.data.BattlePassData;
 import su.nightexpress.quests.user.QuestUser;
-
-import java.sql.ResultSet;
-import java.util.List;
-import java.util.function.Function;
 
 public class DataHandler extends AbstractUserDataManager<QuestsPlugin, QuestUser> {
 
@@ -50,6 +63,20 @@ public class DataHandler extends AbstractUserDataManager<QuestsPlugin, QuestUser
 
     static final String BP_TABLE = "bp_season";
 
+    public static final String ISLANDS_TABLE = "excellentquests_islands";
+
+    public static final Column COLUMN_LORE_COMPLETED = Column.of("lore_completed", ColumnType.STRING);
+    public static final Column COLUMN_RPG_XP = Column.of("rpg_xp", ColumnType.STRING);
+    public static final Column COLUMN_RPG_LEVELS = Column.of("rpg_levels", ColumnType.STRING);
+    public static final Column COLUMN_TRACKER_MODE = Column.of("tracker_mode", ColumnType.STRING);
+    public static final Column COLUMN_DISABLED_TRACKER_CATEGORIES = Column.of("disabled_tracker_categories", ColumnType.STRING);
+    public static final Column COLUMN_LORE_QUESTS_PROGRESS = Column.of("lore_quests_progress", ColumnType.STRING);
+    public static final Column COLUMN_PERSONAL_QUEST_DATA = Column.of("personal_quest_data", ColumnType.STRING);
+
+    static final Column COLUMN_ISLANDS_KEY = Column.of("island_uuid_quest_id", ColumnType.STRING);
+    static final Column COLUMN_ISLANDS_OBJECTIVES = Column.of("objectives", ColumnType.STRING);
+    static final Column COLUMN_ISLANDS_COMPLETED = Column.of("completed", ColumnType.BOOLEAN);
+
     public DataHandler(@NotNull QuestsPlugin plugin) {
         super(plugin);
     }
@@ -66,6 +93,18 @@ public class DataHandler extends AbstractUserDataManager<QuestsPlugin, QuestUser
             COLUMN_BP_EXPIRE_DATE,
             COLUMN_BP_ACTIVE
         ));
+
+
+        this.createTable(ISLANDS_TABLE, Lists.newList(
+            COLUMN_ISLANDS_KEY,
+            COLUMN_ISLANDS_OBJECTIVES,
+            COLUMN_ISLANDS_COMPLETED
+        ));
+    }
+
+    @Override
+    public void saveUser(@NotNull QuestUser user) {
+        super.saveUser(user);
     }
 
     @Override
@@ -80,6 +119,13 @@ public class DataHandler extends AbstractUserDataManager<QuestsPlugin, QuestUser
         query.setValue(COLUMN_BATTLE_PASS_DATA, user -> GSON.toJson(user.getBattlePassData()));
         query.setValue(COLUMN_QUEST_DATA, user -> GSON.toJson(user.getQuestData()));
         query.setValue(COLUMN_MILESTONE_DATA, user -> GSON.toJson(user.getMilestoneDataMap()));
+        query.setValue(COLUMN_LORE_COMPLETED, user -> GSON.toJson(user.getCompletedLoreQuests()));
+        query.setValue(COLUMN_RPG_XP, user -> GSON.toJson(user.getRpgCategoryXP()));
+        query.setValue(COLUMN_RPG_LEVELS, user -> GSON.toJson(user.getRpgCategoryLevels()));
+        query.setValue(COLUMN_TRACKER_MODE, user -> user.getTrackerMode());
+        query.setValue(COLUMN_DISABLED_TRACKER_CATEGORIES, user -> GSON.toJson(user.getDisabledTrackerCategories()));
+        query.setValue(COLUMN_LORE_QUESTS_PROGRESS, user -> GSON.toJson(user.getLoreQuestsProgress()));
+        query.setValue(COLUMN_PERSONAL_QUEST_DATA, user -> GSON.toJson(user.getPersonalQuestData()));
     }
 
     @Override
@@ -88,6 +134,13 @@ public class DataHandler extends AbstractUserDataManager<QuestsPlugin, QuestUser
         query.column(COLUMN_BATTLE_PASS_DATA);
         query.column(COLUMN_QUEST_DATA);
         query.column(COLUMN_MILESTONE_DATA);
+        query.column(COLUMN_LORE_COMPLETED);
+        query.column(COLUMN_RPG_XP);
+        query.column(COLUMN_RPG_LEVELS);
+        query.column(COLUMN_TRACKER_MODE);
+        query.column(COLUMN_DISABLED_TRACKER_CATEGORIES);
+        query.column(COLUMN_LORE_QUESTS_PROGRESS);
+        query.column(COLUMN_PERSONAL_QUEST_DATA);
     }
 
     @Override
@@ -96,6 +149,13 @@ public class DataHandler extends AbstractUserDataManager<QuestsPlugin, QuestUser
         columns.add(COLUMN_BATTLE_PASS_DATA);
         columns.add(COLUMN_QUEST_DATA);
         columns.add(COLUMN_MILESTONE_DATA);
+        columns.add(COLUMN_LORE_COMPLETED);
+        columns.add(COLUMN_RPG_XP);
+        columns.add(COLUMN_RPG_LEVELS);
+        columns.add(COLUMN_TRACKER_MODE);
+        columns.add(COLUMN_DISABLED_TRACKER_CATEGORIES);
+        columns.add(COLUMN_LORE_QUESTS_PROGRESS);
+        columns.add(COLUMN_PERSONAL_QUEST_DATA);
     }
 
     @NotNull
@@ -113,6 +173,70 @@ public class DataHandler extends AbstractUserDataManager<QuestsPlugin, QuestUser
 
     public void removeBattlePassSeason(@NotNull BattlePassSeason season) {
         this.delete(BP_TABLE, new DeleteQuery<BattlePassSeason>().where(COLUMN_BP_ID, WhereOperator.EQUAL, passSeason -> passSeason.getId().toString()), season);
+    }
+
+    @NotNull
+    public IslandQuestProgress loadIslandProgress(@NotNull UUID islandUuid, @NotNull String questId) {
+        String key = islandUuid.toString() + ":" + questId;
+        String sql = "SELECT * FROM " + ISLANDS_TABLE + " WHERE " + COLUMN_ISLANDS_KEY.getName() + " = ?";
+        try (Connection conn = this.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, key);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String objectivesJson = rs.getString(COLUMN_ISLANDS_OBJECTIVES.getName());
+                    boolean completed = rs.getBoolean(COLUMN_ISLANDS_COMPLETED.getName());
+                    Map<String, Integer> progressMap = null;
+                    if (objectivesJson != null && !objectivesJson.isEmpty()) {
+                        Type type = new TypeToken<Map<String, Integer>>(){}.getType();
+                        progressMap = GSON.fromJson(objectivesJson, type);
+                    }
+                    if (progressMap == null) {
+                        progressMap = new HashMap<>();
+                    }
+                    return new IslandQuestProgress(islandUuid, questId, progressMap, completed);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return new IslandQuestProgress(islandUuid, questId);
+    }
+
+    public void saveIslandProgress(@NotNull UUID islandUuid, @NotNull String questId, @NotNull Map<String, Integer> progress, boolean completed) {
+        String key = islandUuid.toString() + ":" + questId;
+        String objectivesJson = GSON.toJson(progress);
+        String deleteSql = "DELETE FROM " + ISLANDS_TABLE + " WHERE " + COLUMN_ISLANDS_KEY.getName() + " = ?";
+        String insertSql = "INSERT INTO " + ISLANDS_TABLE + " (" + 
+                COLUMN_ISLANDS_KEY.getName() + ", " + 
+                COLUMN_ISLANDS_OBJECTIVES.getName() + ", " + 
+                COLUMN_ISLANDS_COMPLETED.getName() + ") VALUES (?, ?, ?)";
+        try (Connection conn = this.getConnection()) {
+            try (PreparedStatement delStmt = conn.prepareStatement(deleteSql)) {
+                delStmt.setString(1, key);
+                delStmt.executeUpdate();
+            }
+            try (PreparedStatement insStmt = conn.prepareStatement(insertSql)) {
+                insStmt.setString(1, key);
+                insStmt.setString(2, objectivesJson);
+                insStmt.setBoolean(3, completed);
+                insStmt.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void deleteIslandProgress(@NotNull UUID islandUuid) {
+        String prefix = islandUuid.toString() + ":%";
+        String sql = "DELETE FROM " + ISLANDS_TABLE + " WHERE " + COLUMN_ISLANDS_KEY.getName() + " LIKE ?";
+        try (Connection conn = this.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, prefix);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

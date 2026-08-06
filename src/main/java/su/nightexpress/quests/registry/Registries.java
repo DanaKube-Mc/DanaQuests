@@ -32,6 +32,7 @@ public class Registries {
         registerAdapter(Adapter.VANILLA_BLOCK_STATE, AdapterFamily.BLOCK_STATE);
         registerAdapter(Adapter.VANILLA_ITEM, AdapterFamily.ITEM);
         registerAdapter(Adapter.VANILLA_ENCHANTMENT, AdapterFamily.ENCHANTMENT);
+        registerAdapter(Adapter.STRING_ADAPTER, AdapterFamily.CUSTOM);
 
         registerExternal(HookPlugin.MYTHIC_MOBS, MythicMobAdapter::new, AdapterFamily.ENTITY);
         registerExternal(HookPlugin.EVEN_MORE_FISH, EvenMoreFishAdapter::new, AdapterFamily.ITEM);

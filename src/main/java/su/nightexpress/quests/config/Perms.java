@@ -19,6 +19,13 @@ public class Perms {
 
     public static final UniPermission COMMAND_QUESTS         = new UniPermission(PREFIX_COMMAND + "quests");
     public static final UniPermission COMMAND_QUESTS_REFRESH = new UniPermission(PREFIX_COMMAND + "quests.refresh");
+    public static final UniPermission COMMAND_QUESTS_LORE    = new UniPermission(PREFIX_COMMAND + "quests.lore");
+    public static final UniPermission COMMAND_ISLAND         = new UniPermission(PREFIX_COMMAND + "island");
+    public static final UniPermission COMMAND_PERSONAL       = new UniPermission(PREFIX_COMMAND + "personal");
+
+    public static final UniPermission PERSONAL_LIMIT_DEFAULT = new UniPermission(PREFIX + "personal.default");
+    public static final UniPermission PERSONAL_LIMIT_VIP     = new UniPermission(PREFIX + "personal.vip");
+    public static final UniPermission PERSONAL_LIMIT_ADMIN   = new UniPermission(PREFIX + "personal.admin");
 
     public static final UniPermission COMMAND_MILESTONES       = new UniPermission(PREFIX_COMMAND + "milestones");
     public static final UniPermission COMMAND_MILESTONES_RESET = new UniPermission(PREFIX_COMMAND + "milestones.reset");
@@ -36,18 +43,29 @@ public class Perms {
     public static final UniPermission COMMAND_BATTLE_PASS_REMOVE_XP     = new UniPermission(PREFIX_COMMAND + "battlepass.removexp");
     public static final UniPermission COMMAND_BATTLE_PASS_SET_XP        = new UniPermission(PREFIX_COMMAND + "battlepass.setxp");
     
+    public static final UniPermission COMMAND_TRACK_TOGGLE              = new UniPermission(PREFIX_COMMAND + "track.toggle");
+
+    public static final UniPermission ADMIN_COMMUNITY                   = new UniPermission(PREFIX + "admin.community");
+    public static final UniPermission COMMAND_COMMUNITY                 = new UniPermission(PREFIX_COMMAND + "community");
+
     static {
         PLUGIN.addChildren(
             BATTLE_PASS_PREMIUM,
             COMMAND,
-            BYPASS
+            BYPASS,
+            PERSONAL_LIMIT_DEFAULT,
+            PERSONAL_LIMIT_VIP,
+            PERSONAL_LIMIT_ADMIN,
+            ADMIN_COMMUNITY
         );
 
         COMMAND.addChildren(
             COMMAND_RELOAD,
             COMMAND_QUESTS,
             COMMAND_QUESTS_REFRESH,
-
+            COMMAND_QUESTS_LORE,
+            COMMAND_ISLAND,
+            COMMAND_PERSONAL,
             COMMAND_MILESTONES,
             COMMAND_MILESTONES_RESET,
 
@@ -62,7 +80,9 @@ public class Perms {
             COMMAND_BATTLE_PASS_SET_LEVEL,
             COMMAND_BATTLE_PASS_ADD_XP,
             COMMAND_BATTLE_PASS_REMOVE_XP,
-            COMMAND_BATTLE_PASS_SET_XP
+            COMMAND_BATTLE_PASS_SET_XP,
+            COMMAND_TRACK_TOGGLE,
+            COMMAND_COMMUNITY
         );
     }
 }

@@ -13,6 +13,7 @@ import su.nightexpress.quests.api.exception.QuestLoadException;
 import su.nightexpress.quests.battlepass.BattlePassManager;
 import su.nightexpress.quests.config.Config;
 import su.nightexpress.quests.config.Lang;
+import su.nightexpress.quests.menu.MainMenu;
 import su.nightexpress.quests.quest.command.QuestsCommands;
 import su.nightexpress.quests.quest.data.QuestData;
 import su.nightexpress.quests.quest.definition.Quest;
@@ -21,6 +22,7 @@ import su.nightexpress.quests.quest.menu.QuestsMenu;
 import su.nightexpress.quests.reward.Reward;
 import su.nightexpress.quests.task.TaskType;
 import su.nightexpress.quests.task.adapter.AdapterFamily;
+import su.nightexpress.quests.tracker.QuestTrackerManager;
 import su.nightexpress.quests.user.QuestUser;
 import su.nightexpress.quests.util.QuestUtils;
 
@@ -39,13 +41,14 @@ public class QuestManager extends AbstractManager<QuestsPlugin> {
     private final String dirPath;
 
     private QuestsMenu questsMenu;
+    private MainMenu mainMenu;
 
     public QuestManager(@NotNull QuestsPlugin plugin) {
         super(plugin);
         this.questById = new HashMap<>();
-        this.dirPath = this.plugin.getDataFolder() + Config.DIR_QUESTS;
+        this.dirPath = this.plugin.getDataFolder() + Config.DIR_DAILY;
     }
-
+ 
     @Override
     protected void onLoad() {
         this.loadQuests();
@@ -53,8 +56,6 @@ public class QuestManager extends AbstractManager<QuestsPlugin> {
 
         this.addListener(new QuestGenericListener(this.plugin, this));
         this.addAsyncTask(this::updatePlayerQuests, 1);
-
-        QuestsCommands.load(this.plugin, this);
     }
 
     @Override
@@ -93,7 +94,21 @@ public class QuestManager extends AbstractManager<QuestsPlugin> {
     }
 
     private void loadUI() {
-        this.questsMenu = this.addMenu(new QuestsMenu(this.plugin, this), Config.DIR_MENU, "quests.yml");
+        this.questsMenu = this.addMenu(new QuestsMenu(this.plugin, this), Config.DIR_MENU_DAILY, "daily.yml");
+        this.mainMenu = this.addMenu(new MainMenu(this.plugin), Config.DIR_MENU, "quests.yml");
+    }
+
+    @Nullable
+    public MainMenu getMainMenu() {
+        return this.mainMenu;
+    }
+
+    public void openMainMenu(@NotNull Player player) {
+        if (this.mainMenu != null) {
+            this.mainMenu.open(player);
+        } else {
+            this.openQuests(player);
+        }
     }
 
     public boolean isQuestsAvailable() {
@@ -216,6 +231,8 @@ public class QuestManager extends AbstractManager<QuestsPlugin> {
 
             questData.addCompleted(fullName, count);
             progressed.set(true);
+
+            QuestTrackerManager.showProgress(player, quest, questData);
 
             if (questData.isCompleted()) {
                 List<Reward> rewards = this.plugin.getRewardManager().getQuestRewards(quest);

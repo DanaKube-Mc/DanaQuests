@@ -1,9 +1,11 @@
 package su.nightexpress.quests;
 
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nightexpress.nightcore.NightPlugin;
 import su.nightexpress.nightcore.commands.command.NightCommand;
+import su.nightexpress.nightcore.config.FileConfig;
 import su.nightexpress.nightcore.config.PluginDetails;
 import su.nightexpress.quests.battlepass.BattlePassManager;
 import su.nightexpress.quests.command.BaseCommands;
@@ -11,13 +13,22 @@ import su.nightexpress.quests.config.Config;
 import su.nightexpress.quests.config.Lang;
 import su.nightexpress.quests.config.Perms;
 import su.nightexpress.quests.data.DataHandler;
+import su.nightexpress.quests.island.IslandManager;
+import su.nightexpress.quests.menu.MainMenu;
 import su.nightexpress.quests.milestone.MilestoneManager;
 import su.nightexpress.quests.reward.RewardManager;
 import su.nightexpress.quests.task.TaskManager;
 import su.nightexpress.quests.quest.QuestManager;
+import su.nightexpress.quests.quest.command.QuestsCommands;
 import su.nightexpress.quests.registry.Registries;
 import su.nightexpress.quests.task.TaskTypeRegistry;
+import su.nightexpress.quests.lore.LoreManager;
+import su.nightexpress.quests.lore.LoreManager;
+import su.nightexpress.quests.personal.PersonalQuestManager;
+import su.nightexpress.quests.tracker.QuestTrackerManager;
 import su.nightexpress.quests.user.UserManager;
+
+import su.nightexpress.quests.community.CommunityQuestManager;
 
 import java.util.Optional;
 
@@ -31,11 +42,33 @@ public class QuestsPlugin extends NightPlugin {
     private BattlePassManager battlePassManager;
     private MilestoneManager  milestoneManager;
     private QuestManager      questManager;
+    private LoreManager       loreManager;
+    private su.nightexpress.quests.island.IslandManager islandManager;
+    private PersonalQuestManager personalQuestManager;
+    private CommunityQuestManager communityQuestManager;
 
     @Override
     @NotNull
     protected PluginDetails getDefaultDetails() {
-        return PluginDetails.create("Quests", new String[]{"equests", "excellentquests"})
+        String[] aliases = new String[]{"quests", "quete", "q"};
+        try {
+            java.io.File file = new java.io.File(this.getDataFolder(), "config.yml");
+            if (file.exists()) {
+                FileConfig tempConfig = new FileConfig(file);
+                tempConfig.load();
+                if (tempConfig.contains("General.Command_Aliases")) {
+                    String raw = tempConfig.getString("General.Command_Aliases", "");
+                    if (!raw.trim().isEmpty()) {
+                        aliases = raw.split(",");
+                        for (int i = 0; i < aliases.length; i++) {
+                            aliases[i] = aliases[i].trim();
+                        }
+                    }
+                }
+            }
+        } catch (Exception ignored) {}
+
+        return PluginDetails.create("DanaQuests", aliases)
             .setConfigClass(Config.class)
             .setPermissionsClass(Perms.class);
     }
@@ -89,14 +122,44 @@ public class QuestsPlugin extends NightPlugin {
             this.questManager.setup();
         }
 
+        if (Config.FEATURES_LORE_ENABLED.get()) {
+            this.loreManager = new LoreManager(this);
+            this.loreManager.setup();
+        }
+
+        if (Config.FEATURES_ISLAND_QUESTS_ENABLED.get()) {
+            this.islandManager = new IslandManager(this);
+            this.islandManager.setup();
+        }
+
+        if (Config.FEATURES_PERSONAL_QUESTS_ENABLED.get()) {
+            this.personalQuestManager = new PersonalQuestManager(this);
+            this.personalQuestManager.setup();
+        }
+
+        if (Config.FEATURES_COMMUNITY_QUESTS_ENABLED.get()) {
+            this.communityQuestManager = new CommunityQuestManager(this);
+            this.communityQuestManager.setup();
+        }
+
+        QuestTrackerManager.setup(this);
+
         this.loadCommands();
     }
 
     @Override
     public void disable() {
+        QuestsCommands.shutdown();
+        BaseCommands.shutdown();
+        QuestTrackerManager.shutdown();
+
+        if (this.communityQuestManager != null) this.communityQuestManager.shutdown();
+        if (this.personalQuestManager != null) this.personalQuestManager.shutdown();
         if (this.taskManager != null) this.taskManager.shutdown();
         if (this.milestoneManager != null) this.milestoneManager.shutdown();
         if (this.questManager != null) this.questManager.shutdown();
+        if (this.loreManager != null) this.loreManager.shutdown();
+        if (this.islandManager != null) this.islandManager.shutdown();
         if (this.battlePassManager != null) this.battlePassManager.shutdown();
         if (this.rewardManager != null) this.rewardManager.shutdown();
         if (this.userManager != null) this.userManager.shutdown();
@@ -114,7 +177,8 @@ public class QuestsPlugin extends NightPlugin {
     }
 
     private void loadCommands() {
-        this.rootCommand = NightCommand.forPlugin(this, builder -> BaseCommands.load(this, builder));
+        BaseCommands.load(this);
+        QuestsCommands.load(this, this.questManager);
     }
 
     @NotNull
@@ -170,5 +234,51 @@ public class QuestsPlugin extends NightPlugin {
     @NotNull
     public Optional<QuestManager> questManager() {
         return Optional.ofNullable(this.questManager);
+    }
+
+    @Nullable
+    public LoreManager getLoreManager() {
+        return this.loreManager;
+    }
+
+    @NotNull
+    public Optional<LoreManager> loreManager() {
+        return Optional.ofNullable(this.loreManager);
+    }
+
+    @NotNull
+    public Optional<MainMenu> mainMenu() {
+        return this.questManager().map(QuestManager::getMainMenu);
+    }
+
+    @Nullable
+    public IslandManager getIslandManager() {
+        // Trigger compile
+        return this.islandManager;
+    }
+
+    @NotNull
+    public Optional<IslandManager> islandManager() {
+        return Optional.ofNullable(this.islandManager);
+    }
+
+    @Nullable
+    public PersonalQuestManager getPersonalQuestManager() {
+        return this.personalQuestManager;
+    }
+
+    @NotNull
+    public Optional<PersonalQuestManager> personalQuestManager() {
+        return Optional.ofNullable(this.personalQuestManager);
+    }
+
+    @Nullable
+    public CommunityQuestManager getCommunityQuestManager() {
+        return this.communityQuestManager;
+    }
+
+    @NotNull
+    public Optional<CommunityQuestManager> communityQuestManager() {
+        return Optional.ofNullable(this.communityQuestManager);
     }
 }

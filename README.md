@@ -1,73 +1,102 @@
-# About
-![](https://nightexpressdev.com/excellentquests/banner.png)
+# 🎯 DanaQuests
 
-<div align="center">
+![Minecraft Paper 1.21](https://img.shields.io/badge/Minecraft-Paper%201.21.x-brightgreen?style=for-the-badge&logo=minecraft)
+![Java 21](https://img.shields.io/badge/Java-21-orange?style=for-the-badge&logo=openjdk)
+![Build Maven](https://img.shields.io/badge/Build-Maven-blue?style=for-the-badge&logo=apachemaven)
+![Version 5.0.2](https://img.shields.io/badge/Version-5.0.2-blue?style=for-the-badge)
+![License](https://img.shields.io/badge/License-GPL--3.0-lightgrey?style=for-the-badge)
 
-<a href="https://discord.gg/EwNFGsnGaW"><img src="https://nightexpressdev.com/img/overview/btn_discord.png"></a>&nbsp;
-<a href="https://ko-fi.com/nightexpress"><img src="https://nightexpressdev.com/img/overview/btn_donate.png"></a>&nbsp;
-<a href="https://nightexpressdev.com/excellentquests/"><img src="https://nightexpressdev.com/img/overview/btn_manual.png"></a>
+**DanaQuests** est un plugin de quêtes Minecraft complet, moderne et modulaire développé pour l'écosystème **DanaKube** (basé sur un fork d'ExcellentQuests). Il réinvente l'expérience de jeu en introduisant 4 grands systèmes de quêtes complémentaires (Lore narratif, Îles coopératives, RPG personnel et Événements communautaires) ainsi qu'un moteur de suivi unifié multi-canal.
 
-**ExcellentQuests** is a lightweight and modern **3 in 1** quests solution for your server.  
-Features built-in **Daily Quests**, **Milestones** and **Battle Pass**!
+---
 
-</div>
+## 🚀 Nouveautés & Optimisations (v5.0.2)
 
-## Features
+* 🔄 **Unification du TaskManager** : Traitement centralisé de tous les objectifs de quêtes (Lore, Personnelles, Daily) directement via `TaskManager#progressQuests()`.
+* 🧩 **Matching Intelligents & Alias d'Items** : Résolution automatique des écarts Spigot entre noms d'items et de blocs (ex: `carrot` $\leftrightarrow$ `carrots`, `potato` $\leftrightarrow$ `potatoes`, `beetroot` $\leftrightarrow$ `beetroots`).
+* 🍱 **Positionnement Dynamique (`SlotsByCount`)** : Repositionnement automatique des icônes dans les menus de quêtes en fonction du nombre d'éléments à afficher.
+* 📦 **Mobs Empilés & Groupes Génériques** : Prise en charge des entités empilées (*stacked mobs*) et des groupes de ressources (`resource_groups`).
 
-- **Database**. Works with SQLite and MySQL!
-- **Synchronization**. Sync player data across multiple servers!
-- **Customization**. Change every aspect of the plugin to your own preferences!
-- **GUI Driven**. Simple and intuitive GUIs that makes plugin easy to use!
-- **Modularized**. Disable any feature you don't like with a simple config option!
-- [**PlaceholderAPI**](https://nightexpressdev.com/excellentquests/placeholders/papi/) Support!
-- [**Developer API**](https://nightexpressdev.com/excellentquests/developer-api) Available!
-- [**Plugin Integrations**](https://nightexpressdev.com/excellentquests/integrations/). Features built-in support for various plugins: **MythicMobs**, **EvenMoreFish**, **CustomFishing**, **CustomCrops**.
-- [**Daily Quests**](https://nightexpressdev.com/excellentquests/quests/). Create custom daily quests and combine them with the Battle Pass!
-  - **Randomized**. New quests with different objectives for players every day!
-  - **Flexible Rewards**. Scale rewards based on quest's difficulty and objectives amount!
-  - **Battle Pass Mode**. Setting that makes daily quests only available during an active Battle Pass season!
-  - **Quests Amount**. Set different amount of quests for players based on their rank or permission!
-  - **17+ Quest Types**. A lot of quest types available for your quests!
-  - **Completion Time**. Set a limited completion time for each quest!
-  - **Quest Acception**. Players have to accept a quest to start completing it!
-  - **Unlimited Objectives**. Add as many objectives per quest as you want!
+---
 
-![](https://nightexpressdev.com/img/excellentquests/quests.gif)
+## ✨ Fonctionnalités Principales
 
-- [**Milestones**](https://nightexpressdev.com/excellentquests/milestones/). Create custom milestones for players to complete for rewards!
-  - **Levels**. Add levels for your milestones that will increase difficulty and rewards!
-  - **Categories**. Organize your milestones with custom categories!
-  - **Flexible Rewards**. Scale rewards based on milestone level and objectives amount!
-  - **17+ Milestone Types**. A lot of milestone types available for your milestones!
-  - **Flexible Progress**. Keep previous milestone progress for new levels or reset it back to zero!
-  - **Unlimited Objectives**. Add as many objectives per milestone as you want!
+### 📖 1. Quêtes de Lore (Histoire Scénarisée & Linéaire)
+* 🗺️ **Progression Linéaire** : Quêtes organisées en suites (Questlines) avec système de prérequis (`prerequisite`).
+* 📜 **Catégorisation Dynamique** : Fichiers YAML modulaires par chapitre (ex: `lore/decouverte.yml`, `lore/ere1.yml`).
+* 🎯 **Objectifs Étendus (TaskTypes)** :
+  * 🗣️ **PNJ** : Interaction avec PNJ via **Citizens** (`NPCRightClickEvent`) et **FancyNPCs** (`NpcInteractEvent`).
+  * 📍 **Lieux** : Détection par zones **WorldGuard**, coordonnées avec rayon, biomes spécifiques ou structures Vanilla (Mineshaft, etc.).
+  * 🪵 **Écorçage** (`STRIP_LOG`) : Écorcer des bûches avec une hache.
+  * 🧪 **Désoxydation** (`DEOXIDIZE_COPPER`) : Retirer l'oxydation du cuivre avec une hache.
+  * 🧪 **Consommation** (`CONSUME_ITEM`) : Manger des aliments ou consommer des potions.
+  * 🤝 **Commerce PNJ** (`TRADE_WITH_VILLAGER`) : Réaliser des échanges avec des marchands (`PlayerTradeEvent`).
+  * 🍯 **Récolte** (`HARVEST_ITEM`) : Récolter du miel, composter pour de la poudre d'os ou cueillir des baies.
+  * 💻 **Commande** (`EXECUTE_COMMAND`) : Exécuter une commande joueur (ex: `/spawn`, `/danatool`).
 
-![](https://nightexpressdev.com/img/excellentquests/milestones.gif)
+### 🏝️ 2. Quêtes d'Île Coopératives (SuperiorSkyblock2)
+* 🏝️ **Progression Partagée** : Liaison directe avec l'API **SuperiorSkyblock2** (SSB2) ; la progression est sauvegardée au niveau de l'île (`excellentquests_islands`).
+* 📦 **Groupes de Ressources & Poids** (`resource_groups.yml`) : Regroupement de matériaux (ex: `wood`, `ores`) avec attribution de multiplicateurs de valeur (ex: 1 Diamant = 5 points, 1 Charbon = 1 point).
+* 📥 **GUI de Dépôt Interactif (Option B)** : Clic gauche pour déposer un stack, Clic droit pour vider l'inventaire. Algorithme anti-gaspillage qui ne consomme que le strict nécessaire pour compléter l'objectif.
+* 🔒 **Verrou Anti-Concurrence** : Protection mémoire (RAM) empêchant deux membres d'une même île d'ouvrir le GUI de dépôt en même temps.
 
-- [**Battle Pass**](https://nightexpressdev.com/excellentquests/battlepass/). Engage your players to play more with the Battle Pass system!
-  - **Quests Integration**. Daily Quests can produce battle pass XP!
-  - **Seasons**. Launch custom seasons at any time with custom days duration!
-  - **Premium Access**. Unlock better rewards in the Battle Pass with the Premium Access!
-  - **Custom Leveling**. Set custom max. level and XP progression ratio!
-  - **Flexible Rewards**. Scale rewards based on Battle Pass level!
+### ⚔️ 3. Quêtes Personnelles RPG (Progression par Catégories)
+* 🧙 **Choix de Catégorie** : Le joueur sélectionne la catégorie qu'il souhaite accomplir pour la journée (Minage, Combat, etc.) dans `personal.yml`.
+* 🎯 **Tirage Aléatoire** : Le serveur sélectionne une cible au hasard parmi celles configurées dans la catégorie et l'affiche avec ses exigences scalées dans `personal_categories.yml`.
+* 📈 **Échelle Quadratique** : Difficulté et récompenses ajustées selon le niveau du joueur :
+  $$\text{Quantité} = \text{base-amount} \times \text{level}^2$$
+  $$\text{Gains} = \text{base-money} \times \text{level}^2$$
+* 🏆 **Level-Up Statique** : Validation par un nombre fixe et configurable de quêtes complétées dans la catégorie (ex: `completions-to-level-up: 5`).
+* 🔑 **Quotas Journaliers par Permissions** : Définition des limites d'acceptation selon les grades (`default: 1`, `vip: 5`, `admin: -1`).
+* 📱 **GUIs Dédiés** : 3 menus YAML indépendants (`personal.yml`, `personal_categories.yml`, `personal_progression.yml`).
 
-![](https://nightexpressdev.com/img/excellentquests/battlepass.gif)
+### 🌍 4. Quêtes Communautaires (Événements Globaux)
+* 📣 **Déclenchement Admin** : Commande `/q community start <id> <durée> [objectif]` pour lancer des événements temporaires à l'échelle du serveur.
+* 💰 **Contributions Collectives** : Les joueurs coopèrent pour atteindre une cagnotte globale (Lumens / Vault ou items).
+* 🏆 **Classement en Temps Réel** : Suivi des meilleurs contributeurs (Top 1, Top 2, Top 3) et récompenses par paliers de participation.
+* 🤖 **Intégration Discord Webhook** : Envoi automatique d'embeds illustrés lors du lancement, du suivi et de la clôture avec le classement final.
+* 📜 **Fichiers de Logs** : Enregistrement de rapports détaillés sous `logs/community_events/`.
 
-## System Requirements
+### 📊 5. Moteur de Suivi Unifié (HUD Multi-Canal)
+* 📺 **Canaux d'Affichage** : Les joueurs choisissent leur mode de suivi préféré via la commande `/q track <mode>` ou dans les GUIs :
+  * `BOSS_BAR` (Adventure BossBar native Paper)
+  * `ACTION_BAR` (Message d'Actionbar éphémère)
+  * `CHAT` (Notifications dans le tchat)
+  * `NONE` (Désactivé)
+* 🔕 **Masquage par Catégorie** : Possibilité pour les joueurs de désactiver le suivi d'une catégorie spécifique sans désactiver le tracker global.
 
-- Server Software: [**Spigot**](https://www.spigotmc.org/link-forums/88/) or [**Paper**](https://papermc.io/downloads/paper)  
-- Server Version: <span style="color:red">**1.21.8**</span> or above  
-- Java Version: [**21**](https://adoptium.net/temurin/releases) or above  
-- Dependencies: 
-  - [**nightcore**](https://modrinth.com/plugin/nightcore)  
-- Folia Supported: <span style="color:red">**No**</span>  
-- Forge Supported: <span style="color:red">**No**</span>  
+---
 
-## Links
-- [SpigotMC](https://spigotmc.org/resources/107283/)
-- [BuiltByBit](https://builtbybit.com/resources/78234/)
-- [Documentation](https://nightexpressdev.com/excellentquests/)
-- [Developer API](https://nightexpressdev.com/excellentquests/developer-api/)
+## 🎨 Zero Hardcoding & Charte Graphique
 
-## Donate
-If you like my work or enjoy using my plugins, feel free to [Buy me a coffee](https://ko-fi.com/nightexpress) :) Thank you! 🧡
+Tout l'affichage du plugin est **100% configurable** via les fichiers YAML :
+* Prise en charge des **CustomModelData** (`custom_model_data: 1001`) sur tous les items pour les textures de resource packs personnalisées.
+* Support complet du format **MiniMessage** et des codes couleurs Bukkit dans tous les fichiers de langue (`lang/`) et de menus (`menus/`).
+
+---
+
+## 🛠️ Prérequis & Dépendances
+
+| Dépendance | Requis / Optionnel | Rôle |
+| :--- | :--- | :--- |
+| **Paper 1.21.8+** | **Obligatoire** | Serveur Minecraft cible |
+| **Java 21** | **Obligatoire** | Environnement d'exécution |
+| **nightcore** (2.9.3+) | **Obligatoire** | Framework de base (menus, configs, commandes) |
+| **SuperiorSkyblock2** | Optionnel | Requis pour les Quêtes d'Îles coopératives |
+| **Citizens** / **FancyNPCs** | Optionnel | Requis pour les objectifs d'interaction PNJ |
+| **WorldGuard** | Optionnel | Requis pour les objectifs de détection de région |
+| **Vault** / **DanaEconomy** | Optionnel | Requis pour les dépôts d'économie (Lumens) |
+
+---
+
+## ⚙️ Compilation
+
+Pour compiler le projet depuis les sources :
+
+```bash
+git clone https://github.com/DanaKube-Mc/DanaQuests.git
+cd DanaQuests
+mvn clean package
+```
+
+Le fichier JAR compilé sera généré dans le dossier `target/`.

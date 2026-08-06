@@ -11,6 +11,7 @@ public interface Adapter<I, O> {
     VanillaBlockStateAdapter  VANILLA_BLOCK_STATE = new VanillaBlockStateAdapter("vanilla_block_state");
     VanillaItemAdapter        VANILLA_ITEM        = new VanillaItemAdapter("vanilla_item");
     VanillaEnchantmentAdapter VANILLA_ENCHANTMENT = new VanillaEnchantmentAdapter("enchantment");
+    StringAdapter             STRING_ADAPTER      = new StringAdapter("string_adapter");
 
     boolean canHandle(@NotNull O entity);
 

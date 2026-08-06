@@ -9,6 +9,8 @@ import su.nightexpress.quests.QuestsPlugin;
 import su.nightexpress.quests.milestone.definition.Milestone;
 import su.nightexpress.quests.quest.definition.Quest;
 
+import su.nightexpress.quests.config.Config;
+
 import java.util.*;
 
 public class RewardManager extends AbstractManager<QuestsPlugin> {
@@ -33,18 +35,32 @@ public class RewardManager extends AbstractManager<QuestsPlugin> {
     }
 
     public void loadRewards() {
-        FileConfig config = FileConfig.loadOrExtract(this.plugin, FILE_NAME);
+        this.rewardByIdMap.clear();
+        String[] questDirs = new String[]{
+            Config.DIR_DAILY,
+            Config.DIR_BATTLEPASS,
+            Config.DIR_COMMUNITY,
+            Config.DIR_MILESTONES,
+            Config.DIR_ISLAND,
+            Config.DIR_PERSONAL
+        };
+
         String path = "Rewards";
 
-        if (!config.contains(path)) {
-            RewardDefaults.createRewards().forEach((id, reward) -> config.set(path + "." + id, reward));
-        }
+        for (String dir : questDirs) {
+            String filePath = dir + FILE_NAME;
+            FileConfig config = FileConfig.loadOrExtract(this.plugin, filePath);
 
-        config.getSection(path).forEach(sId -> {
-            Reward reward = Reward.read(config, path + "." + sId);
-            this.rewardByIdMap.put(LowerCase.INTERNAL.apply(sId), reward);
-        });
-        config.saveChanges();
+            if (!config.contains(path)) {
+                RewardDefaults.createRewards().forEach((id, reward) -> config.set(path + "." + id, reward));
+            }
+
+            config.getSection(path).forEach(sId -> {
+                Reward reward = Reward.read(config, path + "." + sId);
+                this.rewardByIdMap.put(LowerCase.INTERNAL.apply(sId), reward);
+            });
+            config.saveChanges();
+        }
 
         this.plugin.info("Loaded " + this.rewardByIdMap.size() + " rewards.");
     }

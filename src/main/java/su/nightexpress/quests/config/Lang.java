@@ -37,6 +37,101 @@ public class Lang implements LangContainer {
     public static final TextLocale COMMAND_QUESTS_NAME         = LangEntry.builder("Command.Quests.Name").text("Quests");
     public static final TextLocale COMMAND_QUESTS_DESC         = LangEntry.builder("Command.Quests.Desc").text("View daily quests.");
     public static final TextLocale COMMAND_QUESTS_REFRESH_DESC = LangEntry.builder("Command.Quests.Refresh.Desc").text("Refresh player's quests.");
+    public static final TextLocale COMMAND_QUESTS_LORE_DESC    = LangEntry.builder("Command.Quests.Lore.Desc").text("Ouvre le menu de Lore.");
+    public static final TextLocale COMMAND_QUESTS_LORE_NAME    = LangEntry.builder("Command.Quests.Lore.Name").text("Lore");
+
+    public static final TextLocale COMMAND_ISLAND_NAME = LangEntry.builder("Command.Island.Name").text("island");
+    public static final TextLocale COMMAND_ISLAND_DESC = LangEntry.builder("Command.Island.Desc").text("Ouvre l'interface de dépôt pour les quêtes coopératives d'île.");
+
+    public static final MessageLocale ISLAND_QUESTS_NO_ISLAND = LangEntry.builder("island_quests_no_island").chatMessage(
+        RED.wrap("Vous n'avez pas d'île !")
+    );
+
+    public static final MessageLocale ISLAND_QUEST_MENU_LOCKED = LangEntry.builder("island_quest_menu_locked").chatMessage(
+        RED.wrap("L'interface de quête d'île est actuellement verrouillée par un autre joueur.")
+    );
+
+    public static final MessageLocale ISLAND_QUESTS_INVALID_HAND_ITEM = LangEntry.builder("island_quests_invalid_hand_item").chatMessage(
+        RED.wrap("L'item tenu dans votre main ne correspond pas à la ressource requise !")
+    );
+
+    public static final MessageLocale ISLAND_QUEST_COMPLETED = LangEntry.builder("island_quest_completed").chatMessage(
+        GREEN.wrap("Félicitations ! Vous avez terminé la quête d'île.")
+    );
+
+    public static final TextLocale COMMAND_PERSONAL_NAME = LangEntry.builder("Command.Personal.Name").text("personal");
+    public static final TextLocale COMMAND_PERSONAL_DESC = LangEntry.builder("Command.Personal.Desc").text("Ouvre le menu des quêtes personnelles (RPG).");
+
+    public static final MessageLocale PERSONAL_LIMIT_REACHED = LangEntry.builder("limit_reached").chatMessage(
+        RED.wrap("Vous avez atteint votre limite quotidienne de quêtes personnelles !")
+    );
+
+    public static final MessageLocale PERSONAL_LEVEL_UP = LangEntry.builder("rpg_level_up").chatMessage(
+        GREEN.wrap("Félicitations ! Votre catégorie %category% passe au niveau %level% !")
+    );
+
+    public static final MessageLocale PERSONAL_NO_QUEST = LangEntry.builder("personal_no_quest").chatMessage(
+        RED.wrap("Vous n'avez pas de quête active pour cette catégorie.")
+    );
+
+    public static final MessageLocale PERSONAL_QUEST_ACCEPTED = LangEntry.builder("personal_quest_accepted").chatMessage(
+        GREEN.wrap("Quête personnelle acceptée : Objectif %amount% %objective% !")
+    );
+
+    public static final MessageLocale PERSONAL_QUEST_CANCELLED = LangEntry.builder("personal_quest_cancelled").chatMessage(
+        RED.wrap("Quête personnelle abandonnée.")
+    );
+
+    public static final MessageLocale PERSONAL_QUEST_COMPLETED = LangEntry.builder("personal_quest_completed").chatMessage(
+        GREEN.wrap("Quête complétée ! Vous avez gagné %money% $ !")
+    );
+
+    public static final TextLocale COMMAND_COMMUNITY_NAME = LangEntry.builder("Command.Community.Name").text("community");
+    public static final TextLocale COMMAND_COMMUNITY_DESC = LangEntry.builder("Command.Community.Desc").text("Ouvre le menu des quêtes communautaires.");
+
+    public static final MessageLocale COMMUNITY_EVENT_STARTED = LangEntry.builder("community_event_started").chatMessage(
+        GREEN.wrap("Événement communautaire démarré : %quest% (Objectif: %target%, Durée: %duration%h) !")
+    );
+
+    public static final MessageLocale COMMUNITY_EVENT_STOPPED = LangEntry.builder("community_event_stopped").chatMessage(
+        RED.wrap("L'événement communautaire actif a été arrêté.")
+    );
+
+    public static final MessageLocale COMMUNITY_EVENT_NO_ACTIVE = LangEntry.builder("community_event_no_active").chatMessage(
+        RED.wrap("Il n'y a pas d'événement communautaire actif en ce moment.")
+    );
+
+    public static final MessageLocale COMMUNITY_EVENT_ALREADY_ACTIVE = LangEntry.builder("community_event_already_active").chatMessage(
+        RED.wrap("Un événement communautaire est déjà en cours !")
+    );
+
+    public static final MessageLocale COMMUNITY_EVENT_SUCCESS = LangEntry.builder("community_event_success").chatMessage(
+        GREEN.wrap("🎉 VICTOIRE ! La communauté a accompli la quête %quest% !")
+    );
+
+    public static final MessageLocale COMMUNITY_EVENT_FAILED = LangEntry.builder("community_event_failed").chatMessage(
+        RED.wrap("❌ ÉCHEC ! L'événement communautaire %quest% s'est terminé sans atteindre l'objectif.")
+    );
+
+    public static final MessageLocale COMMUNITY_CONTRIBUTED = LangEntry.builder("community_contributed").chatMessage(
+        GREEN.wrap("Vous avez déposé %amount% Lumens ! Votre total: %total_player% | Global: %current_global% / %target_global%")
+    );
+
+    public static final MessageLocale COMMUNITY_DEPOSIT_NOT_MONEY_TYPE = LangEntry.builder("community_deposit_not_money_type").chatMessage(
+        RED.wrap("Cet événement n'accepte pas les dépôts d'argent !")
+    );
+
+    public static final MessageLocale COMMUNITY_DEPOSIT_INVALID_AMOUNT = LangEntry.builder("community_deposit_invalid_amount").chatMessage(
+        RED.wrap("Veuillez spécifier un montant positif.")
+    );
+
+    public static final MessageLocale COMMUNITY_DEPOSIT_NOT_ENOUGH_MONEY = LangEntry.builder("community_deposit_not_enough_money").chatMessage(
+        RED.wrap("Vous n'avez pas assez d'argent sur votre solde !")
+    );
+
+    public static final MessageLocale COMMUNITY_INVALID_QUEST = LangEntry.builder("community_invalid_quest").chatMessage(
+        RED.wrap("Quête communautaire introuvable !")
+    );
 
     public static final TextLocale COMMAND_MILESTONES_NAME       = LangEntry.builder("Command.Milestones.Name").text("Milestones");
     public static final TextLocale COMMAND_MILESTONES_DESC       = LangEntry.builder("Command.Milestones.Desc").text("View milestones.");
@@ -321,4 +416,15 @@ public class Lang implements LangContainer {
     public static final TextLocale UI_ENTRY_REWARD_BATTLE_PASS_XP = LangEntry.builder("UI.Entry.Reward.BattlePass.XP")
         .text(DARK_GRAY.wrap("┃ " + WHITE.wrap("Battle Pass XP: ") + YELLOW.wrap(GENERIC_XP)));
 
+    public static final MessageLocale COMMAND_TRACK_MODE_CHANGED = LangEntry.builder("Command.Track.ModeChanged").chatMessage(
+        GREEN.wrap("Votre mode de suivi des quêtes a été mis à jour sur : " + YELLOW.wrap(GENERIC_INPUT) + ".")
+    );
+
+    public static final MessageLocale COMMAND_TRACK_INVALID_MODE = LangEntry.builder("Command.Track.InvalidMode").chatMessage(
+        RED.wrap("Mode de suivi invalide ! Choix possibles : BOSS_BAR, ACTION_BAR, CHAT, NONE.")
+    );
+
+    public static final MessageLocale COMMAND_TRACK_STATUS = LangEntry.builder("Command.Track.Status").chatMessage(
+        GRAY.wrap("Votre mode de suivi actuel : " + YELLOW.wrap(GENERIC_INPUT) + ". Choix possibles : " + GREEN.wrap("BOSS_BAR, ACTION_BAR, CHAT, NONE") + ".")
+    );
 }

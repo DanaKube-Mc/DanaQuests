@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>su.nightexpress.quests</groupId>
-    <artifactId>ExcellentQuests</artifactId>
-    <version>4.0.6</version>
+    <artifactId>DanaQuests</artifactId>
+    <version>5.0.2</version>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -52,10 +52,12 @@
             <url>https://mvn.lumine.io/repository/maven-public/</url>
         </repository>
 
+        <!--
         <repository>
             <id>lumine-snapshot</id>
             <url>https://mvn.lumine.io/repository/maven-snapshots/</url>
         </repository>
+        -->
 
         <repository>
             <id>xiaomomi's plugins-releases</id>
@@ -66,20 +68,40 @@
             <id>evenmorefish</id>
             <url>https://repo.codemc.io/repository/EvenMoreFish</url>
         </repository>
+
+        <repository>
+            <id>bg-repo</id>
+            <url>https://repo.bg-software.com/repository/api/</url>
+        </repository>
+
+        <repository>
+            <id>enginehub-repo</id>
+            <url>https://maven.enginehub.org/repo/</url>
+        </repository>
+
+        <repository>
+            <id>citizens-repo</id>
+            <url>https://maven.citizensnpcs.co/repo</url>
+        </repository>
+
+        <repository>
+            <id>fancyinnovations-releases</id>
+            <url>https://repo.fancyinnovations.com/releases</url>
+        </repository>
     </repositories>
 
     <dependencies>
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.21.8-R0.1-SNAPSHOT</version>
+            <version>1.21.11-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>su.nightexpress.nightcore</groupId>
             <artifactId>main</artifactId>
-            <version>2.9.3</version>
+            <version>2.16.2</version>
         </dependency>
 
         <dependency>
@@ -108,6 +130,62 @@
             <artifactId>custom-crops</artifactId>
             <version>3.6.29</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.bgsoftware</groupId>
+            <artifactId>SuperiorSkyblockAPI</artifactId>
+            <version>2026.1</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>net.citizensnpcs</groupId>
+            <artifactId>citizens-main</artifactId>
+            <version>2.0.35-SNAPSHOT</version>
+            <type>jar</type>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sk89q.worldguard</groupId>
+            <artifactId>worldguard-bukkit</artifactId>
+            <version>7.0.9</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>de.oliver</groupId>
+            <artifactId>FancyNpcs</artifactId>
+            <version>2.11.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.10.2</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.10.2</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockbukkit.mockbukkit</groupId>
+            <artifactId>mockbukkit-v1.21</artifactId>
+            <version>4.110.0</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

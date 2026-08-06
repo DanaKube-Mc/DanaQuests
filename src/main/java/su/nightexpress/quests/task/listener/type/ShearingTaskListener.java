@@ -11,6 +11,7 @@ import su.nightexpress.quests.task.adapter.AdapterFamily;
 import su.nightexpress.quests.task.TaskManager;
 import su.nightexpress.quests.task.TaskType;
 import su.nightexpress.quests.task.listener.TaskListener;
+import su.nightexpress.quests.util.StackerHook;
 
 public class ShearingTaskListener extends TaskListener<Entity, AdapterFamily<Entity>> {
 
@@ -26,6 +27,7 @@ public class ShearingTaskListener extends TaskListener<Entity, AdapterFamily<Ent
         Entity entity = event.getEntity();
         if (this.manager.isSpawnerMob(entity)) return;
 
-        this.progressQuests(player, entity);
+        int amount = StackerHook.getEntityStackAmount(entity);
+        this.progressQuests(player, entity, amount);
     }
 }

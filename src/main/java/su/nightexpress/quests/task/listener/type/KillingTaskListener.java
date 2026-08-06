@@ -12,6 +12,7 @@ import su.nightexpress.quests.task.adapter.AdapterFamily;
 import su.nightexpress.quests.task.TaskManager;
 import su.nightexpress.quests.task.TaskType;
 import su.nightexpress.quests.task.listener.TaskListener;
+import su.nightexpress.quests.util.StackerHook;
 
 public class KillingTaskListener extends TaskListener<Entity, AdapterFamily<Entity>> {
 
@@ -27,6 +28,7 @@ public class KillingTaskListener extends TaskListener<Entity, AdapterFamily<Enti
         Player player = entity.getKiller();
         if (player == null || !this.manager.canDoTasks(player)) return;
 
-        this.progressQuests(player, entity);
+        int amount = StackerHook.getEntityStackAmount(entity);
+        this.progressQuests(player, entity, amount);
     }
 }

@@ -19,4 +19,13 @@ public class TaskTypeId {
     public static final String MILK_MOB        = "milk_mob";
     public static final String SHEAR_MOB       = "shear_mob";
     public static final String TAME_MOB        = "tame_mob";
+    public static final String TALK_TO_NPC         = "talk_to_npc";
+    public static final String VISIT_LOCATION      = "visit_location";
+    public static final String STRIP_LOG           = "strip_log";
+    public static final String DEOXIDIZE_COPPER    = "deoxidize_copper";
+    public static final String CONSUME_ITEM        = "consume_item";
+    public static final String TRADE_WITH_VILLAGER = "trade_with_villager";
+    public static final String HARVEST_ITEM        = "harvest_item";
+    public static final String EXECUTE_COMMAND    = "execute_command";
 }
+
