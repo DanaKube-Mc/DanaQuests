@@ -1,6 +1,7 @@
 package su.nightexpress.quests.menu;
 
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
@@ -16,6 +17,8 @@ import su.nightexpress.nightcore.ui.menu.item.MenuItem;
 import su.nightexpress.nightcore.util.bukkit.NightItem;
 import su.nightexpress.quests.QuestsPlugin;
 import su.nightexpress.quests.config.Config;
+import su.nightexpress.quests.tracker.QuestTrackerManager;
+import su.nightexpress.quests.user.QuestUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,7 +80,19 @@ public class MainMenu extends NormalMenu<QuestsPlugin> implements ConfigBased {
                 .setPriority(10)
                 .setSlots(loreSlots)
                 .setHandler((viewer1, event) -> {
-                    this.runNextTick(() -> this.plugin.loreManager().ifPresent(manager -> manager.openLoreMenu(player)));
+                    if (event.isLeftClick()) {
+                        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1.0f);
+                        this.runNextTick(() -> this.plugin.loreManager().ifPresent(manager -> manager.openLoreMenu(player)));
+                    } else if (event.isRightClick()) {
+                        QuestUser user = this.plugin.getUserManager().getOrFetch(player);
+                        boolean disabled = !user.isCategoryTrackerDisabled("lore");
+                        user.toggleCategoryTracker("lore", disabled);
+                        this.plugin.getUserManager().save(user);
+                        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.8f, 1.0f);
+                        if (QuestTrackerManager.getInstance() != null) {
+                            QuestTrackerManager.getInstance().refreshPlayerTrackers(player);
+                        }
+                    }
                 })
                 .build());
         }
@@ -87,7 +102,19 @@ public class MainMenu extends NormalMenu<QuestsPlugin> implements ConfigBased {
                 .setPriority(10)
                 .setSlots(islandSlots)
                 .setHandler((viewer1, event) -> {
-                    this.runNextTick(() -> this.plugin.islandManager().ifPresent(manager -> manager.openMenu(player)));
+                    if (event.isLeftClick()) {
+                        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1.0f);
+                        this.runNextTick(() -> this.plugin.islandManager().ifPresent(manager -> manager.openMenu(player)));
+                    } else if (event.isRightClick()) {
+                        QuestUser user = this.plugin.getUserManager().getOrFetch(player);
+                        boolean disabled = !user.isCategoryTrackerDisabled("island");
+                        user.toggleCategoryTracker("island", disabled);
+                        this.plugin.getUserManager().save(user);
+                        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.8f, 1.0f);
+                        if (QuestTrackerManager.getInstance() != null) {
+                            QuestTrackerManager.getInstance().refreshPlayerTrackers(player);
+                        }
+                    }
                 })
                 .build());
         }
@@ -97,7 +124,19 @@ public class MainMenu extends NormalMenu<QuestsPlugin> implements ConfigBased {
                 .setPriority(10)
                 .setSlots(personalSlots)
                 .setHandler((viewer1, event) -> {
-                    this.runNextTick(() -> this.plugin.personalQuestManager().ifPresent(manager -> manager.openPersonalMenu(player)));
+                    if (event.isLeftClick()) {
+                        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1.0f);
+                        this.runNextTick(() -> this.plugin.personalQuestManager().ifPresent(manager -> manager.openPersonalMenu(player)));
+                    } else if (event.isRightClick()) {
+                        QuestUser user = this.plugin.getUserManager().getOrFetch(player);
+                        boolean disabled = !user.isCategoryTrackerDisabled("personal");
+                        user.toggleCategoryTracker("personal", disabled);
+                        this.plugin.getUserManager().save(user);
+                        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.8f, 1.0f);
+                        if (QuestTrackerManager.getInstance() != null) {
+                            QuestTrackerManager.getInstance().refreshPlayerTrackers(player);
+                        }
+                    }
                 })
                 .build());
         }
