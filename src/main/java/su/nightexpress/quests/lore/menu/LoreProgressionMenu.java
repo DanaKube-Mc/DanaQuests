@@ -240,6 +240,8 @@ public class LoreProgressionMenu extends LinkedMenu<QuestsPlugin, LoreQuestCateg
         this.activeName = ConfigValue.create("status.actived.name", ConfigValue.create("status.active.name", "<lyellow>%quest_name% %status%").read(config)).read(config);
         this.activeLore = ConfigValue.create("status.actived.lore", ConfigValue.create("status.active.lore", Arrays.asList("%quest_lore%", "", "%quest_reward%")).read(config)).read(config);
 
+        loader.addDefaultItem(MenuItem.buildNextPage(this, 44));
+        loader.addDefaultItem(MenuItem.buildPreviousPage(this, 36));
         loader.addDefaultItem(MenuItem.buildReturn(this, 40, this::handleReturn));
     }
 }

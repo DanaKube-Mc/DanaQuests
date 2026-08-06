@@ -14,6 +14,7 @@ import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.generator.structure.Structure;
 import org.jetbrains.annotations.NotNull;
@@ -69,6 +70,8 @@ public class LocationListener extends TaskListener<String, AdapterFamily<String>
         }
 
         World world = to.getWorld();
+        this.progressQuests(player, "world:" + world.getName());
+
         Position paperPos = Position.block(to);
         for (Structure structure : Registry.STRUCTURE) {
             try {
@@ -91,6 +94,15 @@ public class LocationListener extends TaskListener<String, AdapterFamily<String>
         if (this.plugin.getLoreManager() != null) {
             this.plugin.getLoreManager().getActiveQuestTargets(player).forEach(target -> checkCoordsTarget(player, target, to));
         }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerChangedWorld(PlayerChangedWorldEvent event) {
+        Player player = event.getPlayer();
+        if (!this.manager.canDoTasks(player)) return;
+
+        World world = player.getWorld();
+        this.progressQuests(player, "world:" + world.getName());
     }
 
     private void checkCoordsTarget(@NotNull Player player, @NotNull String target, @NotNull Location playerLoc) {

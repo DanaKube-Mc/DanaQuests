@@ -9,6 +9,8 @@ import su.nightexpress.quests.milestone.command.MilestoneCommands;
 import su.nightexpress.quests.quest.command.QuestsCommands;
 import su.nightexpress.quests.util.QuestUtils;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import static org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
@@ -349,6 +351,26 @@ public class Config {
     public static final ConfigValue<String> TRACKER_DEFAULT_MODE = ConfigValue.create("tracker.default-mode",
         "BOSS_BAR",
         "Sets the default tracker mode for new players. Options: BOSS_BAR, ACTION_BAR, CHAT, NONE"
+    );
+
+    public static final ConfigValue<Boolean> TRACKER_INCLUDE_ISLAND_QUESTS = ConfigValue.create("tracker.include-island-quests",
+        true,
+        "Whether to include Island Quests in the tracker rotation."
+    );
+
+    public static final ConfigValue<List<String>> TRACKER_DISABLED_WORLDS_LORE = ConfigValue.create("tracker.disabled-worlds.lore",
+        Collections.emptyList(),
+        "Disabled worlds for Lore Quests tracker."
+    );
+
+    public static final ConfigValue<List<String>> TRACKER_DISABLED_WORLDS_PERSONAL = ConfigValue.create("tracker.disabled-worlds.personal",
+        Collections.emptyList(),
+        "Disabled worlds for Personal RPG Quests tracker."
+    );
+
+    public static final ConfigValue<List<String>> TRACKER_DISABLED_WORLDS_ISLAND = ConfigValue.create("tracker.disabled-worlds.island",
+        Collections.singletonList("spawn"),
+        "Disabled worlds for Island Quests tracker."
     );
 
     public static final ConfigValue<String> TRACKER_BOSSBAR_COLOR = ConfigValue.create("tracker.bossbar.color",

@@ -15,6 +15,7 @@ import su.nightexpress.quests.personal.data.PersonalQuestData;
 import su.nightexpress.quests.personal.definition.RpgCategory;
 import su.nightexpress.quests.personal.menu.PersonalCategoriesMenu;
 import su.nightexpress.quests.personal.menu.PersonalQuestMenu;
+import su.nightexpress.quests.tracker.QuestTrackerManager;
 import su.nightexpress.quests.user.QuestUser;
 import su.nightexpress.quests.util.MenuUtils;
 
@@ -169,6 +170,10 @@ public class PersonalQuestManager extends AbstractManager<QuestsPlugin> {
         user.getPersonalQuestData().put(category.getId(), newData);
         this.plugin.getUserManager().save(user);
 
+        if (su.nightexpress.quests.tracker.QuestTrackerManager.getInstance() != null) {
+            su.nightexpress.quests.tracker.QuestTrackerManager.getInstance().refreshPlayerTrackers(player);
+        }
+
         Lang.PERSONAL_QUEST_ACCEPTED.message().send(player, replacer -> replacer
             .replace("%amount%", String.valueOf(requiredAmount))
             .replace("%objective%", objectiveId)
@@ -187,6 +192,10 @@ public class PersonalQuestManager extends AbstractManager<QuestsPlugin> {
         currentData.setProgress(0);
         this.plugin.getUserManager().save(user);
 
+        if (su.nightexpress.quests.tracker.QuestTrackerManager.getInstance() != null) {
+            su.nightexpress.quests.tracker.QuestTrackerManager.getInstance().refreshPlayerTrackers(player);
+        }
+
         Lang.PERSONAL_QUEST_CANCELLED.message().send(player);
         try {
             player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 0.5f, 1.0f);
@@ -196,6 +205,7 @@ public class PersonalQuestManager extends AbstractManager<QuestsPlugin> {
 
     public synchronized void handleProgress(@NotNull Player player, @NotNull String categoryType, @NotNull String objectiveId, int amount) {
         QuestUser user = this.plugin.getUserManager().getOrFetch(player);
+        boolean changed = false;
         for (RpgCategory category : this.categories.values()) {
             PersonalQuestData activeQuest = user.getPersonalQuestData().get(category.getId());
             if (activeQuest == null || activeQuest.getObjectiveId() == null) {
@@ -215,7 +225,11 @@ public class PersonalQuestManager extends AbstractManager<QuestsPlugin> {
                     activeQuest.setProgress(newProgress);
                     this.plugin.getUserManager().save(user);
                 }
+                changed = true;
             }
+        }
+        if (changed && QuestTrackerManager.getInstance() != null) {
+            QuestTrackerManager.getInstance().refreshPlayerTrackers(player);
         }
     }
 
