@@ -252,6 +252,11 @@ public class Config {
         "Controls whether quests's completion time will be linked with the quests refresh time."
     );
 
+    public static final ConfigValue<Boolean> QUESTS_SEND_REFRESH_MESSAGE = ConfigValue.create("Quests.SendRefreshMessage",
+        true,
+        "Controls whether a chat message is sent to players when daily quests are refreshed."
+    );
+
     public static final ConfigValue<RankTable> QUESTS_AMOUT_PER_RANK = ConfigValue.create("Quests.AmountPerRank",
         RankTable::read,
         RankTable.builder(RankTable.Mode.RANK, 3).addRankValue("vip", 4).addRankValue("premium", 5).build(),
