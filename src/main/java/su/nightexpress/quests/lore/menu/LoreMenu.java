@@ -22,6 +22,7 @@ import su.nightexpress.quests.lore.definition.LoreQuest;
 import su.nightexpress.quests.lore.definition.LoreQuestCategory;
 import su.nightexpress.quests.tracker.QuestTrackerManager;
 import su.nightexpress.quests.user.QuestUser;
+import su.nightexpress.quests.util.MenuUtils;
 
 import org.bukkit.event.inventory.InventoryClickEvent;
 import su.nightexpress.nightcore.config.ConfigValue;
@@ -121,14 +122,21 @@ public class LoreMenu extends NormalMenu<QuestsPlugin> implements ConfigBased {
         String questName = activeQuest != null ? activeQuest.getName() : "";
         List<String> questDesc = activeQuest != null ? activeQuest.getDescription() : Collections.emptyList();
         
+        double overallProgress = 0.0;
         List<String> objectivesFormatted = new ArrayList<>();
         if (activeQuest != null) {
+            int totalCurrent = 0;
+            int totalReq = 0;
             for (LoreObjective obj : activeQuest.getObjectives()) {
                 int current = this.manager.getObjectiveProgress(user, activeQuest, obj);
+                totalCurrent += Math.min(obj.getRequired(), current);
+                totalReq += obj.getRequired();
                 String color = current >= obj.getRequired() ? "&a" : "&7";
                 objectivesFormatted.add("  " + color + "- " + obj.getDescription() + " &8(" + current + "/" + obj.getRequired() + ")");
             }
+            overallProgress = totalReq > 0 ? (double) totalCurrent / totalReq : 0.0;
         }
+        String questProgressBar = MenuUtils.buildProgressBar(overallProgress);
 
         boolean trackerDisabled = user.isCategoryTrackerDisabled(category.getId());
         String trackerStatus = trackerDisabled ? "&cDésactivé" : "&aActivé";
@@ -142,7 +150,9 @@ public class LoreMenu extends NormalMenu<QuestsPlugin> implements ConfigBased {
                 }
             } else if (line.contains("%quest_description%")) {
                 for (String qLine : questDesc) {
-                    finalLore.add(qLine);
+                    finalLore.add(qLine
+                            .replace("%progress_bar%", questProgressBar)
+                            .replace("%quest_progress_bar%", questProgressBar));
                 }
             } else if (line.contains("%quest_objectives%")) {
                 for (String objLine : objectivesFormatted) {
@@ -154,6 +164,8 @@ public class LoreMenu extends NormalMenu<QuestsPlugin> implements ConfigBased {
                         .replace("%quest_name%", questName)
                         .replace("%tracker_status%", trackerStatus)
                         .replace("%tracker_action%", trackerAction)
+                        .replace("%progress_bar%", questProgressBar)
+                        .replace("%quest_progress_bar%", questProgressBar)
                 );
             }
         }

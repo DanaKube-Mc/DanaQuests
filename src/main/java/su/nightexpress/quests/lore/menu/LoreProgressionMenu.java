@@ -161,7 +161,12 @@ public class LoreProgressionMenu extends LinkedMenu<QuestsPlugin, LoreQuestCateg
                 List<String> statusLoreLines = new ArrayList<>();
                 for (String line : lorePattern) {
                     if (line.contains("%quest_lore%")) {
-                        statusLoreLines.addAll(quest.getDescription());
+                        for (String descLine : quest.getDescription()) {
+                            statusLoreLines.add(descLine
+                                .replace("%progress_bar%", questProgressBar)
+                                .replace("%quest_progress_bar%", questProgressBar)
+                            );
+                        }
                     } else if (line.contains("%quest_objectives%")) {
                         statusLoreLines.addAll(objectivesFormatted);
                     } else if (line.contains("%quest_reward%") || line.contains("%rewards%")) {

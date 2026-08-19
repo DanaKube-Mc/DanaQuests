@@ -72,7 +72,9 @@ public class LoreManager extends AbstractManager<QuestsPlugin> {
             }
         }
 
-        FileUtil.getConfigFiles(this.dirPath).forEach(file -> {
+        List<File> configFiles = FileUtil.getConfigFiles(this.dirPath);
+        configFiles.sort(Comparator.comparing(File::getName, String.CASE_INSENSITIVE_ORDER));
+        configFiles.forEach(file -> {
             try {
                 FileConfig config = new FileConfig(file);
                 config.load();
