@@ -248,7 +248,7 @@ public class LoreManager extends AbstractManager<QuestsPlugin> {
             LoreQuestData questProgress = allProgress.computeIfAbsent(activeQuest.getId(), k -> new LoreQuestData(activeQuest.getId()));
 
             for (LoreObjective objective : activeQuest.getObjectives()) {
-                if (objective.getTaskType().equalsIgnoreCase(taskType) && objective.getTarget().equalsIgnoreCase(target)) {
+                if (this.isTaskTypeMatch(objective.getTaskType(), taskType) && this.isTargetMatch(objective.getTarget(), target)) {
                     int current = questProgress.getProgress(objective.getId());
                     if (current < objective.getRequired()) {
                         int newValue = Math.min(objective.getRequired(), current + amount);
@@ -330,4 +330,31 @@ public class LoreManager extends AbstractManager<QuestsPlugin> {
             this.progressionMenu.open(player, category);
         }
     }
+
+    private boolean isTaskTypeMatch(@NotNull String questTaskType, @NotNull String eventTaskType) {
+        if (questTaskType.equalsIgnoreCase(eventTaskType)) return true;
+        String q = questTaskType.toLowerCase();
+        String e = eventTaskType.toLowerCase();
+        if ((q.contains("harvest") || q.contains("farm")) && (e.contains("break") || e.contains("harvest") || e.contains("block_loot"))) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isTargetMatch(@NotNull String questTarget, @NotNull String eventTarget) {
+        if (questTarget.equalsIgnoreCase(eventTarget)) return true;
+        String cleanQ = questTarget.replace("minecraft:", "").toLowerCase();
+        String cleanE = eventTarget.replace("minecraft:", "").toLowerCase();
+        if (cleanQ.equals(cleanE)) return true;
+
+        if (cleanQ.endsWith("s") && cleanQ.substring(0, cleanQ.length() - 1).equals(cleanE)) return true;
+        if (cleanE.endsWith("s") && cleanE.substring(0, cleanE.length() - 1).equals(cleanQ)) return true;
+        if (cleanQ.equals("potatoes") && cleanE.equals("potato")) return true;
+        if (cleanQ.equals("potato") && cleanE.equals("potatoes")) return true;
+        if (cleanQ.equals("carrots") && cleanE.equals("carrot")) return true;
+        if (cleanQ.equals("carrot") && cleanE.equals("carrots")) return true;
+
+        return false;
+    }
 }
+
