@@ -85,7 +85,7 @@ public class QuestTrackerManager implements Listener {
         }
 
         QuestUser user = plugin.getUserManager().getOrFetch(player);
-        if (user.isCategoryTrackerDisabled(category.getId())) {
+        if (user.isCategoryTrackerDisabled(category.getId()) || user.isCategoryTrackerDisabled("lore")) {
             return;
         }
 
@@ -183,11 +183,12 @@ public class QuestTrackerManager implements Listener {
         }
 
         PlayerTracker tracker = trackers.computeIfAbsent(player.getUniqueId(), uuid -> new PlayerTracker(player));
+        tracker.resetActiveQuests();
 
         String worldName = player.getWorld().getName();
-        boolean allowLore = !Config.TRACKER_DISABLED_WORLDS_LORE.get().contains(worldName);
-        boolean allowPersonal = !Config.TRACKER_DISABLED_WORLDS_PERSONAL.get().contains(worldName);
-        boolean allowIsland = Config.TRACKER_INCLUDE_ISLAND_QUESTS.get() && !Config.TRACKER_DISABLED_WORLDS_ISLAND.get().contains(worldName);
+        boolean allowLore = !Config.TRACKER_DISABLED_WORLDS_LORE.get().contains(worldName) && !user.isCategoryTrackerDisabled("lore");
+        boolean allowPersonal = !Config.TRACKER_DISABLED_WORLDS_PERSONAL.get().contains(worldName) && !user.isCategoryTrackerDisabled("personal");
+        boolean allowIsland = Config.TRACKER_INCLUDE_ISLAND_QUESTS.get() && !Config.TRACKER_DISABLED_WORLDS_ISLAND.get().contains(worldName) && !user.isCategoryTrackerDisabled("island");
 
         if (allowLore && plugin.getLoreManager() != null) {
             for (LoreQuestCategory category : plugin.getLoreManager().getCategories().values()) {
@@ -260,11 +261,13 @@ public class QuestTrackerManager implements Listener {
                             }
                         }
 
-                        tracker.addLoreProgress("island_" + activeQuest.getId(), activeQuest.getName(), "island", cur, req, modeStr, "", reqName, 0, "");
+                        tracker.addLoreProgress("island_" + activeQuest.getId(), activeQuest.getName(), "island", cur, req, modeStr, "", reqName, activeQuest.getOrder(), "");
                     }
                 }
             });
         }
+
+        tracker.updateDisplay();
     }
 
     private synchronized void removeTracker(UUID uuid) {
@@ -293,6 +296,10 @@ public class QuestTrackerManager implements Listener {
 
         public PlayerTracker(Player player) {
             this.player = player;
+        }
+
+        public void resetActiveQuests() {
+            this.activeQuests.clear();
         }
 
         public void addProgress(Quest quest, QuestData questData, String mode) {
@@ -374,7 +381,16 @@ public class QuestTrackerManager implements Listener {
         private void updateDisplay() {
             if (activeQuests.isEmpty()) {
                 hide();
+                if (rotationTask != null) {
+                    rotationTask.cancel();
+                    rotationTask = null;
+                }
                 return;
+            }
+
+            if (activeQuests.size() <= 1 && rotationTask != null) {
+                rotationTask.cancel();
+                rotationTask = null;
             }
 
             if (currentQuestId == null || !activeQuests.containsKey(currentQuestId)) {

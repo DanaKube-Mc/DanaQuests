@@ -194,23 +194,8 @@ public class LoreMenu extends NormalMenu<QuestsPlugin> implements ConfigBased {
 
                         player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.8f, 1.0f);
 
-                        if (newDisabled) {
-                            QuestTrackerManager.forceCleanupCategory(player, category.getId());
-                        } else {
-                            if (activeQuest != null) {
-                                int totalProgress = 0;
-                                int totalRequired = 0;
-                                LoreQuestData questProgress = user.getLoreQuestsProgress().get(activeQuest.getId());
-                                if (questProgress != null) {
-                                    for (LoreObjective obj : activeQuest.getObjectives()) {
-                                        totalProgress += questProgress.getProgress(obj.getId());
-                                        totalRequired += obj.getRequired();
-                                    }
-                                } else {
-                                    totalRequired = activeQuest.getObjectives().stream().mapToInt(LoreObjective::getRequired).sum();
-                                }
-                                QuestTrackerManager.showLoreProgress(player, activeQuest, category, totalProgress, totalRequired);
-                            }
+                        if (QuestTrackerManager.getInstance() != null) {
+                            QuestTrackerManager.getInstance().refreshPlayerTrackers(player);
                         }
 
                         this.runNextTick(() -> this.flush(viewer1));

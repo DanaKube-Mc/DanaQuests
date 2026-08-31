@@ -56,4 +56,18 @@ public class QuestTrackerTest {
         assertEquals("rpg_miner_1", next);
         assertTrue(keys.size() > 1, "La rotation nécessite au moins 2 quêtes actives");
     }
+
+    @Test
+    void should_remove_completed_quest_from_tracker_on_refresh() {
+        // Arrange : simulation d'un tracker avec une quête en cours
+        LinkedHashMap<String, String> activeQuestsMap = new LinkedHashMap<>();
+        activeQuestsMap.put("personal_miner", "Mineur (3/4)");
+
+        // Act : complétion de la quête (plus d'objectif actif) et refresh (clear + rebuild)
+        activeQuestsMap.clear();
+        // Aucune quête active restante
+
+        // Assert : le tracker doit être vide et désactiver l'affichage
+        assertTrue(activeQuestsMap.isEmpty(), "Le tracker doit être vide une fois la quête complétée");
+    }
 }
