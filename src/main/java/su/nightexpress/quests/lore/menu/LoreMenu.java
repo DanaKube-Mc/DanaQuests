@@ -123,10 +123,10 @@ public class LoreMenu extends NormalMenu<QuestsPlugin> implements ConfigBased {
         List<String> questDesc = activeQuest != null ? activeQuest.getDescription() : Collections.emptyList();
         
         double overallProgress = 0.0;
+        int totalCurrent = 0;
+        int totalReq = 0;
         List<String> objectivesFormatted = new ArrayList<>();
         if (activeQuest != null) {
-            int totalCurrent = 0;
-            int totalReq = 0;
             for (LoreObjective obj : activeQuest.getObjectives()) {
                 int current = this.manager.getObjectiveProgress(user, activeQuest, obj);
                 totalCurrent += Math.min(obj.getRequired(), current);
@@ -152,7 +152,12 @@ public class LoreMenu extends NormalMenu<QuestsPlugin> implements ConfigBased {
                 for (String qLine : questDesc) {
                     finalLore.add(qLine
                             .replace("%progress_bar%", questProgressBar)
-                            .replace("%quest_progress_bar%", questProgressBar));
+                            .replace("%quest_progress_bar%", questProgressBar)
+                            .replace("%progress%", String.valueOf(totalCurrent))
+                            .replace("%current%", String.valueOf(totalCurrent))
+                            .replace("%required%", String.valueOf(totalReq))
+                            .replace("%target%", String.valueOf(totalReq))
+                    );
                 }
             } else if (line.contains("%quest_objectives%")) {
                 for (String objLine : objectivesFormatted) {
@@ -166,6 +171,10 @@ public class LoreMenu extends NormalMenu<QuestsPlugin> implements ConfigBased {
                         .replace("%tracker_action%", trackerAction)
                         .replace("%progress_bar%", questProgressBar)
                         .replace("%quest_progress_bar%", questProgressBar)
+                        .replace("%progress%", String.valueOf(totalCurrent))
+                        .replace("%current%", String.valueOf(totalCurrent))
+                        .replace("%required%", String.valueOf(totalReq))
+                        .replace("%target%", String.valueOf(totalReq))
                 );
             }
         }

@@ -165,6 +165,10 @@ public class LoreProgressionMenu extends LinkedMenu<QuestsPlugin, LoreQuestCateg
                             statusLoreLines.add(descLine
                                 .replace("%progress_bar%", questProgressBar)
                                 .replace("%quest_progress_bar%", questProgressBar)
+                                .replace("%progress%", String.valueOf(totalCurrent))
+                                .replace("%current%", String.valueOf(totalCurrent))
+                                .replace("%required%", String.valueOf(totalReq))
+                                .replace("%target%", String.valueOf(totalReq))
                             );
                         }
                     } else if (line.contains("%quest_objectives%")) {
@@ -177,6 +181,10 @@ public class LoreProgressionMenu extends LinkedMenu<QuestsPlugin, LoreQuestCateg
                             .replace("%status%", statusTag)
                             .replace("%progress_bar%", questProgressBar)
                             .replace("%quest_progress_bar%", questProgressBar)
+                            .replace("%progress%", String.valueOf(totalCurrent))
+                            .replace("%current%", String.valueOf(totalCurrent))
+                            .replace("%required%", String.valueOf(totalReq))
+                            .replace("%target%", String.valueOf(totalReq))
                         );
                     }
                 }
@@ -186,7 +194,11 @@ public class LoreProgressionMenu extends LinkedMenu<QuestsPlugin, LoreQuestCateg
                     .replace("%quest_name%", quest.getName())
                     .replace("%status%", statusTag)
                     .replace("%progress_bar%", questProgressBar)
-                    .replace("%quest_progress_bar%", questProgressBar);
+                    .replace("%quest_progress_bar%", questProgressBar)
+                    .replace("%progress%", String.valueOf(totalCurrent))
+                    .replace("%current%", String.valueOf(totalCurrent))
+                    .replace("%required%", String.valueOf(totalReq))
+                    .replace("%target%", String.valueOf(totalReq));
 
                 List<String> finalLore = new ArrayList<>();
                 for (String line : questItemLore) {
@@ -199,6 +211,10 @@ public class LoreProgressionMenu extends LinkedMenu<QuestsPlugin, LoreQuestCateg
                             .replace("%status%", statusTag)
                             .replace("%progress_bar%", questProgressBar)
                             .replace("%quest_progress_bar%", questProgressBar)
+                            .replace("%progress%", String.valueOf(totalCurrent))
+                            .replace("%current%", String.valueOf(totalCurrent))
+                            .replace("%required%", String.valueOf(totalReq))
+                            .replace("%target%", String.valueOf(totalReq))
                         );
                     }
                 }
