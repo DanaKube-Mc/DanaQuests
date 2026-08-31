@@ -18,6 +18,7 @@ import su.nightexpress.quests.lore.menu.LoreProgressionMenu;
 import su.nightexpress.quests.lore.listener.LoreGenericListener;
 import su.nightexpress.quests.tracker.QuestTrackerManager;
 import su.nightexpress.quests.user.QuestUser;
+import su.nightexpress.quests.util.ObjectiveMatcher;
 
 import java.io.File;
 import java.util.*;
@@ -344,19 +345,7 @@ public class LoreManager extends AbstractManager<QuestsPlugin> {
     }
 
     private boolean isTargetMatch(@NotNull String questTarget, @NotNull String eventTarget) {
-        if (questTarget.equalsIgnoreCase(eventTarget)) return true;
-        String cleanQ = questTarget.replace("minecraft:", "").toLowerCase();
-        String cleanE = eventTarget.replace("minecraft:", "").toLowerCase();
-        if (cleanQ.equals(cleanE)) return true;
-
-        if (cleanQ.endsWith("s") && cleanQ.substring(0, cleanQ.length() - 1).equals(cleanE)) return true;
-        if (cleanE.endsWith("s") && cleanE.substring(0, cleanE.length() - 1).equals(cleanQ)) return true;
-        if (cleanQ.equals("potatoes") && cleanE.equals("potato")) return true;
-        if (cleanQ.equals("potato") && cleanE.equals("potatoes")) return true;
-        if (cleanQ.equals("carrots") && cleanE.equals("carrot")) return true;
-        if (cleanQ.equals("carrot") && cleanE.equals("carrots")) return true;
-
-        return false;
+        return ObjectiveMatcher.isMatch(questTarget, eventTarget);
     }
 }
 

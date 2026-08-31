@@ -3,6 +3,7 @@ package su.nightexpress.quests.quest.data;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nightexpress.nightcore.util.TimeUtil;
+import su.nightexpress.quests.util.ObjectiveMatcher;
 
 import java.util.Map;
 import java.util.Optional;
@@ -90,7 +91,14 @@ public class QuestData {
 
     @Nullable
     public QuestCounter getObjectiveCounter(@NotNull String fullName) {
-        return this.objectiveCounter.get(/*LowerCase.INTERNAL.apply(*/fullName);
+        QuestCounter direct = this.objectiveCounter.get(fullName);
+        if (direct != null) return direct;
+        for (Map.Entry<String, QuestCounter> entry : this.objectiveCounter.entrySet()) {
+            if (ObjectiveMatcher.isMatch(entry.getKey(), fullName)) {
+                return entry.getValue();
+            }
+        }
+        return null;
     }
 
     @NotNull
