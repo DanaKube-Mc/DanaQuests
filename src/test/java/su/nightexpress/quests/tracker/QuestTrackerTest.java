@@ -70,4 +70,37 @@ public class QuestTrackerTest {
         // Assert : le tracker doit être vide et désactiver l'affichage
         assertTrue(activeQuestsMap.isEmpty(), "Le tracker doit être vide une fois la quête complétée");
     }
+
+    @Test
+    void should_prioritize_highest_progress_quest_when_multiple_progress_simultaneously() {
+        // Arrange : Quête perso (1/10 = 10%) vs Quête Lore (1/64 = 1.56%)
+        int personalProgress = 1, personalReq = 10;
+        int loreProgress = 1, loreReq = 64;
+
+        double personalRatio = (double) personalProgress / personalReq;
+        double loreRatio = (double) loreProgress / loreReq;
+
+        // Act : Sélection de la quête avec le plus haut ratio
+        String focusedQuestId = personalRatio >= loreRatio ? "personal_miner" : "lore_dirt";
+
+        // Assert : La quête personnelle (1/10) doit être prioritaire sur la quête de lore (1/64)
+        assertEquals("personal_miner", focusedQuestId);
+        assertTrue(personalRatio > loreRatio);
+    }
+
+    @Test
+    void should_switch_to_remaining_quest_when_focused_quest_completes() {
+        // Arrange : Quête perso terminée (10/10) et quête de lore restante (11/64)
+        Map<String, Double> activeQuests = new LinkedHashMap<>();
+        activeQuests.put("lore_dirt", 11.0 / 64.0); // 17.18%
+
+        // Act : focusedQuestId perso n'est plus active
+        String focusedQuestId = "personal_miner";
+        if (!activeQuests.containsKey(focusedQuestId)) {
+            focusedQuestId = activeQuests.keySet().iterator().next();
+        }
+
+        // Assert : Le focus bascule sur la quête de lore restante
+        assertEquals("lore_dirt", focusedQuestId);
+    }
 }

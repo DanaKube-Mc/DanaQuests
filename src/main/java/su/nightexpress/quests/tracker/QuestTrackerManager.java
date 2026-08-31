@@ -287,11 +287,14 @@ public class QuestTrackerManager implements Listener {
     private class PlayerTracker {
         private final Player player;
         private final LinkedHashMap<String, TrackedQuest> activeQuests = new LinkedHashMap<>();
+        private final Map<String, Integer> lastProgressValues = new HashMap<>();
         private BossBar bossBar;
         private BukkitTask rotationTask;
         private BukkitTask cleanupTask;
         private BukkitTask actionBarTask;
         private String currentQuestId;
+        private String focusedQuestId;
+        private long lastFocusTime = 0L;
         private String mode;
 
         public PlayerTracker(Player player) {
@@ -300,6 +303,37 @@ public class QuestTrackerManager implements Listener {
 
         public void resetActiveQuests() {
             this.activeQuests.clear();
+        }
+
+        private void registerProgress(String questId, int progress, int required) {
+            int prev = lastProgressValues.getOrDefault(questId, -1);
+            boolean progressIncreased = (prev != -1 && progress > prev);
+            lastProgressValues.put(questId, progress);
+
+            if (progressIncreased) {
+                double newRatio = required > 0 ? (double) progress / required : 0.0;
+                long focusTimeout = Config.TRACKER_BOSSBAR_DISPLAY_DURATION.get() * 1000L;
+                if (focusTimeout <= 0) focusTimeout = 5000L;
+
+                boolean shouldFocus = false;
+                if (focusedQuestId == null || !activeQuests.containsKey(focusedQuestId) || (System.currentTimeMillis() - lastFocusTime >= focusTimeout)) {
+                    shouldFocus = true;
+                } else {
+                    TrackedQuest focusedQuest = activeQuests.get(focusedQuestId);
+                    double focusedRatio = (focusedQuest != null) ? focusedQuest.progressValue : 0.0;
+                    if (newRatio >= focusedRatio || questId.equals(focusedQuestId)) {
+                        shouldFocus = true;
+                    }
+                }
+
+                if (shouldFocus) {
+                    focusedQuestId = questId;
+                    lastFocusTime = System.currentTimeMillis();
+                    currentQuestId = questId;
+                } else {
+                    lastFocusTime = System.currentTimeMillis();
+                }
+            }
         }
 
         public void addProgress(Quest quest, QuestData questData, String mode) {
@@ -311,12 +345,16 @@ public class QuestTrackerManager implements Listener {
                 type = "island";
             }
 
+            int curProgress = questData.countTotalProgress();
+            int reqProgress = questData.countTotalRequirement();
+            double progressVal = questData.getProgressValue();
+
             activeQuests.put(quest.getId(), new TrackedQuest(
                 quest.getId(),
                 quest.getName(),
-                questData.countTotalProgress(),
-                questData.countTotalRequirement(),
-                questData.getProgressValue(),
+                curProgress,
+                reqProgress,
+                progressVal,
                 type,
                 null,
                 "",
@@ -324,6 +362,8 @@ public class QuestTrackerManager implements Listener {
                 0,
                 ""
             ));
+
+            registerProgress(quest.getId(), curProgress, reqProgress);
 
             updateDisplay();
             resetCleanupTimer();
@@ -362,6 +402,8 @@ public class QuestTrackerManager implements Listener {
                 objective
             ));
 
+            registerProgress(questId, progress, required);
+
             updateDisplay();
             resetCleanupTimer();
 
@@ -372,6 +414,9 @@ public class QuestTrackerManager implements Listener {
 
         public void removeCategory(String categoryId) {
             activeQuests.entrySet().removeIf(entry -> categoryId.equalsIgnoreCase(entry.getValue().categoryId));
+            if (focusedQuestId != null && !activeQuests.containsKey(focusedQuestId)) {
+                focusedQuestId = null;
+            }
             if (currentQuestId != null && !activeQuests.containsKey(currentQuestId)) {
                 currentQuestId = null;
             }
@@ -385,6 +430,7 @@ public class QuestTrackerManager implements Listener {
                     rotationTask.cancel();
                     rotationTask = null;
                 }
+                focusedQuestId = null;
                 return;
             }
 
@@ -393,7 +439,12 @@ public class QuestTrackerManager implements Listener {
                 rotationTask = null;
             }
 
-            if (currentQuestId == null || !activeQuests.containsKey(currentQuestId)) {
+            long focusTimeout = Config.TRACKER_BOSSBAR_DISPLAY_DURATION.get() * 1000L;
+            if (focusTimeout <= 0) focusTimeout = 5000L;
+
+            if (focusedQuestId != null && activeQuests.containsKey(focusedQuestId) && (System.currentTimeMillis() - lastFocusTime < focusTimeout)) {
+                currentQuestId = focusedQuestId;
+            } else if (currentQuestId == null || !activeQuests.containsKey(currentQuestId)) {
                 currentQuestId = activeQuests.keySet().iterator().next();
             }
 
@@ -462,6 +513,21 @@ public class QuestTrackerManager implements Listener {
                                 rotationTask = null;
                             }
                             return;
+                        }
+
+                        long focusTimeout = Config.TRACKER_BOSSBAR_DISPLAY_DURATION.get() * 1000L;
+                        if (focusTimeout <= 0) focusTimeout = 5000L;
+
+                        if (focusedQuestId != null && (System.currentTimeMillis() - lastFocusTime < focusTimeout)) {
+                            if (activeQuests.containsKey(focusedQuestId)) {
+                                currentQuestId = focusedQuestId;
+                                updateDisplay();
+                                return;
+                            } else {
+                                focusedQuestId = null;
+                            }
+                        } else {
+                            focusedQuestId = null;
                         }
 
                         List<String> keys = new ArrayList<>(activeQuests.keySet());
@@ -568,6 +634,8 @@ public class QuestTrackerManager implements Listener {
                 cleanupTask = null;
             }
             activeQuests.clear();
+            lastProgressValues.clear();
+            focusedQuestId = null;
         }
     }
 
