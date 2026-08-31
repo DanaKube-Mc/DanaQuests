@@ -6,6 +6,7 @@ import su.nightexpress.nightcore.config.FileConfig;
 import su.nightexpress.nightcore.config.Writeable;
 import su.nightexpress.quests.task.adapter.Adapter;
 import su.nightexpress.quests.task.adapter.AdapterFamily;
+import su.nightexpress.quests.util.ObjectiveMatcher;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -86,7 +87,14 @@ public abstract class AbstractObjectiveTable<T> implements Writeable {
 
     @Nullable
     public T getEntry(@NotNull String fullName) {
-        return this.entires.get(fullName);
+        T direct = this.entires.get(fullName);
+        if (direct != null) return direct;
+        for (Map.Entry<String, T> entry : this.entires.entrySet()) {
+            if (ObjectiveMatcher.isMatch(entry.getKey(), fullName)) {
+                return entry.getValue();
+            }
+        }
+        return null;
     }
 
     @NotNull

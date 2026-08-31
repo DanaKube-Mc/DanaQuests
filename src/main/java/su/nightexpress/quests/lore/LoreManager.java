@@ -18,6 +18,7 @@ import su.nightexpress.quests.lore.menu.LoreProgressionMenu;
 import su.nightexpress.quests.lore.listener.LoreGenericListener;
 import su.nightexpress.quests.tracker.QuestTrackerManager;
 import su.nightexpress.quests.user.QuestUser;
+import su.nightexpress.quests.util.ObjectiveMatcher;
 
 import java.io.File;
 import java.util.*;
@@ -72,7 +73,9 @@ public class LoreManager extends AbstractManager<QuestsPlugin> {
             }
         }
 
-        FileUtil.getConfigFiles(this.dirPath).forEach(file -> {
+        List<File> configFiles = FileUtil.getConfigFiles(this.dirPath);
+        configFiles.sort(Comparator.comparing(File::getName, String.CASE_INSENSITIVE_ORDER));
+        configFiles.forEach(file -> {
             try {
                 FileConfig config = new FileConfig(file);
                 config.load();
@@ -248,7 +251,7 @@ public class LoreManager extends AbstractManager<QuestsPlugin> {
             LoreQuestData questProgress = allProgress.computeIfAbsent(activeQuest.getId(), k -> new LoreQuestData(activeQuest.getId()));
 
             for (LoreObjective objective : activeQuest.getObjectives()) {
-                if (objective.getTaskType().equalsIgnoreCase(taskType) && objective.getTarget().equalsIgnoreCase(target)) {
+                if (this.isTaskTypeMatch(objective.getTaskType(), taskType) && this.isTargetMatch(objective.getTarget(), target)) {
                     int current = questProgress.getProgress(objective.getId());
                     if (current < objective.getRequired()) {
                         int newValue = Math.min(objective.getRequired(), current + amount);
@@ -330,4 +333,19 @@ public class LoreManager extends AbstractManager<QuestsPlugin> {
             this.progressionMenu.open(player, category);
         }
     }
+
+    private boolean isTaskTypeMatch(@NotNull String questTaskType, @NotNull String eventTaskType) {
+        if (questTaskType.equalsIgnoreCase(eventTaskType)) return true;
+        String q = questTaskType.toLowerCase();
+        String e = eventTaskType.toLowerCase();
+        if ((q.contains("harvest") || q.contains("farm")) && (e.contains("break") || e.contains("harvest") || e.contains("block_loot"))) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isTargetMatch(@NotNull String questTarget, @NotNull String eventTarget) {
+        return ObjectiveMatcher.isMatch(questTarget, eventTarget);
+    }
 }
+

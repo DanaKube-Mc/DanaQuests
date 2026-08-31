@@ -112,6 +112,10 @@ public class QuestManager extends AbstractManager<QuestsPlugin> {
     }
 
     public boolean isQuestsAvailable() {
+        if (!Config.isQuestsEnabled()) {
+            return false;
+        }
+
         if (Config.isQuestsForBattlePass()) {
             return this.plugin.battlePassManager().map(BattlePassManager::isSeasonActive).orElse(false);
         }
@@ -197,7 +201,9 @@ public class QuestManager extends AbstractManager<QuestsPlugin> {
         }
 
         int count = user.countQuestsAmount();
-        Lang.QUESTS_REFRESHED.message().send(player, replacer -> replacer.replace(QuestsPlaceholders.GENERIC_AMOUNT, String.valueOf(count)));
+        if (Config.QUESTS_SEND_REFRESH_MESSAGE.get()) {
+            Lang.QUESTS_REFRESHED.message().send(player, replacer -> replacer.replace(QuestsPlaceholders.GENERIC_AMOUNT, String.valueOf(count)));
+        }
 
         user.setNewQuestsDate(nextQuestsDate);
 

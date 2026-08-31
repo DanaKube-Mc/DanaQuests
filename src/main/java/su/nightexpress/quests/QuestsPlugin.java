@@ -117,10 +117,8 @@ public class QuestsPlugin extends NightPlugin {
             this.milestoneManager.setup();
         }
 
-        if (Config.FEATURES_QUESTS_ENABLED.get()) {
-            this.questManager = new QuestManager(this);
-            this.questManager.setup();
-        }
+        this.questManager = new QuestManager(this);
+        this.questManager.setup();
 
         if (Config.FEATURES_LORE_ENABLED.get()) {
             this.loreManager = new LoreManager(this);

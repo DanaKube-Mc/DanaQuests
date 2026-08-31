@@ -18,6 +18,7 @@ import su.nightexpress.quests.personal.menu.PersonalQuestMenu;
 import su.nightexpress.quests.tracker.QuestTrackerManager;
 import su.nightexpress.quests.user.QuestUser;
 import su.nightexpress.quests.util.MenuUtils;
+import su.nightexpress.quests.util.ObjectiveMatcher;
 
 import java.io.File;
 import java.util.*;
@@ -262,76 +263,7 @@ public class PersonalQuestManager extends AbstractManager<QuestsPlugin> {
     }
 
     private boolean isObjectiveMatch(@NotNull String questObjective, @NotNull String eventObjective) {
-        if (questObjective.equalsIgnoreCase(eventObjective)) return true;
-        String cleanQuest = questObjective.replace("minecraft:", "").toLowerCase();
-        String cleanEvent = eventObjective.replace("minecraft:", "").toLowerCase();
-        if (cleanQuest.equals(cleanEvent)) return true;
-
-        // Aliases pour les cultures et mobs (Singulier vs Pluriel / Blocs Spigot)
-        if ((cleanQuest.equals("carrot") && cleanEvent.equals("carrots")) || (cleanQuest.equals("carrots") && cleanEvent.equals("carrot"))) return true;
-        if ((cleanQuest.equals("potato") && cleanEvent.equals("potatoes")) || (cleanQuest.equals("potatoes") && cleanEvent.equals("potato"))) return true;
-        if ((cleanQuest.equals("beetroot") && cleanEvent.equals("beetroots")) || (cleanQuest.equals("beetroots") && cleanEvent.equals("beetroot"))) return true;
-        if ((cleanQuest.equals("nether_warts") && cleanEvent.equals("nether_wart")) || (cleanQuest.equals("nether_wart") && cleanEvent.equals("nether_warts"))) return true;
-        if (cleanQuest.contains("brown_mushroom") && cleanEvent.contains("brown_mushroom")) return true;
-        if (cleanQuest.contains("red_mushroom") && cleanEvent.contains("red_mushroom")) return true;
-        if ((cleanQuest.equals("mooshroom") && cleanEvent.equals("mushroom_cow")) || (cleanQuest.equals("mushroom_cow") && cleanEvent.equals("mooshroom"))) return true;
-
-        // Groupes d'objectifs génériques (PLANKS, STAIRS, SLABS, LOGS, TOOLS, ARMOR, WOOL, BEDS, GLASS, TERRACOTTA, CONCRETE, CANDLES, SHULKER_BOXES)
-        if (isGroupObjectiveMatch(cleanQuest, cleanEvent)) return true;
-
-        return false;
-    }
-
-    private boolean isGroupObjectiveMatch(@NotNull String questObj, @NotNull String eventObj) {
-        // Wildcard universel (ex: BLOCKS pour la pose de n'importe quel bloc)
-        if (questObj.equals("blocks") || questObj.equals("block") || questObj.equals("any") || 
-            questObj.equals("any_block") || questObj.equals("all") || questObj.equals("building_blocks")) {
-            return true;
-        }
-
-        if (questObj.equals("planks") || questObj.equals("plank")) {
-            return eventObj.endsWith("_planks") || eventObj.equals("planks");
-        }
-        if (questObj.equals("stairs") || questObj.equals("stair")) {
-            return eventObj.endsWith("_stairs") || eventObj.equals("stairs");
-        }
-        if (questObj.equals("slabs") || questObj.equals("slab")) {
-            return eventObj.endsWith("_slab") || eventObj.endsWith("_slabs") || eventObj.equals("slab");
-        }
-        if (questObj.equals("logs") || questObj.equals("log") || questObj.equals("wood")) {
-            return eventObj.endsWith("_log") || eventObj.endsWith("_logs") || eventObj.endsWith("_wood") || eventObj.endsWith("_hyphae") || eventObj.endsWith("_stem");
-        }
-        if (questObj.equals("tools") || questObj.equals("tool")) {
-            return eventObj.endsWith("_pickaxe") || eventObj.endsWith("_axe") || eventObj.endsWith("_shovel") || eventObj.endsWith("_hoe") || eventObj.endsWith("_sword");
-        }
-        if (questObj.equals("armor") || questObj.equals("armour")) {
-            return eventObj.endsWith("_helmet") || eventObj.endsWith("_chestplate") || eventObj.endsWith("_leggings") || eventObj.endsWith("_boots");
-        }
-        if (questObj.equals("wool")) {
-            return eventObj.endsWith("_wool") || eventObj.equals("wool");
-        }
-        if (questObj.equals("beds") || questObj.equals("bed")) {
-            return eventObj.endsWith("_bed") || eventObj.equals("bed");
-        }
-        if (questObj.equals("glass")) {
-            return eventObj.endsWith("_glass") || eventObj.equals("glass");
-        }
-        if (questObj.equals("glass_pane") || questObj.equals("glass_panes")) {
-            return eventObj.endsWith("_glass_pane") || eventObj.equals("glass_pane");
-        }
-        if (questObj.equals("terracotta")) {
-            return eventObj.endsWith("_terracotta") || eventObj.equals("terracotta");
-        }
-        if (questObj.equals("concrete")) {
-            return eventObj.endsWith("_concrete") || eventObj.equals("concrete");
-        }
-        if (questObj.equals("candle") || questObj.equals("candles")) {
-            return eventObj.endsWith("_candle") || eventObj.equals("candle");
-        }
-        if (questObj.equals("shulker_box") || questObj.equals("shulker_boxes")) {
-            return eventObj.endsWith("_shulker_box") || eventObj.equals("shulker_box");
-        }
-        return false;
+        return ObjectiveMatcher.isMatch(questObjective, eventObjective);
     }
 
     private void completeQuest(@NotNull Player player, @NotNull QuestUser user, @NotNull RpgCategory category, @NotNull PersonalQuestData questData) {
