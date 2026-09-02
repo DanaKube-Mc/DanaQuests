@@ -40,6 +40,15 @@ public class QuestsPluginTest {
     }
 
     @Test
+    public void testBuildProgressBarRoundsDownWhenNotComplete() {
+        // 99.9% ne doit pas remplir tous les blocs si longueur = 10 (floor(10 * 0.999) = 9 blocs remplis, 1 bloc vide)
+        String bar = MenuUtils.buildProgressBar(0.999);
+        assertNotNull(bar);
+        assertTrue(bar.contains("<gradient:#2ecc71:#a3cb38>"));
+        assertTrue(bar.contains("<gray>")); // Contient encore une partie vide car pas 100%
+    }
+
+    @Test
     public void testFormatNumber() {
         assertEquals("10 000", MenuUtils.formatNumber(10000));
         assertEquals("1 000 000", MenuUtils.formatNumber(1000000));

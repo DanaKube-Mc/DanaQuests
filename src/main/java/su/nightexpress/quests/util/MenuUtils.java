@@ -29,7 +29,7 @@ public class MenuUtils {
     public static String buildProgressBar(double percent) {
         int length = Math.max(1, Config.PROGRESS_BAR_LENGTH.get());
         double clampedPercent = Math.clamp(percent, 0.0, 1.0);
-        int filled = Math.clamp((int) Math.round(length * clampedPercent), 0, length);
+        int filled = Math.clamp((int) Math.floor(length * clampedPercent), 0, length);
 
         String symbol = Config.PROGRESS_BAR_SYMBOL.get();
         if (symbol == null || symbol.isEmpty()) symbol = "■";
@@ -39,7 +39,7 @@ public class MenuUtils {
         boolean showPercent = Config.PROGRESS_BAR_SHOW_PERCENTAGE_INSIDE.get();
 
         if (showPercent) {
-            String pctText = Math.round(clampedPercent * 100) + "%";
+            String pctText = ((int) Math.floor(clampedPercent * 100.0)) + "%";
             int pctLen = pctText.length();
             if (pctLen <= length) {
                 int startIdx = (length - pctLen) / 2;
