@@ -18,6 +18,85 @@ public final class ObjectiveMatcher {
         "diamond_ore"
     );
 
+    private static final Set<String> MOUNTAIN_BIOMES = Set.of(
+        "jagged_peaks",
+        "frozen_peaks",
+        "stony_peaks",
+        "snowy_slopes",
+        "meadow",
+        "grove",
+        "windswept_hills",
+        "windswept_gravelly_hills",
+        "windswept_forest"
+    );
+
+    private static final Set<String> CAVE_BIOMES = Set.of(
+        "lush_caves",
+        "dripstone_caves",
+        "deep_dark"
+    );
+
+    private static final Set<String> OCEAN_BIOMES = Set.of(
+        "ocean",
+        "deep_ocean",
+        "warm_ocean",
+        "lukewarm_ocean",
+        "deep_lukewarm_ocean",
+        "cold_ocean",
+        "deep_cold_ocean",
+        "frozen_ocean",
+        "deep_frozen_ocean"
+    );
+
+    private static final Set<String> FOREST_BIOMES = Set.of(
+        "forest",
+        "flower_forest",
+        "birch_forest",
+        "old_growth_birch_forest",
+        "dark_forest",
+        "pale_garden"
+    );
+
+    private static final Set<String> TAIGA_BIOMES = Set.of(
+        "taiga",
+        "snowy_taiga",
+        "old_growth_pine_taiga",
+        "old_growth_spruce_taiga"
+    );
+
+    private static final Set<String> BADLANDS_BIOMES = Set.of(
+        "badlands",
+        "eroded_badlands",
+        "wooded_badlands"
+    );
+
+    private static final Set<String> SWAMP_BIOMES = Set.of(
+        "swamp",
+        "mangrove_swamp"
+    );
+
+    private static final Set<String> JUNGLE_BIOMES = Set.of(
+        "jungle",
+        "sparse_jungle",
+        "bamboo_jungle"
+    );
+
+    private static final Set<String> NETHER_BIOMES = Set.of(
+        "nether_wastes",
+        "soul_sand_valley",
+        "crimson_forest",
+        "warped_forest",
+        "basalt_deltas"
+    );
+
+    private static final Set<String> END_BIOMES = Set.of(
+        "the_end",
+        "small_end_islands",
+        "end_midlands",
+        "end_highlands",
+        "end_barrens"
+    );
+
     private ObjectiveMatcher() {}
 
     /**
@@ -32,13 +111,25 @@ public final class ObjectiveMatcher {
     /**
      * Vérifie si un événement correspond à l'objectif demandé.
      *
-     * @param questObjective L'objectif défini dans la quête (ex: IRON_ORE, minecraft:deepslate_iron_ore, carrots, planks)
-     * @param eventObjective L'identifiant issu de l'événement en jeu (ex: minecraft:deepslate_iron_ore, OAK_PLANKS)
+     * @param questObjective L'objectif défini dans la quête (ex: IRON_ORE, minecraft:deepslate_iron_ore, biome:mountains, planks)
+     * @param eventObjective L'identifiant issu de l'événement en jeu (ex: minecraft:deepslate_iron_ore, biome:minecraft:jagged_peaks)
      * @return true si l'événement valide l'objectif
      */
     public static boolean isMatch(@Nullable String questObjective, @Nullable String eventObjective) {
         if (questObjective == null || eventObjective == null) return false;
         if (questObjective.equalsIgnoreCase(eventObjective)) return true;
+
+        // Support de plusieurs objectifs séparés par virgule, point-virgule ou pipe
+        if (questObjective.contains(",") || questObjective.contains(";") || questObjective.contains("|")) {
+            String[] subTargets = questObjective.split("[,;|]");
+            for (String sub : subTargets) {
+                String trimmed = sub.trim();
+                if (!trimmed.isEmpty() && isMatch(trimmed, eventObjective)) {
+                    return true;
+                }
+            }
+            return false;
+        }
 
         String cleanQuest = normalize(questObjective);
         String cleanEvent = normalize(eventObjective);
@@ -46,19 +137,65 @@ public final class ObjectiveMatcher {
         if (cleanQuest.isEmpty() || cleanEvent.isEmpty()) return false;
         if (cleanQuest.equals(cleanEvent)) return true;
 
-        // 1. Équivalence des minerais (Deepslate <-> Normal)
+        // 1. Groupes de biomes (ex: biome:mountains <-> biome:jagged_peaks)
+        if (isBiomeMatch(cleanQuest, cleanEvent)) {
+            return true;
+        }
+
+        // 2. Équivalence des minerais (Deepslate <-> Normal)
         if (isOreMatch(cleanQuest, cleanEvent)) {
             return true;
         }
 
-        // 2. Alias spécifiques (cultures, entités, pluriels singuliers)
+        // 3. Alias spécifiques (cultures, entités, pluriels singuliers)
         if (isAliasMatch(cleanQuest, cleanEvent)) {
             return true;
         }
 
-        // 3. Groupes d'objectifs génériques (planks, logs, tools, etc.)
+        // 4. Groupes d'objectifs génériques (planks, logs, tools, etc.)
         if (isGroupMatch(cleanQuest, cleanEvent)) {
             return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Vérifie si un événement de biome correspond à un groupe de biome demandé.
+     */
+    public static boolean isBiomeMatch(@NotNull String cleanQuest, @NotNull String cleanEvent) {
+        String questBiome = cleanQuest.startsWith("biome:") ? cleanQuest.substring(6) : cleanQuest;
+        String eventBiome = cleanEvent.startsWith("biome:") ? cleanEvent.substring(6) : cleanEvent;
+
+        if (questBiome.equals("mountains") || questBiome.equals("mountain") || questBiome.equals("montagne") || questBiome.equals("montagnes")) {
+            return MOUNTAIN_BIOMES.contains(eventBiome) || eventBiome.contains("peak") || eventBiome.contains("slopes") || eventBiome.contains("mountain") || eventBiome.contains("cliff");
+        }
+        if (questBiome.equals("caves") || questBiome.equals("cave") || questBiome.equals("grotte") || questBiome.equals("grottes") || questBiome.equals("cavernes")) {
+            return CAVE_BIOMES.contains(eventBiome) || eventBiome.contains("cave");
+        }
+        if (questBiome.equals("oceans") || questBiome.equals("ocean")) {
+            return OCEAN_BIOMES.contains(eventBiome) || eventBiome.contains("ocean");
+        }
+        if (questBiome.equals("forests") || questBiome.equals("forest") || questBiome.equals("foret") || questBiome.equals("forêt")) {
+            return FOREST_BIOMES.contains(eventBiome) || eventBiome.contains("forest");
+        }
+        if (questBiome.equals("taiga") || questBiome.equals("taigas")) {
+            return TAIGA_BIOMES.contains(eventBiome) || eventBiome.contains("taiga");
+        }
+        if (questBiome.equals("badlands") || questBiome.equals("mesa")) {
+            return BADLANDS_BIOMES.contains(eventBiome) || eventBiome.contains("badlands");
+        }
+        if (questBiome.equals("swamps") || questBiome.equals("swamp") || questBiome.equals("marais")) {
+            return SWAMP_BIOMES.contains(eventBiome) || eventBiome.contains("swamp");
+        }
+        if (questBiome.equals("jungles") || questBiome.equals("jungle")) {
+            return JUNGLE_BIOMES.contains(eventBiome) || eventBiome.contains("jungle");
+        }
+        if (questBiome.equals("nether")) {
+            return NETHER_BIOMES.contains(eventBiome);
+        }
+        if (questBiome.equals("end")) {
+            return END_BIOMES.contains(eventBiome);
         }
 
         return false;
