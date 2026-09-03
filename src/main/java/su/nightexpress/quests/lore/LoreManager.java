@@ -341,6 +341,9 @@ public class LoreManager extends AbstractManager<QuestsPlugin> {
         if ((q.contains("harvest") || q.contains("farm")) && (e.contains("break") || e.contains("harvest") || e.contains("block_loot"))) {
             return true;
         }
+        if ((q.contains("pickup") || q.contains("collect") || q.contains("gather")) && (e.contains("pickup") || e.contains("collect"))) {
+            return true;
+        }
         return false;
     }
 

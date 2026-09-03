@@ -99,6 +99,7 @@ public class TaskManager extends AbstractManager<QuestsPlugin> {
         this.taskTypeRegistry.registerType(TaskTypeId.CONSUME_ITEM, AdapterFamily.CUSTOM, type -> this.addListener(new ConsumeItemTaskListener(this.plugin, this, type)));
         this.taskTypeRegistry.registerType(TaskTypeId.TRADE_WITH_VILLAGER, AdapterFamily.CUSTOM, type -> this.addListener(new TradeWithVillagerTaskListener(this.plugin, this, type)));
         this.taskTypeRegistry.registerType(TaskTypeId.HARVEST_ITEM, AdapterFamily.CUSTOM, type -> this.addListener(new HarvestItemTaskListener(this.plugin, this, type)));
+        this.taskTypeRegistry.registerType(TaskTypeId.PICKUP_ITEM, AdapterFamily.ITEM, type -> this.addListener(new PickupItemTaskListener(this.plugin, this, type)));
         this.taskTypeRegistry.registerType(TaskTypeId.EXECUTE_COMMAND, AdapterFamily.CUSTOM, type -> this.addListener(new CommandTaskListener(this.plugin, this, type)));
     }
 
