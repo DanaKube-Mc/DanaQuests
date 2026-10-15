@@ -74,8 +74,13 @@ public class EventQuestManager extends AbstractManager<QuestsPlugin> {
 
         File[] files = dir.listFiles((d, name) -> name.endsWith(".yml"));
         if (files == null || files.length == 0) {
-            // Can be populated with default events
-            return;
+            try {
+                if (this.plugin != null) {
+                    this.plugin.saveResource("events/halloween_pumpkin.yml", false);
+                    files = dir.listFiles((d, name) -> name.endsWith(".yml"));
+                }
+            } catch (Exception ignored) {}
+            if (files == null || files.length == 0) return;
         }
 
         for (File file : files) {
@@ -206,6 +211,26 @@ public class EventQuestManager extends AbstractManager<QuestsPlugin> {
         }
         if (this.eventDataDao != null) {
             this.eventDataDao.resetUserData(playerUuid, eventId.toLowerCase());
+        }
+    }
+
+    public void openEventMenu(@NotNull Player player, @NotNull String eventId) {
+        EventQuest quest = getQuest(eventId);
+        if (quest == null) {
+            player.sendMessage("§cÉvénement introuvable : " + eventId);
+            return;
+        }
+        if (this.plugin != null) {
+            new su.nightexpress.quests.event.menu.EventQuestMenu(this.plugin, this, quest).open(player);
+        }
+    }
+
+    public void openMainMenu(@NotNull Player player) {
+        List<EventQuest> active = getActiveQuests();
+        if (active.size() == 1) {
+            openEventMenu(player, active.get(0).getId());
+        } else if (this.plugin != null) {
+            new su.nightexpress.quests.event.menu.EventListMenu(this.plugin, this).open(player);
         }
     }
 

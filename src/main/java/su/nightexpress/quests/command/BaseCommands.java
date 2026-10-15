@@ -92,6 +92,39 @@ public class BaseCommands {
                     )
                 );
             }
+
+            builder.branch(Commands.hub("event")
+                .permission(Perms.COMMAND_EVENT)
+                .branch(Commands.literal("list")
+                    .permission(Perms.COMMAND_EVENT)
+                    .executes(su.nightexpress.quests.event.command.EventCommands::listEvents)
+                )
+                .branch(Commands.literal("menu")
+                    .permission(Perms.COMMAND_EVENT)
+                    .withArguments(Arguments.string("id").optional())
+                    .executes(su.nightexpress.quests.event.command.EventCommands::openMenu)
+                )
+                .branch(Commands.literal("start")
+                    .permission(Perms.ADMIN_EVENT)
+                    .withArguments(Arguments.string("id"), Arguments.integer("duration", 1).optional())
+                    .executes(su.nightexpress.quests.event.command.EventCommands::startEvent)
+                )
+                .branch(Commands.literal("stop")
+                    .permission(Perms.ADMIN_EVENT)
+                    .withArguments(Arguments.string("id"))
+                    .executes(su.nightexpress.quests.event.command.EventCommands::stopEvent)
+                )
+                .branch(Commands.literal("reset")
+                    .permission(Perms.ADMIN_EVENT)
+                    .withArguments(Arguments.string("id"), Arguments.playerName("player"))
+                    .executes(su.nightexpress.quests.event.command.EventCommands::resetPlayer)
+                )
+                .branch(Commands.literal("addscore")
+                    .permission(Perms.ADMIN_EVENT)
+                    .withArguments(Arguments.string("id"), Arguments.playerName("player"), Arguments.integer("amount", 1))
+                    .executes(su.nightexpress.quests.event.command.EventCommands::addScore)
+                )
+            );
         });
         adminCommand.register();
     }

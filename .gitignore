@@ -32,3 +32,5 @@ build/
 
 /src/main/resources/*
 !/src/main/resources/plugin.yml
+!/src/main/resources/events/
+!/src/main/resources/events/**

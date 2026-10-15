@@ -1,0 +1,57 @@
+id: "halloween_pumpkin"
+name: "<#ff7b00><b>Fête de la Citrouille</b>"
+description:
+  - "<gray>Récoltez un maximum de citrouilles !"
+  - "<gray>Grimpez dans le classement et franchissez les paliers."
+icon:
+  material: "JACK_O_LANTERN"
+  custom-model-data: 10003
+
+schedule:
+  mode: "CALENDAR"
+  start-date: "2026-10-20 00:00:00"
+  end-date: "2026-11-05 23:59:59"
+
+target:
+  type: "PICKUP_ITEM"
+  materials:
+    - "PUMPKIN"
+    - "CARVED_PUMPKIN"
+    - "JACK_O_LANTERN"
+
+tiers:
+  1:
+    requirement: 10000
+    display-name: "<#ffaa00>Palier I : Apprenti Récolteur"
+    icon:
+      material: "IRON_INGOT"
+    rewards:
+      - "money_5000"
+      - "[command] eco give %player% 5000"
+  2:
+    requirement: 50000
+    display-name: "<#ff7b00>Palier II : Maître Citrouille"
+    icon:
+      material: "GOLD_INGOT"
+    rewards:
+      - "money_25000"
+      - "[command] title %player% title {\"text\":\"Maître Citrouille\",\"color\":\"gold\"}"
+  3:
+    requirement: 100000
+    display-name: "<#ff5500>Palier III : Dévoreur d'Halloween"
+    icon:
+      material: "DIAMOND"
+    rewards:
+      - "money_100000"
+      - "[command] eco give %player% 100000"
+  4:
+    requirement: 250000
+    display-name: "<#aa00aa>Palier IV : Légende Spectrale"
+    icon:
+      material: "NETHERITE_INGOT"
+    rewards:
+      - "[command] broadcast <gold>%player% a atteint le Palier IV de la Fête de la Citrouille !"
+
+gui:
+  title: "<#ff7b00>Événement : Citrouilles"
+  size: 54
