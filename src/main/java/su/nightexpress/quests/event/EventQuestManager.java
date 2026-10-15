@@ -25,18 +25,20 @@ public class EventQuestManager extends AbstractManager<QuestsPlugin> {
 
     private final Map<String, EventQuest> eventQuests;
     private final Map<String, EventUserData> userDataCache;
+    private final Map<String, su.nightexpress.quests.event.data.EventLeaderboard> leaderboards;
     private EventDataDao eventDataDao;
     private EventPickupListener pickupListener;
 
-    public EventQuestManager(@NotNull QuestsPlugin plugin) {
+    public EventQuestManager(@Nullable QuestsPlugin plugin) {
         super(plugin);
         this.eventQuests = new LinkedHashMap<>();
         this.userDataCache = new ConcurrentHashMap<>();
+        this.leaderboards = new ConcurrentHashMap<>();
     }
 
     @Override
     protected void onLoad() {
-        if (this.plugin.getDataHandler() != null) {
+        if (this.plugin != null && this.plugin.getDataHandler() != null) {
             this.eventDataDao = this.plugin.getDataHandler().getEventDataDao();
         }
 
@@ -44,6 +46,14 @@ public class EventQuestManager extends AbstractManager<QuestsPlugin> {
 
         this.pickupListener = new EventPickupListener(this.plugin, this);
         this.addListener(this.pickupListener);
+
+        if (this.plugin != null) {
+            this.plugin.runTaskTimerAsync(() -> {
+                for (su.nightexpress.quests.event.data.EventLeaderboard lb : this.leaderboards.values()) {
+                    lb.refreshSync();
+                }
+            }, 20L, 20L * 60L); // Every 60s
+        }
     }
 
     @Override
@@ -103,6 +113,15 @@ public class EventQuestManager extends AbstractManager<QuestsPlugin> {
             }
         }
         return active;
+    }
+
+    @NotNull
+    public su.nightexpress.quests.event.data.EventLeaderboard getLeaderboard(@NotNull String eventId) {
+        return this.leaderboards.computeIfAbsent(eventId.toLowerCase(), id -> new su.nightexpress.quests.event.data.EventLeaderboard(id, this.eventDataDao));
+    }
+
+    public void setLeaderboard(@NotNull String eventId, @NotNull su.nightexpress.quests.event.data.EventLeaderboard leaderboard) {
+        this.leaderboards.put(eventId.toLowerCase(), leaderboard);
     }
 
     @NotNull
