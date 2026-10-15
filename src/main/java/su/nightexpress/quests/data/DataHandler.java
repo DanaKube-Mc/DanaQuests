@@ -39,6 +39,7 @@ import su.nightexpress.quests.milestone.data.MilestoneData;
 import su.nightexpress.quests.quest.data.QuestData;
 import su.nightexpress.quests.battlepass.data.BattlePassData;
 import su.nightexpress.quests.user.QuestUser;
+import su.nightexpress.quests.event.data.EventDataDao;
 
 public class DataHandler extends AbstractUserDataManager<QuestsPlugin, QuestUser> {
 
@@ -77,6 +78,8 @@ public class DataHandler extends AbstractUserDataManager<QuestsPlugin, QuestUser
     static final Column COLUMN_ISLANDS_OBJECTIVES = Column.of("objectives", ColumnType.STRING);
     static final Column COLUMN_ISLANDS_COMPLETED = Column.of("completed", ColumnType.BOOLEAN);
 
+    private EventDataDao eventDataDao;
+
     public DataHandler(@NotNull QuestsPlugin plugin) {
         super(plugin);
     }
@@ -100,6 +103,18 @@ public class DataHandler extends AbstractUserDataManager<QuestsPlugin, QuestUser
             COLUMN_ISLANDS_OBJECTIVES,
             COLUMN_ISLANDS_COMPLETED
         ));
+
+        this.eventDataDao = new EventDataDao(this::getConnection);
+        this.eventDataDao.initTable();
+    }
+
+    @NotNull
+    public EventDataDao getEventDataDao() {
+        if (this.eventDataDao == null) {
+            this.eventDataDao = new EventDataDao(this::getConnection);
+            this.eventDataDao.initTable();
+        }
+        return this.eventDataDao;
     }
 
     @Override
