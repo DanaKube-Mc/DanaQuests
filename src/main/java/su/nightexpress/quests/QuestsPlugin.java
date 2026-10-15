@@ -46,6 +46,8 @@ public class QuestsPlugin extends NightPlugin {
     private su.nightexpress.quests.island.IslandManager islandManager;
     private PersonalQuestManager personalQuestManager;
     private CommunityQuestManager communityQuestManager;
+    private su.nightexpress.quests.event.EventQuestManager eventQuestManager;
+    private su.nightexpress.quests.event.placeholder.EventPlaceholders eventPlaceholders;
 
     @Override
     @NotNull
@@ -140,6 +142,14 @@ public class QuestsPlugin extends NightPlugin {
             this.communityQuestManager.setup();
         }
 
+        this.eventQuestManager = new su.nightexpress.quests.event.EventQuestManager(this);
+        this.eventQuestManager.setup();
+
+        if (this.getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            this.eventPlaceholders = new su.nightexpress.quests.event.placeholder.EventPlaceholders(this.eventQuestManager);
+            this.eventPlaceholders.register();
+        }
+
         QuestTrackerManager.setup(this);
 
         this.loadCommands();
@@ -151,6 +161,11 @@ public class QuestsPlugin extends NightPlugin {
         BaseCommands.shutdown();
         QuestTrackerManager.shutdown();
 
+        if (this.eventPlaceholders != null) {
+            this.eventPlaceholders.unregister();
+            this.eventPlaceholders = null;
+        }
+        if (this.eventQuestManager != null) this.eventQuestManager.shutdown();
         if (this.communityQuestManager != null) this.communityQuestManager.shutdown();
         if (this.personalQuestManager != null) this.personalQuestManager.shutdown();
         if (this.taskManager != null) this.taskManager.shutdown();
@@ -278,5 +293,15 @@ public class QuestsPlugin extends NightPlugin {
     @NotNull
     public Optional<CommunityQuestManager> communityQuestManager() {
         return Optional.ofNullable(this.communityQuestManager);
+    }
+
+    @Nullable
+    public su.nightexpress.quests.event.EventQuestManager getEventQuestManager() {
+        return this.eventQuestManager;
+    }
+
+    @NotNull
+    public Optional<su.nightexpress.quests.event.EventQuestManager> eventQuestManager() {
+        return Optional.ofNullable(this.eventQuestManager);
     }
 }

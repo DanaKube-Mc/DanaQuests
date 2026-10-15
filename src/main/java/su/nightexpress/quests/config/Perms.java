@@ -48,6 +48,9 @@ public class Perms {
     public static final UniPermission ADMIN_COMMUNITY                   = new UniPermission(PREFIX + "admin.community");
     public static final UniPermission COMMAND_COMMUNITY                 = new UniPermission(PREFIX_COMMAND + "community");
 
+    public static final UniPermission ADMIN_EVENT                       = new UniPermission(PREFIX + "admin.event");
+    public static final UniPermission COMMAND_EVENT                     = new UniPermission(PREFIX_COMMAND + "event");
+
     static {
         PLUGIN.addChildren(
             BATTLE_PASS_PREMIUM,
@@ -56,7 +59,8 @@ public class Perms {
             PERSONAL_LIMIT_DEFAULT,
             PERSONAL_LIMIT_VIP,
             PERSONAL_LIMIT_ADMIN,
-            ADMIN_COMMUNITY
+            ADMIN_COMMUNITY,
+            ADMIN_EVENT
         );
 
         COMMAND.addChildren(
@@ -82,7 +86,8 @@ public class Perms {
             COMMAND_BATTLE_PASS_REMOVE_XP,
             COMMAND_BATTLE_PASS_SET_XP,
             COMMAND_TRACK_TOGGLE,
-            COMMAND_COMMUNITY
+            COMMAND_COMMUNITY,
+            COMMAND_EVENT
         );
     }
 }

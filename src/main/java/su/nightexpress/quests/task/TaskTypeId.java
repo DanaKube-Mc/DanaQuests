@@ -26,6 +26,7 @@ public class TaskTypeId {
     public static final String CONSUME_ITEM        = "consume_item";
     public static final String TRADE_WITH_VILLAGER = "trade_with_villager";
     public static final String HARVEST_ITEM        = "harvest_item";
+    public static final String PICKUP_ITEM         = "pickup_item";
     public static final String EXECUTE_COMMAND    = "execute_command";
 }
 

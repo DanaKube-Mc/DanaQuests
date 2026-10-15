@@ -88,4 +88,38 @@ class ObjectiveMatcherTest {
         assertTrue(ObjectiveMatcher.isMatch("armor", "netherite_chestplate"));
         assertTrue(ObjectiveMatcher.isMatch("glass", "tinted_glass"));
     }
+
+    @Test
+    @DisplayName("Biome groups should match any biome in the group")
+    void testBiomeGroups() {
+        // Mountains
+        assertTrue(ObjectiveMatcher.isMatch("biome:mountains", "biome:minecraft:jagged_peaks"));
+        assertTrue(ObjectiveMatcher.isMatch("biome:mountains", "biome:minecraft:snowy_slopes"));
+        assertTrue(ObjectiveMatcher.isMatch("biome:mountains", "biome:minecraft:frozen_peaks"));
+        assertTrue(ObjectiveMatcher.isMatch("biome:mountains", "biome:minecraft:stony_peaks"));
+        assertTrue(ObjectiveMatcher.isMatch("biome:mountains", "biome:minecraft:meadow"));
+        assertTrue(ObjectiveMatcher.isMatch("biome:mountains", "biome:minecraft:grove"));
+        assertTrue(ObjectiveMatcher.isMatch("biome:mountains", "biome:terralith:mountain_steppe"));
+        assertFalse(ObjectiveMatcher.isMatch("biome:mountains", "biome:minecraft:plains"));
+        assertFalse(ObjectiveMatcher.isMatch("biome:mountains", "biome:minecraft:desert"));
+
+        // Caves
+        assertTrue(ObjectiveMatcher.isMatch("biome:caves", "biome:minecraft:lush_caves"));
+        assertTrue(ObjectiveMatcher.isMatch("biome:caves", "biome:minecraft:dripstone_caves"));
+        assertTrue(ObjectiveMatcher.isMatch("biome:caves", "biome:terralith:caves/infested_caves"));
+
+        // Oceans & Forests
+        assertTrue(ObjectiveMatcher.isMatch("biome:oceans", "biome:minecraft:warm_ocean"));
+        assertTrue(ObjectiveMatcher.isMatch("biome:forests", "biome:minecraft:birch_forest"));
+    }
+
+    @Test
+    @DisplayName("Multi targets separated by comma should match any candidate")
+    void testMultiTargetSeparators() {
+        String multi = "biome:minecraft:jagged_peaks, biome:minecraft:snowy_slopes, biome:minecraft:frozen_peaks";
+        assertTrue(ObjectiveMatcher.isMatch(multi, "biome:minecraft:jagged_peaks"));
+        assertTrue(ObjectiveMatcher.isMatch(multi, "biome:minecraft:snowy_slopes"));
+        assertTrue(ObjectiveMatcher.isMatch(multi, "biome:minecraft:frozen_peaks"));
+        assertFalse(ObjectiveMatcher.isMatch(multi, "biome:minecraft:desert"));
+    }
 }

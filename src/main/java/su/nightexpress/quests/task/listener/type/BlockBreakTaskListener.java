@@ -22,7 +22,20 @@ import java.util.Set;
 
 public class BlockBreakTaskListener extends TaskListener<Block, AdapterFamily<Block>> {
 
-    private static final Set<Material> TALL_BLOCKS = Lists.newSet(Material.BAMBOO, Material.SUGAR_CANE);
+    private static final Set<Material> TALL_BLOCKS = Lists.newSet(
+        Material.BAMBOO,
+        Material.BAMBOO_SAPLING,
+        Material.SUGAR_CANE,
+        Material.CACTUS,
+        Material.KELP,
+        Material.KELP_PLANT,
+        Material.TWISTING_VINES,
+        Material.TWISTING_VINES_PLANT,
+        Material.WEEPING_VINES,
+        Material.WEEPING_VINES_PLANT,
+        Material.CAVE_VINES,
+        Material.CAVE_VINES_PLANT
+    );
 
     public BlockBreakTaskListener(@NotNull QuestsPlugin plugin, @NotNull TaskManager manager, @NotNull TaskType<Block, AdapterFamily<Block>> taskType) {
         super(plugin, manager, taskType);

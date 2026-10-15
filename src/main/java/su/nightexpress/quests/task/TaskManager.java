@@ -43,6 +43,7 @@ public class TaskManager extends AbstractManager<QuestsPlugin> {
     private final NamespacedKey stationOwnerKey;
     private final NamespacedKey stationModeKey;
     private final NamespacedKey mobSpawnerKey;
+    private final NamespacedKey playerOriginatedKey;
 
     public TaskManager(@NotNull QuestsPlugin plugin, @NotNull TaskTypeRegistry taskTypeRegistry) {
         super(plugin);
@@ -51,6 +52,7 @@ public class TaskManager extends AbstractManager<QuestsPlugin> {
         this.stationOwnerKey = new NamespacedKey(plugin, "workstation.owner_id");
         this.stationModeKey = new NamespacedKey(plugin, "workstation.craft_mode");
         this.mobSpawnerKey = new NamespacedKey(plugin, "spawner_mob");
+        this.playerOriginatedKey = new NamespacedKey(plugin, "player_originated");
     }
 
     @Override
@@ -99,6 +101,7 @@ public class TaskManager extends AbstractManager<QuestsPlugin> {
         this.taskTypeRegistry.registerType(TaskTypeId.CONSUME_ITEM, AdapterFamily.CUSTOM, type -> this.addListener(new ConsumeItemTaskListener(this.plugin, this, type)));
         this.taskTypeRegistry.registerType(TaskTypeId.TRADE_WITH_VILLAGER, AdapterFamily.CUSTOM, type -> this.addListener(new TradeWithVillagerTaskListener(this.plugin, this, type)));
         this.taskTypeRegistry.registerType(TaskTypeId.HARVEST_ITEM, AdapterFamily.CUSTOM, type -> this.addListener(new HarvestItemTaskListener(this.plugin, this, type)));
+        this.taskTypeRegistry.registerType(TaskTypeId.PICKUP_ITEM, AdapterFamily.ITEM, type -> this.addListener(new PickupItemTaskListener(this.plugin, this, type)));
         this.taskTypeRegistry.registerType(TaskTypeId.EXECUTE_COMMAND, AdapterFamily.CUSTOM, type -> this.addListener(new CommandTaskListener(this.plugin, this, type)));
     }
 
@@ -176,5 +179,36 @@ public class TaskManager extends AbstractManager<QuestsPlugin> {
     @Nullable
     public WorkstationMode getWorkstationMode(@NotNull TileState station) {
         return PDCUtil.getInt(station, this.stationModeKey).map(WorkstationMode::byId).orElse(null);
+    }
+
+    public void markPlayerOriginated(@NotNull Entity entity, boolean flag) {
+        PDCUtil.set(entity, this.playerOriginatedKey, flag);
+    }
+
+    public void markPlayerOriginated(@NotNull org.bukkit.inventory.ItemStack itemStack, boolean flag) {
+        org.bukkit.inventory.meta.ItemMeta meta = itemStack.getItemMeta();
+        if (meta != null) {
+            meta.getPersistentDataContainer().set(this.playerOriginatedKey, org.bukkit.persistence.PersistentDataType.BOOLEAN, flag);
+            itemStack.setItemMeta(meta);
+        }
+    }
+
+    public boolean isPlayerOriginated(@NotNull org.bukkit.entity.Item itemEntity) {
+        if (PDCUtil.getBoolean(itemEntity, this.playerOriginatedKey).orElse(false)) {
+            return true;
+        }
+        return isPlayerOriginated(itemEntity.getItemStack());
+    }
+
+    public boolean isPlayerOriginated(@NotNull org.bukkit.inventory.ItemStack itemStack) {
+        org.bukkit.inventory.meta.ItemMeta meta = itemStack.getItemMeta();
+        if (meta == null) return false;
+        Boolean val = meta.getPersistentDataContainer().get(this.playerOriginatedKey, org.bukkit.persistence.PersistentDataType.BOOLEAN);
+        return Boolean.TRUE.equals(val);
+    }
+
+    @NotNull
+    public NamespacedKey getPlayerOriginatedKey() {
+        return this.playerOriginatedKey;
     }
 }
