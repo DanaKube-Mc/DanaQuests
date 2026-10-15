@@ -39,7 +39,7 @@ public class PickupItemTaskListener extends TaskListener<ItemStack, AdapterFamil
 
         Item itemEntity = event.getItem();
         if (!Config.ANTI_ABUSE_COUNT_PLAYER_BLOCKS.get()) {
-            if (PDCUtil.getBoolean(itemEntity, this.droppedKey).orElse(false)) {
+            if (this.manager.isPlayerOriginated(itemEntity) || PDCUtil.getBoolean(itemEntity, this.droppedKey).orElse(false)) {
                 return;
             }
         }

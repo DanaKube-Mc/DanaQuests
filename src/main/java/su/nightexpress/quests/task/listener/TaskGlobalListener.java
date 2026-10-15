@@ -115,6 +115,25 @@ public class TaskGlobalListener extends AbstractListener<QuestsPlugin> {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onBlockDrop(BlockDropItemEvent event) {
         Block block = event.getBlock();
+        if (this.manager.isPlayerBlock(block)) {
+            for (org.bukkit.entity.Item item : event.getItems()) {
+                this.manager.markPlayerOriginated(item, true);
+            }
+        }
         this.manager.markPlayerBlock(block, false);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerDropItem(org.bukkit.event.player.PlayerDropItemEvent event) {
+        this.manager.markPlayerOriginated(event.getItemDrop(), true);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerDeath(org.bukkit.event.entity.PlayerDeathEvent event) {
+        for (org.bukkit.inventory.ItemStack drop : event.getDrops()) {
+            if (drop != null) {
+                this.manager.markPlayerOriginated(drop, true);
+            }
+        }
     }
 }
